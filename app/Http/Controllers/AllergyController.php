@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AllergyResource;
+use App\Models\Allergy;
 use App\Http\Requests\StoreAllergyRequest;
 use App\Http\Requests\UpdateAllergyRequest;
-use App\Models\Allergy;
 
 class AllergyController extends Controller
 {
@@ -13,15 +13,8 @@ class AllergyController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $allergies = Allergy::all();
+        return AllergyResource::collection($allergies);
     }
 
     /**
@@ -29,7 +22,9 @@ class AllergyController extends Controller
      */
     public function store(StoreAllergyRequest $request)
     {
-        //
+        $allergy = Allergy::create($request->validated());
+
+        return new AllergyResource($allergy);
     }
 
     /**
@@ -37,15 +32,7 @@ class AllergyController extends Controller
      */
     public function show(Allergy $allergy)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Allergy $allergy)
-    {
-        //
+        return new AllergyResource($allergy);
     }
 
     /**
@@ -53,7 +40,9 @@ class AllergyController extends Controller
      */
     public function update(UpdateAllergyRequest $request, Allergy $allergy)
     {
-        //
+        $allergy->update($request->validated());
+
+        return new AllergyResource($allergy);
     }
 
     /**
@@ -61,6 +50,8 @@ class AllergyController extends Controller
      */
     public function destroy(Allergy $allergy)
     {
-        //
+        $allergy->delete();
+
+        return response()->json(null, 204);
     }
 }

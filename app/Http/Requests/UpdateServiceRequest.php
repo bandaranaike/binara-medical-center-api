@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreDoctorsChannelingFeeRequest extends FormRequest
+class UpdateServiceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,9 @@ class StoreDoctorsChannelingFeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'doctor_id' => 'required|exists:doctors,id',
-            'fee' => 'required|numeric',
+            'name' => 'sometimes|required|string|max:255',
+            'bill_price' => 'sometimes|required|numeric',
+            'system_price' => 'sometimes|required|numeric',
         ];
     }
 }

@@ -1,10 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePatientsHistoryRequest;
 use App\Http\Requests\UpdatePatientsHistoryRequest;
+use App\Http\Resources\PatientsHistoryResource;
 use App\Models\PatientsHistory;
+use Illuminate\Http\Request;
 
 class PatientsHistoryController extends Controller
 {
@@ -13,15 +14,8 @@ class PatientsHistoryController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $histories = PatientsHistory::all();
+        return PatientsHistoryResource::collection($histories);
     }
 
     /**
@@ -29,7 +23,9 @@ class PatientsHistoryController extends Controller
      */
     public function store(StorePatientsHistoryRequest $request)
     {
-        //
+        $history = PatientsHistory::create($request->validated());
+
+        return new PatientsHistoryResource($history);
     }
 
     /**
@@ -37,15 +33,7 @@ class PatientsHistoryController extends Controller
      */
     public function show(PatientsHistory $patientsHistory)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PatientsHistory $patientsHistory)
-    {
-        //
+        return new PatientsHistoryResource($patientsHistory);
     }
 
     /**
@@ -53,7 +41,9 @@ class PatientsHistoryController extends Controller
      */
     public function update(UpdatePatientsHistoryRequest $request, PatientsHistory $patientsHistory)
     {
-        //
+        $patientsHistory->update($request->validated());
+
+        return new PatientsHistoryResource($patientsHistory);
     }
 
     /**
@@ -61,6 +51,8 @@ class PatientsHistoryController extends Controller
      */
     public function destroy(PatientsHistory $patientsHistory)
     {
-        //
+        $patientsHistory->delete();
+
+        return response()->json(null, 204);
     }
 }

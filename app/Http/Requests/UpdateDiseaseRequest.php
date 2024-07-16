@@ -21,8 +21,9 @@ class UpdateDiseaseRequest extends FormRequest
      */
     public function rules(): array
     {
+
         return [
-            //
+            'name' => 'sometimes|required|string|max:255|unique:diseases,name,' . $this->disease->id,
         ];
     }
 }

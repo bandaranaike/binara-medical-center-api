@@ -1,10 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBillRequest;
 use App\Http\Requests\UpdateBillRequest;
+use App\Http\Resources\BillResource;
 use App\Models\Bill;
+use App\Models\BillItem;
+use Illuminate\Support\Facades\DB;
 
 class BillController extends Controller
 {
@@ -13,15 +15,8 @@ class BillController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $bills = Bill::all();
+        return BillResource::collection($bills);
     }
 
     /**
@@ -29,7 +24,24 @@ class BillController extends Controller
      */
     public function store(StoreBillRequest $request)
     {
-        //
+        DB::transaction(function() use ($request) {
+            $bill = Bill::create($request->validated());
+
+            $billItems = collect($request->bill_items)->map(function($billItem) use ($bill) {
+                return [
+                    'bill_id' => $bill->id,
+                    'service_id' => $billItem['service_id'],
+                    'system_amount' => $billItem['system_amount'],
+                    'bill_amount' => $billItem['bill_amount'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            });
+
+            BillItem::insert($billItems->toArray());
+
+            return new BillResource($bill->load('billItems'));
+        });
     }
 
     /**
@@ -37,15 +49,7 @@ class BillController extends Controller
      */
     public function show(Bill $bill)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Bill $bill)
-    {
-        //
+        return new BillResource($bill->load('billItems'));
     }
 
     /**
@@ -53,14 +57,9 @@ class BillController extends Controller
      */
     public function update(UpdateBillRequest $request, Bill $bill)
     {
-        //
+        $bill->update($request->only('status'));
+
+        return new BillResource($bill->load('billItems'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Bill $bill)
-    {
-        //
-    }
 }

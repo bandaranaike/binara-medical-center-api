@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreBillRequest extends FormRequest
 {
@@ -11,18 +13,26 @@ class StoreBillRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'system_amount' => 'required|numeric',
+            'bill_amount' => 'required|numeric',
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'status' => 'required|string|max:255',
+            'bill_items' => 'required|array',
+            'bill_items.*.service_id' => 'required|exists:services,id',
+            'bill_items.*.system_amount' => 'required|numeric',
+            'bill_items.*.bill_amount' => 'required|numeric',
         ];
     }
 }

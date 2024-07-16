@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSpecialtyRequest;
 use App\Http\Requests\UpdateSpecialtyRequest;
+use App\Http\Resources\SpecialtyResource;
 use App\Models\Specialty;
 
 class SpecialtyController extends Controller
@@ -13,15 +14,8 @@ class SpecialtyController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $specialties = Specialty::all();
+        return SpecialtyResource::collection($specialties);
     }
 
     /**
@@ -29,7 +23,9 @@ class SpecialtyController extends Controller
      */
     public function store(StoreSpecialtyRequest $request)
     {
-        //
+        $specialty = Specialty::create($request->validated());
+
+        return new SpecialtyResource($specialty);
     }
 
     /**
@@ -37,15 +33,7 @@ class SpecialtyController extends Controller
      */
     public function show(Specialty $specialty)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Specialty $specialty)
-    {
-        //
+        return new SpecialtyResource($specialty);
     }
 
     /**
@@ -53,7 +41,9 @@ class SpecialtyController extends Controller
      */
     public function update(UpdateSpecialtyRequest $request, Specialty $specialty)
     {
-        //
+        $specialty->update($request->validated());
+
+        return new SpecialtyResource($specialty);
     }
 
     /**
@@ -61,6 +51,8 @@ class SpecialtyController extends Controller
      */
     public function destroy(Specialty $specialty)
     {
-        //
+        $specialty->delete();
+
+        return response()->json(null, 204);
     }
 }

@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PatientResource;
+use App\Models\Patient;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
-use App\Models\Patient;
 
 class PatientController extends Controller
 {
@@ -13,15 +13,8 @@ class PatientController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $patients = Patient::all();
+        return PatientResource::collection($patients);
     }
 
     /**
@@ -29,7 +22,9 @@ class PatientController extends Controller
      */
     public function store(StorePatientRequest $request)
     {
-        //
+        $patient = Patient::create($request->validated());
+
+        return new PatientResource($patient);
     }
 
     /**
@@ -37,15 +32,7 @@ class PatientController extends Controller
      */
     public function show(Patient $patient)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Patient $patient)
-    {
-        //
+        return new PatientResource($patient);
     }
 
     /**
@@ -53,7 +40,9 @@ class PatientController extends Controller
      */
     public function update(UpdatePatientRequest $request, Patient $patient)
     {
-        //
+        $patient->update($request->validated());
+
+        return new PatientResource($patient);
     }
 
     /**
@@ -61,6 +50,8 @@ class PatientController extends Controller
      */
     public function destroy(Patient $patient)
     {
-        //
+        $patient->delete();
+
+        return response()->json(null, 204);
     }
 }

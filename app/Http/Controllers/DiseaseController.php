@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DiseaseResource;
+use App\Models\Disease;
 use App\Http\Requests\StoreDiseaseRequest;
 use App\Http\Requests\UpdateDiseaseRequest;
-use App\Models\Disease;
 
 class DiseaseController extends Controller
 {
@@ -13,15 +14,8 @@ class DiseaseController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $diseases = Disease::all();
+        return DiseaseResource::collection($diseases);
     }
 
     /**
@@ -29,7 +23,9 @@ class DiseaseController extends Controller
      */
     public function store(StoreDiseaseRequest $request)
     {
-        //
+        $disease = Disease::create($request->validated());
+
+        return new DiseaseResource($disease);
     }
 
     /**
@@ -37,15 +33,7 @@ class DiseaseController extends Controller
      */
     public function show(Disease $disease)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Disease $disease)
-    {
-        //
+        return new DiseaseResource($disease);
     }
 
     /**
@@ -53,7 +41,9 @@ class DiseaseController extends Controller
      */
     public function update(UpdateDiseaseRequest $request, Disease $disease)
     {
-        //
+        $disease->update($request->validated());
+
+        return new DiseaseResource($disease);
     }
 
     /**
@@ -61,6 +51,8 @@ class DiseaseController extends Controller
      */
     public function destroy(Disease $disease)
     {
-        //
+        $disease->delete();
+
+        return response()->json(null, 204);
     }
 }

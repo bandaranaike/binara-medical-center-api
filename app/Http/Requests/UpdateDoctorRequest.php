@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateDoctorRequest extends FormRequest
 {
@@ -11,18 +13,24 @@ class UpdateDoctorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'name' => 'sometimes|required|string|max:255',
+            'hospital_id' => 'sometimes|required|exists:hospitals,id',
+            'specialty_id' => 'sometimes|required|exists:specialties,id',
+            'contact_number' => 'sometimes|required|string|max:20',
+            'email' => 'sometimes|required|email|unique:doctors,email,' . $this->doctor->id,
+            'age' => 'sometimes|required|integer|min:1',
+            'address' => 'sometimes|required|string|max:255',
         ];
     }
 }

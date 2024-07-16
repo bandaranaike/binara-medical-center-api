@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Disease extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+    ];
 }

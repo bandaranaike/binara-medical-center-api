@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Models\Doctor;
+use App\Http\Resources\DoctorResource;
+
 
 class DoctorController extends Controller
 {
@@ -13,15 +15,8 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $doctors = Doctor::all();
+        return DoctorResource::collection($doctors);
     }
 
     /**
@@ -29,7 +24,9 @@ class DoctorController extends Controller
      */
     public function store(StoreDoctorRequest $request)
     {
-        //
+        $doctor = Doctor::create($request->validated());
+
+        return new DoctorResource($doctor);
     }
 
     /**
@@ -37,15 +34,7 @@ class DoctorController extends Controller
      */
     public function show(Doctor $doctor)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Doctor $doctor)
-    {
-        //
+        return new DoctorResource($doctor);
     }
 
     /**
@@ -53,7 +42,9 @@ class DoctorController extends Controller
      */
     public function update(UpdateDoctorRequest $request, Doctor $doctor)
     {
-        //
+        $doctor->update($request->validated());
+
+        return new DoctorResource($doctor);
     }
 
     /**
@@ -61,6 +52,8 @@ class DoctorController extends Controller
      */
     public function destroy(Doctor $doctor)
     {
-        //
+        $doctor->delete();
+
+        return response()->json(null, 204);
     }
 }

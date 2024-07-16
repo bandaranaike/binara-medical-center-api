@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHospitalRequest;
 use App\Http\Requests\UpdateHospitalRequest;
+use App\Http\Resources\HospitalResource;
 use App\Models\Hospital;
 
 class HospitalController extends Controller
@@ -13,15 +14,8 @@ class HospitalController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $hospitals = Hospital::all();
+        return HospitalResource::collection($hospitals);
     }
 
     /**
@@ -29,7 +23,9 @@ class HospitalController extends Controller
      */
     public function store(StoreHospitalRequest $request)
     {
-        //
+        $hospital = Hospital::create($request->validated());
+
+        return new HospitalResource($hospital);
     }
 
     /**
@@ -37,15 +33,7 @@ class HospitalController extends Controller
      */
     public function show(Hospital $hospital)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Hospital $hospital)
-    {
-        //
+        return new HospitalResource($hospital);
     }
 
     /**
@@ -53,7 +41,9 @@ class HospitalController extends Controller
      */
     public function update(UpdateHospitalRequest $request, Hospital $hospital)
     {
-        //
+        $hospital->update($request->validated());
+
+        return new HospitalResource($hospital);
     }
 
     /**
@@ -61,6 +51,8 @@ class HospitalController extends Controller
      */
     public function destroy(Hospital $hospital)
     {
-        //
+        $hospital->delete();
+
+        return response()->json(null, 204);
     }
 }
