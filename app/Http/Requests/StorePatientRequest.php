@@ -26,7 +26,7 @@ class StorePatientRequest extends FormRequest
             'name' => 'required|string|max:255',
             'age' => 'required|integer|min:1',
             'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:20',
+            'telephone' => 'required|string|max:20',
             'email' => 'required|email|unique:patients,email',
         ];
     }

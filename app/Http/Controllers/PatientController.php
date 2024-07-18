@@ -1,19 +1,27 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PatientResource;
 use App\Models\Patient;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PatientController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $patients = Patient::all();
+        $patients = Patient::query();
+
+        if ($request->has('search')) {
+            $patients->where('telephone', 'LIKE', '%' . $request->get('search') . '%');
+        }
+        $patients = $patients->get();
         return PatientResource::collection($patients);
     }
 

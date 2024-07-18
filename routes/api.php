@@ -2,6 +2,8 @@
 
 
 use App\Http\Controllers\AllergyController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\DiseaseController;
 use App\Http\Controllers\DoctorController;
@@ -29,3 +31,6 @@ Route::apiResource('bills', BillController::class)->except(['destroy']);
 Route::apiResource('specialties', SpecialtyController::class);
 Route::apiResource('hospitals', HospitalController::class);
 Route::apiResource('patients-histories', PatientsHistoryController::class);
+
+Route::post('register', [RegisteredUserController::class, 'store']);
+Route::post('check-email', [AuthController::class, 'checkEmail'])->middleware('CS');

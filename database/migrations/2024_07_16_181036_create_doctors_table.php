@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('hospital_id')->constrained('hospitals');
             $table->foreignId('specialty_id')->constrained('specialties');
-            $table->string('contact_number');
+            $table->string('telephone');
             $table->string('email')->unique();
             $table->integer('age');
             $table->string('address');

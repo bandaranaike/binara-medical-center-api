@@ -13,7 +13,7 @@ class Patient extends Model
         'name',
         'age',
         'address',
-        'contact_number',
+        'telephone',
         'email',
     ];
 }

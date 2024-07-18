@@ -27,7 +27,7 @@ class UpdateDoctorRequest extends FormRequest
             'name' => 'sometimes|required|string|max:255',
             'hospital_id' => 'sometimes|required|exists:hospitals,id',
             'specialty_id' => 'sometimes|required|exists:specialties,id',
-            'contact_number' => 'sometimes|required|string|max:20',
+            'telephone' => 'sometimes|required|string|max:20',
             'email' => 'sometimes|required|email|unique:doctors,email,' . $this->doctor->id,
             'age' => 'sometimes|required|integer|min:1',
             'address' => 'sometimes|required|string|max:255',

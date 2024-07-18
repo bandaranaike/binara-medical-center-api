@@ -1,0 +1,175 @@
+.
+├── Dockerfile
+├── FolderStructure.txt
+├── README.md
+├── Requirement.txt
+├── app
+│   ├── Http
+│   │   ├── Controllers
+│   │   │   ├── AllergyController.php
+│   │   │   ├── BillController.php
+│   │   │   ├── Controller.php
+│   │   │   ├── DiseaseController.php
+│   │   │   ├── DoctorController.php
+│   │   │   ├── DoctorsChannelingFeeController.php
+│   │   │   ├── HospitalController.php
+│   │   │   ├── PatientController.php
+│   │   │   ├── PatientsHistoryController.php
+│   │   │   ├── ServiceController.php
+│   │   │   └── SpecialtyController.php
+│   │   ├── Requests
+│   │   │   ├── StoreAllergyRequest.php
+│   │   │   ├── StoreBillRequest.php
+│   │   │   ├── StoreDiseaseRequest.php
+│   │   │   ├── StoreDoctorRequest.php
+│   │   │   ├── StoreDoctorsChannelingFeeRequest.php
+│   │   │   ├── StoreHospitalRequest.php
+│   │   │   ├── StorePatientRequest.php
+│   │   │   ├── StorePatientsHistoryRequest.php
+│   │   │   ├── StoreServiceRequest.php
+│   │   │   ├── StoreSpecialtyRequest.php
+│   │   │   ├── UpdateAllergyRequest.php
+│   │   │   ├── UpdateBillRequest.php
+│   │   │   ├── UpdateDiseaseRequest.php
+│   │   │   ├── UpdateDoctorRequest.php
+│   │   │   ├── UpdateDoctorsChannelingFeeRequest.php
+│   │   │   ├── UpdateHospitalRequest.php
+│   │   │   ├── UpdatePatientRequest.php
+│   │   │   ├── UpdatePatientsHistoryRequest.php
+│   │   │   ├── UpdateServiceRequest.php
+│   │   │   └── UpdateSpecialtyRequest.php
+│   │   └── Resources
+│   │       ├── AllergyResource.php
+│   │       ├── BillResource.php
+│   │       ├── DiseaseResource.php
+│   │       ├── DoctorChannelingFeeResource.php
+│   │       ├── DoctorResource.php
+│   │       ├── HospitalResource.php
+│   │       ├── PatientResource.php
+│   │       ├── PatientsHistoryResource.php
+│   │       ├── ServiceResource.php
+│   │       └── SpecialtyResource.php
+│   ├── Models
+│   │   ├── Allergy.php
+│   │   ├── Bill.php
+│   │   ├── BillItem.php
+│   │   ├── Disease.php
+│   │   ├── Doctor.php
+│   │   ├── DoctorsChannelingFee.php
+│   │   ├── Hospital.php
+│   │   ├── Patient.php
+│   │   ├── PatientsHistory.php
+│   │   ├── Service.php
+│   │   ├── Specialty.php
+│   │   └── User.php
+│   └── Providers
+│       └── AppServiceProvider.php
+├── artisan
+├── bootstrap
+│   ├── app.php
+│   ├── cache
+│   │   ├── packages.php
+│   │   └── services.php
+│   └── providers.php
+├── composer.json
+├── composer.lock
+├── config
+│   ├── app.php
+│   ├── auth.php
+│   ├── cache.php
+│   ├── database.php
+│   ├── filesystems.php
+│   ├── logging.php
+│   ├── mail.php
+│   ├── queue.php
+│   ├── sanctum.php
+│   ├── services.php
+│   └── session.php
+├── database
+│   ├── database.sqlite
+│   ├── factories
+│   │   ├── AllergyFactory.php
+│   │   ├── BillFactory.php
+│   │   ├── BillItemFactory.php
+│   │   ├── DiseaseFactory.php
+│   │   ├── DoctorFactory.php
+│   │   ├── DoctorsChannelingFeeFactory.php
+│   │   ├── HospitalFactory.php
+│   │   ├── PatientFactory.php
+│   │   ├── PatientsHistoryFactory.php
+│   │   ├── ServiceFactory.php
+│   │   ├── SpecialtyFactory.php
+│   │   └── UserFactory.php
+│   ├── migrations
+│   │   ├── 0001_01_01_000000_create_users_table.php
+│   │   ├── 0001_01_01_000001_create_cache_table.php
+│   │   ├── 0001_01_01_000002_create_jobs_table.php
+│   │   ├── 2024_07_16_180819_create_services_table.php
+│   │   ├── 2024_07_16_180944_create_hospitals_table.php
+│   │   ├── 2024_07_16_181035_create_specialties_table.php
+│   │   ├── 2024_07_16_181036_create_doctors_table.php
+│   │   ├── 2024_07_16_181132_create_doctors_channeling_fees_table.php
+│   │   ├── 2024_07_16_181153_create_patients_table.php
+│   │   ├── 2024_07_16_181154_create_bills_table.php
+│   │   ├── 2024_07_16_181207_create_bill_items_table.php
+│   │   ├── 2024_07_16_181239_create_allergies_table.php
+│   │   ├── 2024_07_16_181255_create_diseases_table.php
+│   │   ├── 2024_07_16_181332_create_patients_histories_table.php
+│   │   ├── 2024_07_16_181710_create_disease_patient_table.php
+│   │   ├── 2024_07_16_181737_create_allergy_patient_table.php
+│   │   └── 2024_07_16_200644_create_personal_access_tokens_table.php
+│   └── seeders
+│       └── DatabaseSeeder.php
+├── docker-compose.yml
+├── package.json
+├── phpunit.xml
+├── public
+│   ├── favicon.ico
+│   ├── index.php
+│   └── robots.txt
+├── resources
+│   ├── css
+│   │   └── app.css
+│   ├── js
+│   │   ├── app.js
+│   │   └── bootstrap.js
+│   └── views
+│       └── welcome.blade.php
+├── routes
+│   ├── api.php
+│   ├── console.php
+│   └── web.php
+├── storage
+│   ├── app
+│   │   └── public
+│   ├── framework
+│   │   ├── cache
+│   │   │   └── data
+│   │   ├── sessions
+│   │   ├── testing
+│   │   └── views
+│   │       ├── 09ee47cb6b2ead6fe59c09eda6d900b2.php
+│   │       ├── 13908c918157ccfc7c05c05195757833.php
+│   │       ├── 19d1ca22cd8db231f88e0685e9c3a20e.php
+│   │       ├── 368072756c233ac30f0cf310e266ea82.php
+│   │       ├── 419551074a50fbe34ef86a0e07ca7190.php
+│   │       ├── 7e33b743a27113c4160f4c552f8b4db1.php
+│   │       ├── 8b77322ea40de4645844c2e3622c3810.php
+│   │       ├── 931737c889bcb943f8fc79654d164835.php
+│   │       ├── a120438d505ca9da755be63e962e88d7.php
+│   │       ├── a3557068ed5b47425d76d1f6f3777346.php
+│   │       ├── a409957c32073e5572a809a8a11b2836.php
+│   │       ├── a43dffac7f28722de66800e4b9a5f5b9.php
+│   │       ├── a6e017772dac798c684f8ca4ea6a433e.php
+│   │       ├── ac95352bcdc7cb6b645348f21d9bb43e.php
+│   │       ├── bae129cef9e600352d1c88ca55b5c61c.php
+│   │       └── f35c1ee9486679cd0ff0ddd907b0d481.php
+│   └── logs
+│       └── laravel.log
+├── tests
+│   ├── Feature
+│   │   └── ExampleTest.php
+│   ├── TestCase.php
+│   └── Unit
+│       └── ExampleTest.php
+└── vite.config.js
