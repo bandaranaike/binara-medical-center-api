@@ -2,12 +2,12 @@
 
 
 use App\Http\Controllers\AllergyController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\DiseaseController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
+use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientsHistoryController;
@@ -32,5 +32,10 @@ Route::apiResource('specialties', SpecialtyController::class);
 Route::apiResource('hospitals', HospitalController::class);
 Route::apiResource('patients-histories', PatientsHistoryController::class);
 
-Route::post('register', [RegisteredUserController::class, 'store']);
-Route::post('check-email', [AuthController::class, 'checkEmail'])->middleware('CS');
+Route::post('check-email', [AuthController::class, 'checkEmail']);
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/dropdown/{table}', [DropdownController::class, 'index']);
+

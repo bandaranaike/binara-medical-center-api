@@ -21,8 +21,6 @@ class PatientResource extends JsonResource
             'address' => $this->address,
             'telephone' => $this->telephone,
             'email' => $this->email,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }

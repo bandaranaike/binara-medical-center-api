@@ -25,10 +25,21 @@ class PatientController extends Controller
         return PatientResource::collection($patients);
     }
 
+    public function getDropdownList(StorePatientRequest $request): PatientResource
+    {
+        $patients = Patient::query();
+
+        if ($request->has('search')) {
+            $patients->where('telephone', 'LIKE', '%' . $request->get('search') . '%');
+        }
+        $patients = $patients->get();
+        return PatientResource::collection($patients);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePatientRequest $request)
+    public function store(StorePatientRequest $request): PatientResource
     {
         $patient = Patient::create($request->validated());
 
@@ -38,7 +49,7 @@ class PatientController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Patient $patient)
+    public function show(Patient $patient): PatientResource
     {
         return new PatientResource($patient);
     }
@@ -46,7 +57,7 @@ class PatientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePatientRequest $request, Patient $patient)
+    public function update(UpdatePatientRequest $request, Patient $patient): PatientResource
     {
         $patient->update($request->validated());
 
@@ -56,7 +67,7 @@ class PatientController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Patient $patient)
+    public function destroy(Patient $patient): \Illuminate\Http\JsonResponse
     {
         $patient->delete();
 

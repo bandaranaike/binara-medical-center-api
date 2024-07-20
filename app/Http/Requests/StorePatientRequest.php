@@ -12,7 +12,7 @@ class StorePatientRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::check();
+        return Auth::guard('sanctum')->check();
     }
 
     /**
@@ -25,9 +25,9 @@ class StorePatientRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'age' => 'required|integer|min:1',
-            'address' => 'required|string|max:255',
+            'address' => 'nullable|string|max:255',
             'telephone' => 'required|string|max:20',
-            'email' => 'required|email|unique:patients,email',
+            'email' => 'nullable|email|unique:patients,email',
         ];
     }
 }

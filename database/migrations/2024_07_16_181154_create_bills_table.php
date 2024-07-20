@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('bill_amount', 8, 2);
             $table->foreignId('patient_id')->constrained('patients');
             $table->foreignId('doctor_id')->constrained('doctors');
-            $table->string('status');
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }
