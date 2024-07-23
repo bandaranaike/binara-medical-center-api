@@ -6,6 +6,7 @@ use App\Http\Resources\PatientResource;
 use App\Models\Patient;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -25,15 +26,10 @@ class PatientController extends Controller
         return PatientResource::collection($patients);
     }
 
-    public function getDropdownList(StorePatientRequest $request): PatientResource
+    public function getPatientDataByTelephone($telephone): JsonResponse
     {
-        $patients = Patient::query();
-
-        if ($request->has('search')) {
-            $patients->where('telephone', 'LIKE', '%' . $request->get('search') . '%');
-        }
-        $patients = $patients->get();
-        return PatientResource::collection($patients);
+        $patients = Patient::where('telephone', $telephone)->first();
+        return new JsonResponse($patients);
     }
 
     /**

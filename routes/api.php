@@ -39,3 +39,5 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/dropdown/{table}', [DropdownController::class, 'index']);
 
+Route::get('/patients/get-by-phone/{telephone}', [PatientController::class, 'getPatientDataByTelephone']);
+
