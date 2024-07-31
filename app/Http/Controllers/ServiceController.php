@@ -22,7 +22,7 @@ class ServiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreServiceRequest $request)
+    public function store(StoreServiceRequest $request): ServiceResource
     {
 
         $service = Service::create($request->all());

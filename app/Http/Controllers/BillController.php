@@ -22,7 +22,7 @@ class BillController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBillRequest $request)
+    public function store(StoreBillRequest $request): void
     {
         DB::transaction(function() use ($request) {
             $bill = Bill::create($request->validated());
@@ -38,7 +38,7 @@ class BillController extends Controller
                 ];
             });
 
-            BillItem::insert($billItems->toArray());
+            $bill->billItems()->insert($billItems->toArray());
 
             return new BillResource($bill->load('billItems'));
         });

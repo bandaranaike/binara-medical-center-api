@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BillItem extends Model
 {
@@ -16,7 +17,7 @@ class BillItem extends Model
         'bill_amount'
     ];
 
-    public function bill()
+    public function bill(): BelongsTo
     {
         return $this->belongsTo(Bill::class);
     }
