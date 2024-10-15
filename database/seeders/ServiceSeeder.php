@@ -20,8 +20,14 @@ class ServiceSeeder extends Seeder
                 'bill_price' => 500,
                 'system_price' => 500,
             ],
+            [
+                'name' => "Doctor default channeling fee",
+                'key' => config('binara.channeling.default_doctor_fee_key'),
+                'bill_price' => 2000,
+                'system_price' => 0,
+            ],
         ];
 
-        Service::insert($services);
+        Service::upsert($services, 'key');
     }
 }

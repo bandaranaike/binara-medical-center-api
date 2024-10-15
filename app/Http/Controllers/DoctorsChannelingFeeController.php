@@ -6,8 +6,10 @@ use App\Http\Requests\StoreDoctorsChannelingFeeRequest;
 use App\Http\Requests\UpdateDoctorsChannelingFeeRequest;
 use App\Http\Resources\DoctorChannelingFeeResource;
 use App\Models\DoctorsChannelingFee;
+use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Config;
 
 class DoctorsChannelingFeeController extends Controller
 {
@@ -32,9 +34,19 @@ class DoctorsChannelingFeeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(DoctorsChannelingFee $doctorsChannelingFee)
+    public function show(DoctorsChannelingFee $doctorsChannelingFee): JsonResponse
     {
-        //
+        return new JsonResponse($doctorsChannelingFee);
+    }
+
+
+    /**
+     * Display the specified resource.
+     */
+    public function showFee(DoctorsChannelingFee $doctorsChannelingFee): JsonResponse
+    {
+        $defaultKey = Service::getByKey(Config::get('binara.channeling.default_doctor_fee_key'))->first();
+        return new JsonResponse($doctorsChannelingFee->fee ?? $defaultKey->bill_price);
     }
 
 

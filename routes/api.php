@@ -20,8 +20,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('doctor-channeling-fees', [DoctorsChannelingFeeController::class, 'store']);
-Route::get('doctor-channeling-fees', [DoctorsChannelingFeeController::class, 'index']);
+
 Route::apiResource('services', ServiceController::class);
 Route::apiResource('doctors', DoctorController::class);
 Route::apiResource('allergies', AllergyController::class);
@@ -31,6 +30,9 @@ Route::apiResource('bills', BillController::class)->except(['destroy']);
 Route::apiResource('specialties', SpecialtyController::class);
 Route::apiResource('hospitals', HospitalController::class);
 Route::apiResource('patients-histories', PatientsHistoryController::class);
+Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class);
+Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "showFee"]);
+Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
 
 Route::post('check-email', [AuthController::class, 'checkEmail']);
 

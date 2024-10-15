@@ -15,8 +15,9 @@ class PatientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request)
     {
+
         $patients = Patient::query();
 
         if ($request->has('search')) {

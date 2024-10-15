@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBillRequest;
@@ -6,6 +7,7 @@ use App\Http\Requests\UpdateBillRequest;
 use App\Http\Resources\BillResource;
 use App\Models\Bill;
 use App\Models\BillItem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class BillController extends Controller
@@ -24,10 +26,10 @@ class BillController extends Controller
      */
     public function store(StoreBillRequest $request): void
     {
-        DB::transaction(function() use ($request) {
+        DB::transaction(function () use ($request) {
             $bill = Bill::create($request->validated());
 
-            $billItems = collect($request->bill_items)->map(function($billItem) use ($bill) {
+            $billItems = collect($request->bill_items)->map(function ($billItem) use ($bill) {
                 return [
                     'bill_id' => $bill->id,
                     'service_id' => $billItem['service_id'],
@@ -60,6 +62,11 @@ class BillController extends Controller
         $bill->update($request->only('status'));
 
         return new BillResource($bill->load('billItems'));
+    }
+
+    public function getNextBillNumber(): JsonResponse
+    {
+        return new JsonResponse(Bill::latest()->first()->id + 1);
     }
 
 }

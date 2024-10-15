@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static getByKey(mixed $get)
+ */
 class Service extends Model
 {
     use HasFactory;
@@ -15,4 +18,9 @@ class Service extends Model
         'bill_price',
         'system_price',
     ];
+
+    public function scopeGetByKey($query, $key)
+    {
+        return $query->where('key', $key);
+    }
 }
