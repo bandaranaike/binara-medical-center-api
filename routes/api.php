@@ -9,6 +9,7 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\HospitalController;
+use App\Http\Controllers\PatientAllergyController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientsHistoryController;
 use App\Http\Controllers\ServiceController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\SpecialtyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::delete('patients/remove-allergy/{allergyId}', [PatientAllergyController::class, 'removeAllergy']);
 
 Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
 Route::get('bills/pending', [BillController::class, 'getPendingBills']);
@@ -27,8 +29,9 @@ Route::get('user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('check-email', [AuthController::class, 'checkEmail']);
-Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('register', [AuthController::class, 'register']);
+Route::post('patients/add-allergy', [PatientAllergyController::class, 'addAllergy']);
 
 Route::apiResource('allergies', AllergyController::class);
 Route::apiResource('bills', BillController::class)->except(['destroy']);
