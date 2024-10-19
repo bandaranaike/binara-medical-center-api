@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property numeric $id
@@ -43,5 +45,29 @@ class Patient extends Model
     public function getBirthdayAttribute(string|null $value): string
     {
         return Carbon::parse($value)->toDateString();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function patientHistories(): hasMany
+    {
+        return $this->hasMany(PatientsHistory::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function allergies(): BelongsToMany
+    {
+        return $this->belongsToMany(Allergy::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function diseases(): BelongsToMany
+    {
+        return $this->belongsToMany(Disease::class);
     }
 }

@@ -69,4 +69,22 @@ class BillController extends Controller
         return new JsonResponse(Bill::latest()->first()->id + 1);
     }
 
+    /**
+     * Get all pending bills.
+     *
+     * @return JsonResponse
+     */
+    public function getPendingBills(): JsonResponse
+    {
+        // Assuming there is a 'status' column in the bills table where 'pending' is marked as a status
+        $pendingBills = Bill::where('status', 'pending')->with(['patient', 'patient.allergies', 'patient.diseases'])
+            ->with('patient.patientHistories', function ($query) {
+                $query->orderBy('created_at', 'desc');
+            })
+            ->get();
+
+        // Return the pending bills as a JSON response
+        return new JsonResponse($pendingBills);
+    }
+
 }
