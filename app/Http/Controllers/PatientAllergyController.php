@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Allergy;
 use App\Models\Patient;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -13,9 +14,9 @@ class PatientAllergyController extends Controller
      * Add a new allergy to a patient.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function addAllergy(Request $request)
+    public function addAllergy(Request $request): JsonResponse
     {
         // Validate the request data
         $validatedData = $request->validate([
@@ -27,7 +28,7 @@ class PatientAllergyController extends Controller
         $patient = Patient::find($validatedData['patient_id']);
 
         if (!$patient) {
-            return Response::json([
+            return new JsonResponse([
                 'message' => 'Patient not found',
             ], 404);
         }
@@ -40,10 +41,12 @@ class PatientAllergyController extends Controller
         // Attach the allergy to the patient if it's not already attached
         if (!$patient->allergies()->where('allergy_id', $allergy->id)->exists()) {
             $patient->allergies()->attach($allergy->id);
+        } else {
+            return new JsonResponse(['added' => false, 'message' => 'Allergy already exists.'], 409);
         }
 
         // Return the newly added allergy
-        return Response::json([
+        return new JsonResponse([
             'id' => $allergy->id,
             'name' => $allergy->name,
             'message' => 'Allergy added successfully',
@@ -55,9 +58,9 @@ class PatientAllergyController extends Controller
      *
      * @param Request $request
      * @param int $allergyId
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function removeAllergy(Request $request, $allergyId)
+    public function removeAllergy(Request $request, int $allergyId): JsonResponse
     {
         // Validate the request to ensure the patient_id is present
         $validatedData = $request->validate([
@@ -68,14 +71,14 @@ class PatientAllergyController extends Controller
         $patient = Patient::find($validatedData['patient_id']);
 
         if (!$patient) {
-            return Response::json([
+            return new JsonResponse([
                 'message' => 'Patient not found',
             ], 404);
         }
 
         // Check if the allergy exists and is associated with the patient
         if (!$patient->allergies()->where('allergy_id', $allergyId)->exists()) {
-            return Response::json([
+            return new JsonResponse([
                 'message' => 'Allergy not associated with this patient',
             ], 404);
         }
@@ -83,7 +86,7 @@ class PatientAllergyController extends Controller
         // Detach (remove) the allergy from the patient
         $patient->allergies()->detach($allergyId);
 
-        return Response::json([
+        return new JsonResponse([
             'message' => 'Allergy removed successfully',
         ], 200);
     }
