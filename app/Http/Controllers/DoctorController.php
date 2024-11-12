@@ -6,6 +6,7 @@ use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Models\Doctor;
 use App\Http\Resources\DoctorResource;
+use Illuminate\Http\JsonResponse;
 
 
 class DoctorController extends Controller
@@ -26,7 +27,7 @@ class DoctorController extends Controller
     {
         $doctor = Doctor::create($request->validated());
 
-        return new DoctorResource($doctor);
+        return new JsonResponse(new DoctorResource($doctor));
     }
 
     /**

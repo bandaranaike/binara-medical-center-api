@@ -6,6 +6,7 @@ use App\Http\Requests\StoreHospitalRequest;
 use App\Http\Requests\UpdateHospitalRequest;
 use App\Http\Resources\HospitalResource;
 use App\Models\Hospital;
+use Illuminate\Http\JsonResponse;
 
 class HospitalController extends Controller
 {
@@ -25,7 +26,7 @@ class HospitalController extends Controller
     {
         $hospital = Hospital::create($request->validated());
 
-        return new HospitalResource($hospital);
+        return new JsonResponse(new HospitalResource($hospital));
     }
 
     /**

@@ -26,11 +26,9 @@ class UpdateDoctorRequest extends FormRequest
         return [
             'name' => 'sometimes|required|string|max:255',
             'hospital_id' => 'sometimes|required|exists:hospitals,id',
-            'specialty_id' => 'sometimes|required|exists:specialties,id',
+            'specialty_id' => 'sometimes|exists:specialties,id',
             'telephone' => 'sometimes|required|string|max:20',
-            'email' => 'sometimes|required|email|unique:doctors,email,' . $this->doctor->id,
-            'age' => 'sometimes|required|integer|min:1',
-            'address' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|email|unique:doctors,email,' . $this->doctor->id,
         ];
     }
 }

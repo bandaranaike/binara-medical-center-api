@@ -6,6 +6,7 @@ use App\Http\Requests\StoreSpecialtyRequest;
 use App\Http\Requests\UpdateSpecialtyRequest;
 use App\Http\Resources\SpecialtyResource;
 use App\Models\Specialty;
+use Illuminate\Http\JsonResponse;
 
 class SpecialtyController extends Controller
 {
@@ -24,8 +25,7 @@ class SpecialtyController extends Controller
     public function store(StoreSpecialtyRequest $request)
     {
         $specialty = Specialty::create($request->validated());
-
-        return new SpecialtyResource($specialty);
+        return new JsonResponse(new SpecialtyResource($specialty));
     }
 
     /**

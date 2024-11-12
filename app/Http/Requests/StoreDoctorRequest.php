@@ -25,12 +25,10 @@ class StoreDoctorRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'hospital_id' => 'required|exists:hospitals,id',
-            'specialty_id' => 'required|exists:specialties,id',
+            'hospital_id' => 'nullable|exists:hospitals,id',
+            'specialty_id' => 'nullable|exists:specialties,id',
             'telephone' => 'required|string|max:20',
-            'email' => 'required|email|unique:doctors,email',
-            'age' => 'required|integer|min:1',
-            'address' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:doctors,email',
         ];
     }
 }
