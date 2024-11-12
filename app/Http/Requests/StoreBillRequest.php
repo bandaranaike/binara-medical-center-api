@@ -28,11 +28,6 @@ class StoreBillRequest extends FormRequest
             'bill_amount' => 'required|numeric',
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'required|exists:doctors,id',
-            'status' => 'required|string|max:255',
-            'bill_items' => 'required|array',
-            'bill_items.*.service_id' => 'required|exists:services,id',
-            'bill_items.*.system_amount' => 'required|numeric',
-            'bill_items.*.bill_amount' => 'required|numeric',
         ];
     }
 }

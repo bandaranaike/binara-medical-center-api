@@ -24,26 +24,10 @@ class BillController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBillRequest $request): void
+    public function store(StoreBillRequest $request): JsonResponse
     {
-        DB::transaction(function () use ($request) {
-            $bill = Bill::create($request->validated());
-
-            $billItems = collect($request->bill_items)->map(function ($billItem) use ($bill) {
-                return [
-                    'bill_id' => $bill->id,
-                    'service_id' => $billItem['service_id'],
-                    'system_amount' => $billItem['system_amount'],
-                    'bill_amount' => $billItem['bill_amount'],
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ];
-            });
-
-            $bill->billItems()->insert($billItems->toArray());
-
-            return new BillResource($bill->load('billItems'));
-        });
+        $bill = Bill::create($request->validated());
+        return new JsonResponse($bill->id);
     }
 
     /**
