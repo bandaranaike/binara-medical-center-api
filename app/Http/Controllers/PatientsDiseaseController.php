@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Psy\Util\Json;
 
-class PatientDiseaseController extends Controller
+class PatientsDiseaseController extends Controller
 {
     /**
      * Add a new disease to a patient.

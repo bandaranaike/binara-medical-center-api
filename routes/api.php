@@ -9,17 +9,18 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\HospitalController;
-use App\Http\Controllers\PatientAllergyController;
+use App\Http\Controllers\PatientsAllergyController;
 use App\Http\Controllers\PatientController;
-use App\Http\Controllers\PatientDiseaseController;
+use App\Http\Controllers\PatientsDiseaseController;
 use App\Http\Controllers\PatientsHistoryController;
+use App\Http\Controllers\PatientsMedicineController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SpecialtyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::delete('patients/remove-allergy/{allergyId}', [PatientAllergyController::class, 'removeAllergy']);
-Route::delete('patients/remove-disease/{diseaseId}', [PatientDiseaseController::class, 'removeDisease']);
+Route::delete('patients/remove-allergy/{allergyId}', [PatientsAllergyController::class, 'removeAllergy']);
+Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController::class, 'removeDisease']);
 
 Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
 Route::get('bills/pending', [BillController::class, 'getPendingBills']);
@@ -33,8 +34,9 @@ Route::get('user', function (Request $request) {
 Route::post('check-email', [AuthController::class, 'checkEmail']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
-Route::post('patients/add-allergy', [PatientAllergyController::class, 'addAllergy']);
-Route::post('patients/add-disease', [PatientDiseaseController::class, 'addDisease']);
+Route::post('patients/add-allergy', [PatientsAllergyController::class, 'addAllergy']);
+Route::post('patients/add-disease', [PatientsDiseaseController::class, 'addDisease']);
+Route::post('patients/add-medicine', [PatientsMedicineController::class, 'store']);
 
 Route::apiResource('allergies', AllergyController::class);
 Route::apiResource('bills', BillController::class)->except(['destroy']);

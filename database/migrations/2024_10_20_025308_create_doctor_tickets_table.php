@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unique(['doctor_id', 'ticket_number', 'date']);
 
             // Add a foreign key relationship if you have a doctors table
-            $table->foreign('doctor_id')->references('id')->on('doctors')->onDelete('cascade');
+            $table->foreign('doctor_id')->references('id')->on('doctors')->onDelete('no action');
         });
     }
 

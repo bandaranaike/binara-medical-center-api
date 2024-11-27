@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
-class PatientAllergyController extends Controller
+class PatientsAllergyController extends Controller
 {
     /**
      * Add a new allergy to a patient.

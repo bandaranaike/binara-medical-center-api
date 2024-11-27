@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('bill_id')->constrained('bills');
             $table->foreignId('service_id')->constrained('services');
-            $table->decimal('system_amount', 8, 2);
-            $table->decimal('bill_amount', 8, 2);
+            $table->decimal('system_amount')->default(0);
+            $table->decimal('bill_amount')->default(0);
             $table->timestamps();
         });
     }

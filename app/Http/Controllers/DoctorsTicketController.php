@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class DoctorTicketController extends Controller
+class DoctorsTicketController extends Controller
 {
     /**
      * Generate a new ticket for a doctor.
