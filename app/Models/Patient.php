@@ -26,14 +26,27 @@ class Patient extends Model
     ];
 
     /**
-     * Set the patient's birthday.
-     *
-     * @param string|null $value
-     * @return void
+     * @return BelongsToMany
      */
-    public function setBirthdayAttribute(string|null $value): void
+    public function allergies(): BelongsToMany
     {
-        $this->attributes['birthday'] = Carbon::parse($value)->format('Y-m-d');
+        return $this->belongsToMany(Allergy::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function bills(): HasMany
+    {
+        return $this->hasMany(Bill::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function diseases(): BelongsToMany
+    {
+        return $this->belongsToMany(Disease::class);
     }
 
     /**
@@ -56,18 +69,13 @@ class Patient extends Model
     }
 
     /**
-     * @return BelongsToMany
+     * Set the patient's birthday.
+     *
+     * @param string|null $value
+     * @return void
      */
-    public function allergies(): BelongsToMany
+    public function setBirthdayAttribute(string|null $value): void
     {
-        return $this->belongsToMany(Allergy::class);
-    }
-
-    /**
-     * @return BelongsToMany
-     */
-    public function diseases(): BelongsToMany
-    {
-        return $this->belongsToMany(Disease::class);
+        $this->attributes['birthday'] = Carbon::parse($value)->format('Y-m-d');
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Bill extends Model
 {
@@ -32,5 +33,10 @@ class Bill extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    public function patientMedicineBillItem(): HasOne
+    {
+        return $this->hasOne(BillItem::class)->where('service_id', '=', 3);
     }
 }

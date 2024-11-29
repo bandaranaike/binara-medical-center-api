@@ -24,6 +24,7 @@ Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController:
 
 Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
 Route::get('bills/pending', [BillController::class, 'getPendingBills']);
+Route::get('bills/pending-invoices', [BillController::class, 'getPendingInvoices']);
 Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "showFee"]);
 Route::get('dropdown/{table}', [DropdownController::class, 'index']);
 Route::get('patients/get-by-phone/{telephone}', [PatientController::class, 'getPatientDataByTelephone']);

@@ -60,15 +60,40 @@ class BillController extends Controller
      */
     public function getPendingBills(): JsonResponse
     {
-        // Assuming there is a 'status' column in the bills table where 'pending' is marked as a status
-        $pendingBills = Bill::where('status', 'pending')->with(['patient', 'patient.allergies', 'patient.diseases'])
+        $pendingBills = Bill::where('status', 'pending')
+            ->with(['patient', 'patient.allergies', 'patient.diseases'])
             ->with('patient.patientHistories', function ($query) {
                 $query->orderBy('created_at', 'desc');
             })
+            ->with('patient.bills.patientMedicineBillItem', function ($query) {
+                $query->with('patientMedicines.medicine');
+            })
             ->get();
 
-        // Return the pending bills as a JSON response
         return new JsonResponse($pendingBills);
+    }
+
+    /**
+     * Get all pending bills.
+     *
+     * @return JsonResponse
+     */
+    public function getPendingInvoices(): JsonResponse
+    {
+        $pendingBills = Bill::where('status', 'pending')
+            ->with(['patient' => function ($query) {
+                $query->select('id', 'name'); // Load only necessary patient fields
+            }])
+            ->with(['billItems' => function ($query) {
+                $query->with(['patientMedicines' => function ($query) {
+                    $query->select('id', 'bill_item_id', 'medicine_id', 'price') // Load medicines related to bill items
+                    ->with('medicine');
+                }])
+                    ->select('id', 'bill_id', 'service_id', 'bill_amount'); // Load only necessary fields for bill items
+            }])
+            ->get(['id', 'patient_id', 'status']); // Load only necessary fields for bills
+
+        return response()->json($pendingBills);
     }
 
 }
