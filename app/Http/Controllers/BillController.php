@@ -89,6 +89,7 @@ class BillController extends Controller
                     $query->select('id', 'bill_item_id', 'medicine_id', 'price') // Load medicines related to bill items
                     ->with('medicine');
                 }])
+                    ->with('service:id,name')
                     ->select('id', 'bill_id', 'service_id', 'bill_amount'); // Load only necessary fields for bill items
             }])
             ->get(['id', 'patient_id', 'status']); // Load only necessary fields for bills

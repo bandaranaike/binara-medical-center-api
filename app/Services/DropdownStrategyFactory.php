@@ -16,6 +16,7 @@ class DropdownStrategyFactory
             'medicines' => new MedicineDropdownStrategy(),
             'patients' => new PatientDropdownStrategy(),
             'specialties' => new SpecialtyDropdownStrategy(),
+            'services' => new ServicesDropdownStrategy(),
             default => throw new InvalidArgumentException("Invalid type: {$type}")
         };
     }
