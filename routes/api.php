@@ -41,6 +41,8 @@ Route::post('patients/add-allergy', [PatientsAllergyController::class, 'addAller
 Route::post('patients/add-disease', [PatientsDiseaseController::class, 'addDisease']);
 Route::post('patients/add-medicine', [PatientsMedicineController::class, 'store']);
 
+Route::put('bills/{billId}/finalize', [BillController::class, 'finalizeBill']);
+
 Route::apiResource('allergies', AllergyController::class);
 Route::apiResource('bills', BillController::class)->except(['destroy']);
 Route::apiResource('diseases', DiseaseController::class);

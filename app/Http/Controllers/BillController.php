@@ -6,9 +6,8 @@ use App\Http\Requests\StoreBillRequest;
 use App\Http\Requests\UpdateBillRequest;
 use App\Http\Resources\BillResource;
 use App\Models\Bill;
-use App\Models\BillItem;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class BillController extends Controller
 {
@@ -97,4 +96,39 @@ class BillController extends Controller
         return response()->json($pendingBills);
     }
 
+    /**
+     * Finalize the bill by updating its status and bill amount.
+     *
+     * @param Request $request
+     * @param int $billId
+     * @return JsonResponse
+     */
+    public function finalizeBill(Request $request, int $billId): JsonResponse
+    {
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'status' => 'required|string|in:done',
+            'bill_amount' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            // Find the bill by ID
+            $bill = Bill::findOrFail($billId);
+
+            // Update the bill's status and bill amount
+            $bill->status = $validatedData['status'];
+            $bill->bill_amount = $validatedData['bill_amount'];
+            $bill->save();
+
+            return response()->json([
+                'message' => 'Bill finalized successfully',
+                'data' => $bill
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to finalize the bill',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

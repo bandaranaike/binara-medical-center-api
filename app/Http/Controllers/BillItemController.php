@@ -38,7 +38,6 @@ class BillItemController extends Controller
                 'success' => true,
                 'message' => 'Bill item added successfully.',
                 'data' => $billItem->load('service:id,name'),
-                'total' => BillItem::where('bill_id', $validatedData['bill_id'])->sum('bill_amount'),
             ], 201);
 
         } catch (\Exception $e) {
@@ -50,4 +49,6 @@ class BillItemController extends Controller
             ], 500);
         }
     }
+
+
 }
