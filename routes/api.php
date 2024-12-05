@@ -41,6 +41,7 @@ Route::post('patients/add-allergy', [PatientsAllergyController::class, 'addAller
 Route::post('patients/add-disease', [PatientsDiseaseController::class, 'addDisease']);
 Route::post('patients/add-medicine', [PatientsMedicineController::class, 'store']);
 
+Route::put('bill-items/{id}', [BillItemController::class, 'update']);
 Route::put('bills/{billId}/finalize', [BillController::class, 'finalizeBill']);
 
 Route::apiResource('allergies', AllergyController::class);

@@ -50,5 +50,21 @@ class BillItemController extends Controller
         }
     }
 
+    public function update(Request $request, $id): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'bill_amount' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            $billItem = BillItem::findOrFail($id);
+            $billItem->bill_amount = $validatedData['bill_amount'];
+            $billItem->save();
+
+            return response()->json(['message' => 'Bill item updated successfully', 'data' => $billItem], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error updating bill item', 'error' => $e->getMessage()], 500);
+        }
+    }
 
 }
