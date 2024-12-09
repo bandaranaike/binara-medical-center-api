@@ -17,7 +17,7 @@ class PatientsDiseaseController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function addDisease(Request $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         // Validate the request data
         $validatedData = $request->validate([

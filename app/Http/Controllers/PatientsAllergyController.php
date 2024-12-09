@@ -16,7 +16,7 @@ class PatientsAllergyController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function addAllergy(Request $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         // Validate the request data
         $validatedData = $request->validate([

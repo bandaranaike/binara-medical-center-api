@@ -26,6 +26,7 @@ Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController:
 Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
 Route::get('bills/pending', [BillController::class, 'getPendingBills']);
 Route::get('bills/pending-invoices', [BillController::class, 'getPendingInvoices']);
+Route::get('doctor/{doctorId}/patient/{patientId}/history', [PatientsHistoryController::class, 'getPatientHistory']);
 Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "showFee"]);
 Route::get('dropdown/{table}', [DropdownController::class, 'index']);
 Route::get('patients/get-by-phone/{telephone}', [PatientController::class, 'getPatientDataByTelephone']);
@@ -37,8 +38,9 @@ Route::post('bill-items', [BillItemController::class, 'store']);
 Route::post('check-email', [AuthController::class, 'checkEmail']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
-Route::post('patients/add-allergy', [PatientsAllergyController::class, 'addAllergy']);
-Route::post('patients/add-disease', [PatientsDiseaseController::class, 'addDisease']);
+Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store']);
+Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store']);
+Route::post('patients/add-history', [PatientsHistoryController::class, 'store']);
 Route::post('patients/add-medicine', [PatientsMedicineController::class, 'store']);
 
 Route::put('bill-items/{id}', [BillItemController::class, 'update']);
@@ -51,7 +53,6 @@ Route::apiResource('doctors', DoctorController::class);
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class);
 Route::apiResource('hospitals', HospitalController::class);
 Route::apiResource('patients', PatientController::class);
-Route::apiResource('patients-histories', PatientsHistoryController::class);
 Route::apiResource('services', ServiceController::class);
 Route::apiResource('specialties', SpecialtyController::class);
 

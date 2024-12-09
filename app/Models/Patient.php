@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property numeric $id
+ * @method static find(int $patientId)
  */
 class Patient extends Model
 {
