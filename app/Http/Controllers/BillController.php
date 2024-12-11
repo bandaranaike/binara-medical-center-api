@@ -8,6 +8,7 @@ use App\Http\Resources\BillResource;
 use App\Models\Bill;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BillController extends Controller
 {
@@ -59,14 +60,19 @@ class BillController extends Controller
      */
     public function getPendingBills(): JsonResponse
     {
+        $doctorId = Auth::id();
         $pendingBills = Bill::where('status', 'pending')
-            ->with(['patient', 'patient.allergies', 'patient.diseases'])
-            ->with('patient.patientHistories', function ($query) {
-                $query->orderBy('created_at', 'desc');
+            ->with(['patient.allergies:id,name', 'patient.diseases:id,name'])
+            ->with('patient', function ($query) use ($doctorId) {
+                $query->select(['id', 'name', 'age', 'gender'])
+                    ->with('patientHistories', function ($query) use ($doctorId) {
+                        $query->where('doctor_id', $doctorId)
+                            ->select(['id', 'note', 'patient_id', 'doctor_id', 'created_at']);
+                    })
+                    ->orderBy('created_at', 'desc');
             })
-            ->with('patient.bills.patientMedicineBillItem', function ($query) {
-                $query->with('patientMedicines.medicine');
-            })
+            ->select(['id', 'patient_id', 'doctor_id'])
+            ->where('doctor_id', '=', $doctorId)
             ->get();
 
         return new JsonResponse($pendingBills);
@@ -84,11 +90,7 @@ class BillController extends Controller
                 $query->select('id', 'name'); // Load only necessary patient fields
             }])
             ->with(['billItems' => function ($query) {
-                $query->with(['patientMedicines' => function ($query) {
-                    $query->select('id', 'bill_item_id', 'medicine_id', 'price') // Load medicines related to bill items
-                    ->with('medicine');
-                }])
-                    ->with('service:id,name')
+                $query->with('service:id,name')
                     ->select('id', 'bill_id', 'service_id', 'bill_amount'); // Load only necessary fields for bill items
             }])
             ->get(['id', 'patient_id', 'status']); // Load only necessary fields for bills

@@ -17,9 +17,11 @@ class PatientMedicineHistoryCollection extends ResourceCollection
     public function toArray(Request $request): Collection
     {
         return $this->collection->groupBy('bill_id')->map(function ($items, $billId) {
+            $bill = $items->first()->bill;
             return [
                 'billId' => $billId,
-                'date' => $items->first()->bill->created_at->format('Y-m-d'),
+                'status' => $bill->status,
+                'date' => $bill->created_at->format('Y-m-d'),
                 'medicines' => $items->map(function ($item) {
                     return [
                         'name' => $item->medicine->name,

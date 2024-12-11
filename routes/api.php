@@ -15,7 +15,7 @@ use App\Http\Controllers\PatientsAllergyController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientsDiseaseController;
 use App\Http\Controllers\PatientsHistoryController;
-use App\Http\Controllers\PatientsMedicineController;
+use App\Http\Controllers\PatientsMedicineHistoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SpecialtyController;
 use Illuminate\Support\Facades\Route;
@@ -33,7 +33,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::get('bills/pending', [BillController::class, 'getPendingBills']);
     Route::get('bills/pending-invoices', [BillController::class, 'getPendingInvoices']);
     Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory']);
-    Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineController::class, 'getMedicineHistories']);
+    Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories']);
     Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "showFee"]);
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
     Route::get('patients/get-by-phone/{telephone}', [PatientController::class, 'getPatientDataByTelephone']);
@@ -42,7 +42,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store']);
     Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store']);
     Route::post('patients/add-history', [PatientsHistoryController::class, 'store']);
-    Route::post('patients/add-medicine', [PatientsMedicineController::class, 'store']);
+    Route::post('patients/add-medicine', [PatientsMedicineHistoryController::class, 'store']);
 
     Route::put('bill-items/{id}', [BillItemController::class, 'update']);
     Route::put('bills/{billId}/finalize', [BillController::class, 'finalizeBill']);

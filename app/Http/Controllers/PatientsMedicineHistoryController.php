@@ -5,34 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdatePatientMedicineRequest;
 use App\Http\Resources\PatientMedicineHistoryCollection;
 use App\Models\PatientMedicineHistory;
-use App\Models\PatientsMedicine;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class PatientsMedicineController extends Controller
+class PatientsMedicineHistoryController extends Controller
 {
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePatientMedicineRequest $request, PatientsMedicine $patientMedicine): JsonResponse
-    {
-        $validatedData = $request->validated();
-
-        $patientMedicine->update($validatedData);
-
-        return response()->json([
-            'message' => 'Patient-Medicine record updated successfully.',
-            'data' => $patientMedicine,
-        ]);
-    }
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PatientsMedicine $patientMedicine): JsonResponse
+    public function destroy(PatientMedicineHistory $patientMedicine): JsonResponse
     {
         $patientMedicine->delete();
 
