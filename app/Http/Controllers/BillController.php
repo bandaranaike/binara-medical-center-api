@@ -87,7 +87,7 @@ class BillController extends Controller
     {
         $pendingBills = Bill::where('status', Bill::STATUS_PHARMACY)
             ->with(['patient' => function ($query) {
-                $query->select('id', 'name'); // Load only necessary patient fields
+                $query->select('id', 'name', 'age', 'gender'); // Load only necessary patient fields
             }])
             ->with(['billItems' => function ($query) {
                 $query->with('service:id,name')

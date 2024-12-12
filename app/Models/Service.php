@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method static getByKey(mixed $get)
+ * @method static create(array $array)
  */
 class Service extends Model
 {

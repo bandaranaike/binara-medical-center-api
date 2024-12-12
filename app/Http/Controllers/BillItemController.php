@@ -2,34 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBillItemRequest;
 use App\Models\BillItem;
+use App\Models\Medicine;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BillItemController extends Controller
 {
     /**
      * Store a new bill item in the database.
      *
-     * @param Request $request
+     * @param StoreBillItemRequest $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreBillItemRequest $request): JsonResponse
     {
         // Validate the incoming request
-        $validatedData = $request->validate([
-            'bill_id' => 'required|exists:bills,id',
-            'service_id' => 'required|exists:services,id',
-            'bill_amount' => 'required|numeric|min:0',
-        ]);
+        $validatedData = $request->validated();
+
+        $serviceId = $this->createNewServiceIfNotExists($validatedData['service_id'], $validatedData['service_name']);
 
         try {
             // Create the new BillItem
             $billItem = BillItem::create([
                 'bill_id' => $validatedData['bill_id'],
-                'service_id' => $validatedData['service_id'],
-                'system_amount' => Service::where('id', $validatedData['service_id'])->first()->bill_price,
+                'service_id' => $serviceId,
+                'system_amount' => Service::where('id', $serviceId)->first()->bill_price,
                 'bill_amount' => $validatedData['bill_amount'],
             ]);
 
@@ -65,6 +66,14 @@ class BillItemController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error updating bill item', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    private function createNewServiceIfNotExists($serviceId, $serviceName)
+    {
+        if ($serviceId === "-1") {
+            $serviceId = Service::create(["name" => $serviceName, 'key' => Str::random(8)])->id;
+        }
+        return $serviceId;
     }
 
 }
