@@ -12,6 +12,10 @@ class Bill extends Model
 {
     use HasFactory;
 
+    public const STATUS_DOCTOR = 'doctor';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PHARMACY = 'pharmacy';
+
     protected $fillable = [
         'system_amount',
         'bill_amount',

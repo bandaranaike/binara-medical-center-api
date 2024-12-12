@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdatePatientMedicineRequest;
+use App\Http\Requests\StorePatientMedicineRequest;
 use App\Http\Resources\PatientMedicineHistoryCollection;
+use App\Models\Bill;
+use App\Models\Medicine;
 use App\Models\PatientMedicineHistory;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PatientsMedicineHistoryController extends Controller
@@ -30,10 +32,7 @@ class PatientsMedicineHistoryController extends Controller
             // Get the logged-in doctor's ID
             $doctorId = Auth::id();
 
-            $medicineHistories = PatientMedicineHistory::with(['medicine', 'bill'])
-                ->where('patient_id', $patientId)
-                ->where('doctor_id', $doctorId)
-                ->get();
+            $medicineHistories = $this->getDoctorsPendingMedicines($patientId, $doctorId);
 
             return new JsonResponse(new PatientMedicineHistoryCollection($medicineHistories));
         } catch (Exception $e) {
@@ -44,18 +43,12 @@ class PatientsMedicineHistoryController extends Controller
         }
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StorePatientMedicineRequest $request): JsonResponse
     {
         try {
-            // Validate the incoming request
-            $validated = $request->validate([
-                'patient_id' => 'required|exists:patients,id',
-                'bill_id' => 'required|exists:bills,id',
-                'medicine_id' => 'required|exists:medicines,id',
-                'dosage' => 'nullable|string',
-                'type' => 'nullable|string',
-                'duration' => 'nullable|string',
-            ]);
+            $validated = $request->validated();
+
+            $medicineId = $this->createNewMedicineIfNotExists($validated['medicine_id'], $validated['medicine_name']);
 
             // Get the logged-in doctor's ID
             $doctorId = Auth::id();
@@ -65,16 +58,14 @@ class PatientsMedicineHistoryController extends Controller
                 'patient_id' => $validated['patient_id'],
                 'bill_id' => $validated['bill_id'],
                 'doctor_id' => $doctorId,
-                'medicine_id' => $validated['medicine_id'],
+                'medicine_id' => $medicineId,
                 'dosage' => $validated['dosage'],
                 'type' => $validated['type'],
                 'duration' => $validated['duration'],
             ]);
 
             // Fetch the updated list of medicine histories for the same patient
-            $updatedHistories = PatientMedicineHistory::with(['medicine', 'bill'])
-                ->where('patient_id', $validated['patient_id'])
-                ->get();
+            $updatedHistories = $this->getDoctorsPendingMedicines($validated['patient_id'], $doctorId);
 
             // Return the transformed response using the collection
             return response()->json([
@@ -88,5 +79,24 @@ class PatientsMedicineHistoryController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function createNewMedicineIfNotExists($medicineId, $medicineName)
+    {
+        if ($medicineId === "-1") {
+            $medicineId = Medicine::create(["name" => $medicineName])->id;
+        }
+        return $medicineId;
+    }
+
+    private function getDoctorsPendingMedicines($patientId, $doctorId): Collection
+    {
+        return PatientMedicineHistory::with(['medicine', 'bill'])
+            ->where('patient_id', $patientId)
+            ->where('doctor_id', $doctorId)
+            ->whereHas('bill', function ($query) {
+                $query->where("status", Bill::STATUS_DOCTOR);
+            })
+            ->get();
     }
 }

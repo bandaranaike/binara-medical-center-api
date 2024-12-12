@@ -24,11 +24,13 @@ class StorePatientMedicineRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'patient_id' => 'required|exists:patients,id',
             'bill_id' => 'required|exists:bills,id',
-            'medicine_id' => 'required|exists:medicines,id',
-            'dosage' => 'required|string',
-            'type' => 'required|string',
-            'duration' => 'required|string',
+            'medicine_id' => 'required',
+            'dosage' => 'nullable|string',
+            'type' => 'nullable|string',
+            'duration' => 'nullable|string',
+            'medicine_name' => 'nullable|string',
         ];
     }
 }

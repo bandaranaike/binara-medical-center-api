@@ -61,7 +61,7 @@ class BillController extends Controller
     public function getPendingBills(): JsonResponse
     {
         $doctorId = Auth::id();
-        $pendingBills = Bill::where('status', 'pending')
+        $pendingBills = Bill::where('status', Bill::STATUS_DOCTOR)
             ->with(['patient.allergies:id,name', 'patient.diseases:id,name'])
             ->with('patient', function ($query) use ($doctorId) {
                 $query->select(['id', 'name', 'age', 'gender'])
@@ -85,7 +85,7 @@ class BillController extends Controller
      */
     public function getPendingInvoices(): JsonResponse
     {
-        $pendingBills = Bill::where('status', 'pending')
+        $pendingBills = Bill::where('status', Bill::STATUS_PHARMACY)
             ->with(['patient' => function ($query) {
                 $query->select('id', 'name'); // Load only necessary patient fields
             }])
@@ -93,7 +93,8 @@ class BillController extends Controller
                 $query->with('service:id,name')
                     ->select('id', 'bill_id', 'service_id', 'bill_amount'); // Load only necessary fields for bill items
             }])
-            ->get(['id', 'patient_id', 'status']); // Load only necessary fields for bills
+            ->with('doctor:id,name')
+            ->get(); // Load only necessary fields for bills
 
         return response()->json($pendingBills);
     }
@@ -125,12 +126,30 @@ class BillController extends Controller
             return response()->json([
                 'message' => 'Bill finalized successfully',
                 'data' => $bill
-            ], 200);
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to finalize the bill',
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function updateStatus($billId, Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        $bill = Bill::find($billId);
+
+        if (!$bill) {
+            return response()->json(['message' => 'Bill not found'], 404);
+        }
+
+        $bill->status = $validated['status'];
+        $bill->save();
+
+        return response()->json(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
     }
 }

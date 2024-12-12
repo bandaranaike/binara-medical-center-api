@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
     Route::put('bill-items/{id}', [BillItemController::class, 'update']);
     Route::put('bills/{billId}/finalize', [BillController::class, 'finalizeBill']);
+    Route::put('bills/{billId}/status', [BillController::class, 'updateStatus']);
 });
 
 Route::apiResource('allergies', AllergyController::class);
