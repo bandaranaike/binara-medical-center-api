@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillController;
@@ -10,7 +9,6 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\HospitalController;
-use App\Http\Controllers\PatientMedicineHistoryController;
 use App\Http\Controllers\PatientsAllergyController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientsDiseaseController;
@@ -19,7 +17,6 @@ use App\Http\Controllers\PatientsMedicineHistoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SpecialtyController;
 use Illuminate\Support\Facades\Route;
-
 
 Route::post('check-email', [AuthController::class, 'checkEmail']);
 Route::post('login', [AuthController::class, 'login']);
@@ -34,7 +31,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::get('bills/pending-invoices', [BillController::class, 'getPendingInvoices']);
     Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory']);
     Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories']);
-    Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "showFee"]);
+    Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"]);
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
     Route::get('patients/get-by-phone/{telephone}', [PatientController::class, 'getPatientDataByTelephone']);
 

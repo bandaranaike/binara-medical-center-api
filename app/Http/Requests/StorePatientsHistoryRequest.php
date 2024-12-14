@@ -25,7 +25,6 @@ class StorePatientsHistoryRequest extends FormRequest
     {
         return [
             'patient_id' => 'required|exists:patients,id',
-            'doctor_id' => 'required|exists:doctors,id',
             'note' => 'required|string',
         ];
     }

@@ -18,7 +18,7 @@ class PatientsHistoryController extends Controller
      */
     public function store(StorePatientsHistoryRequest $request): PatientsHistoryResource
     {
-        $history = PatientsHistory::create($request->validated());
+        $history = PatientsHistory::create([...$request->validated(), 'doctor_id' => Auth::id()]);
 
         return new PatientsHistoryResource($history);
     }

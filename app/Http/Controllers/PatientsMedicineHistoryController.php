@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePatientMedicineRequest;
 use App\Http\Resources\PatientMedicineHistoryCollection;
 use App\Models\Bill;
+use App\Models\BillItem;
 use App\Models\Medicine;
 use App\Models\PatientMedicineHistory;
+use App\Models\Service;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -99,4 +101,5 @@ class PatientsMedicineHistoryController extends Controller
             })
             ->get();
     }
+
 }

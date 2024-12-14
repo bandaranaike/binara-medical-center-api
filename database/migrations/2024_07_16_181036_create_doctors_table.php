@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->foreignId('hospital_id')->nullable()->constrained('hospitals');
             $table->foreignId('specialty_id')->nullable()->constrained('specialties');
             $table->string('telephone')->nullable();
+            $table->boolean('is_opd')->default(false);
             $table->string('email')->unique()->nullable();
             $table->timestamps();
         });

@@ -6,6 +6,8 @@ use App\Http\Requests\StoreBillRequest;
 use App\Http\Requests\UpdateBillRequest;
 use App\Http\Resources\BillResource;
 use App\Models\Bill;
+use App\Models\BillItem;
+use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -147,9 +149,20 @@ class BillController extends Controller
             return response()->json(['message' => 'Bill not found'], 404);
         }
 
+        if ($validated['status'] === Bill::STATUS_PHARMACY) {
+            $this->insertNewBillItemForMedicineIfNotExists($billId);
+        }
+
         $bill->status = $validated['status'];
         $bill->save();
 
+
         return response()->json(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
+    }
+
+
+    private function insertNewBillItemForMedicineIfNotExists($billId): void
+    {
+        BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', Service::MEDICINE_KEY)->first()->id]);
     }
 }

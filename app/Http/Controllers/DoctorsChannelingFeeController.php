@@ -41,19 +41,26 @@ class DoctorsChannelingFeeController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Display the specified resource.s
      */
-    public function showFee(DoctorsChannelingFee $doctorsChannelingFee): JsonResponse
+    public function getFee($id, $isOPD = false): JsonResponse
     {
-        $defaultKey = Service::getByKey(Config::get('binara.channeling.default_doctor_fee_key'))->first();
-        return new JsonResponse($doctorsChannelingFee->fee ?? $defaultKey->bill_price);
+        $doctorsChannelingFee = DoctorsChannelingFee::find($id);
+
+        if ($doctorsChannelingFee) {
+            $fee = $doctorsChannelingFee->fee;
+        } else {
+            $defaultServiceKey = $isOPD ? Service::DEFAULT_DOCTOR_KEY : Service::DEFAULT_SPECIALIST_CHANNELING_KEY;
+            $fee = Service::getByKey($defaultServiceKey)->first()?->bill_price;
+        }
+        return new JsonResponse($fee);
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDoctorsChannelingFeeRequest $request, DoctorsChannelingFee $doctorsChannelingFee)
+    public function update(UpdateDoctorsChannelingFeeRequest $request, DoctorsChannelingFee $doctorsChannelingFee): JsonResponse
     {
         $doctorsChannelingFee->fee = $request->input('fee');
         $doctorsChannelingFee->save();

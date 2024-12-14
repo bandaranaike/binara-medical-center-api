@@ -17,5 +17,6 @@ class Doctor extends Model
         'email',
         'age',
         'address',
+        'is_opd',
     ];
 }

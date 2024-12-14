@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property float $fee
+ * @method static create(array $all)
  */
 class DoctorsChannelingFee extends Model
 {
