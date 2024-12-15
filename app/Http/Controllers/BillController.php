@@ -28,7 +28,8 @@ class BillController extends Controller
      */
     public function store(StoreBillRequest $request): JsonResponse
     {
-        $bill = Bill::create($request->validated());
+        $status = $request->input('is_booking') ? Bill::STATUS_BOOKED : Bill::STATUS_DOCTOR;
+        $bill = Bill::create([...$request->validated(), 'status' => $status]);
         return new JsonResponse($bill->id);
     }
 
@@ -60,7 +61,7 @@ class BillController extends Controller
      *
      * @return JsonResponse
      */
-    public function getPendingBills(): JsonResponse
+    public function getPendingBillsForDoctor(): JsonResponse
     {
         $doctorId = Auth::id();
         $pendingBills = Bill::where('status', Bill::STATUS_DOCTOR)
@@ -85,7 +86,7 @@ class BillController extends Controller
      *
      * @return JsonResponse
      */
-    public function getPendingInvoices(): JsonResponse
+    public function getPendingBillsForPharmacy(): JsonResponse
     {
         $pendingBills = Bill::where('status', Bill::STATUS_PHARMACY)
             ->with(['patient' => function ($query) {

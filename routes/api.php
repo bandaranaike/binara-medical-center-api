@@ -27,13 +27,14 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController::class, 'removeDisease']);
 
     Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
-    Route::get('bills/pending', [BillController::class, 'getPendingBills']);
-    Route::get('bills/pending-invoices', [BillController::class, 'getPendingInvoices']);
+    Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor']);
+    Route::get('bills/pending/pharmacy', [BillController::class, 'getPendingBillsForPharmacy']);
     Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory']);
     Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories']);
-    Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"]);
+    Route::get('doctor-channeling-fees/get-fee/{id}/{isOPD?}', [DoctorsChannelingFeeController::class, "getFee"]);
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
     Route::get('patients/get-by-phone/{telephone}', [PatientController::class, 'getPatientDataByTelephone']);
+    Route::get('patients/search', [PatientController::class, 'search']);
 
     Route::post('bill-items', [BillItemController::class, 'store']);
     Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store']);

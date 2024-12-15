@@ -27,6 +27,21 @@ class PatientController extends Controller
         return PatientResource::collection($patients);
     }
 
+    /**
+     * Display a listing of the resource.
+     */
+    public function search(Request $request)
+    {
+        $search = $request->get('query');
+
+        $patients = Patient::where('telephone', 'LIKE', '%' . $search . '%')
+            ->orWhere('name', 'LIKE', '%' . $search . '%')
+            ->get(['id', 'name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email']);
+
+        return new JsonResponse($patients);
+    }
+
+
     public function getPatientDataByTelephone($telephone): JsonResponse
     {
         $patients = Patient::where('telephone', $telephone)->first();

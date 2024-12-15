@@ -30,11 +30,11 @@ class UpdatePatientRequest extends FormRequest
         return [
             'name' => 'sometimes|required|string|max:255',
             'age' => 'sometimes|required|integer|min:1',
-            'address' => 'sometimes|string|max:255',
-            'gender' => 'sometimes|string|max:10',
-            'birthday' => 'sometimes|string|max:50',
+            'address' => 'sometimes|max:255',
+            'gender' => 'sometimes|max:10',
+            'birthday' => 'sometimes|max:50',
             'telephone' => 'sometimes|required|string|max:20',
-            'email' => 'sometimes|email|unique:patients,email,' . $this->patient->id,
+            'email' => 'sometimes|unique:patients,email,' . $this->patient->id,
         ];
     }
 }
