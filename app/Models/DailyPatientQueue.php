@@ -8,7 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 /**
- * @method static where(string $string, string $string1, string $toDateString)
+ * @method static where(string $string, $doctorId)
+ * @property int $id
+ * @property int $bill_id
+ * @property int $doctor_id
+ * @property mixed $queue_date
+ * @property int $queue_number
+ * @property int $order_number
  */
 class DailyPatientQueue extends Model
 {

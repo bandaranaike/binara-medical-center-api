@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateBillRequest;
 use App\Http\Resources\BillResource;
 use App\Models\Bill;
 use App\Models\BillItem;
+use App\Models\DailyPatientQueue;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,6 +31,9 @@ class BillController extends Controller
     {
         $status = $request->input('is_booking') ? Bill::STATUS_BOOKED : Bill::STATUS_DOCTOR;
         $bill = Bill::create([...$request->validated(), 'status' => $status]);
+
+        $this->createDailyPatientQueue($bill->id, $request->input('doctor_id'));
+
         return new JsonResponse($bill->id);
     }
 
@@ -165,5 +169,21 @@ class BillController extends Controller
     private function insertNewBillItemForMedicineIfNotExists($billId): void
     {
         BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', Service::MEDICINE_KEY)->first()->id]);
+    }
+
+    private function createDailyPatientQueue($billId, $doctorId): void
+    {
+        $today = date('Y-m-d');
+
+        $latestRecord = DailyPatientQueue::where('doctor_id', $doctorId)->where('queue_date', $today)->orderByDesc('id')->first();
+
+        $newRecord = new DailyPatientQueue();
+        $newRecord->bill_id = $billId;
+        $newRecord->doctor_id = $doctorId;
+        $newRecord->queue_date = $today;
+        $newRecord->queue_number = $latestRecord ? $latestRecord->queue_number + 1 : 1;
+        $newRecord->order_number = $latestRecord ? $latestRecord->order_number + 1 : 1;
+        $newRecord->save();
+
     }
 }
