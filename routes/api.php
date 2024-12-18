@@ -4,6 +4,7 @@ use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BillItemController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DiseaseController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
@@ -27,14 +28,18 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController::class, 'removeDisease']);
 
     Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
+    Route::get('bills/bookings', [BillController::class, "bookings"]);
     Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor']);
     Route::get('bills/pending/pharmacy', [BillController::class, 'getPendingBillsForPharmacy']);
+    Route::get('bills/pending/reception', [BillController::class, 'getPendingBillsForReception']);
     Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory']);
     Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories']);
     Route::get('doctor-channeling-fees/get-fee/{id}/{isOPD?}', [DoctorsChannelingFeeController::class, "getFee"]);
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
     Route::get('patients/get-by-phone/{telephone}', [PatientController::class, 'getPatientDataByTelephone']);
     Route::get('patients/search', [PatientController::class, 'search']);
+
+    Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);
 
     Route::post('bill-items', [BillItemController::class, 'store']);
     Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store']);

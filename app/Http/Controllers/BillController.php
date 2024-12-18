@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBillRequest;
 use App\Http\Requests\UpdateBillRequest;
+use App\Http\Resources\BillReceptionResourceCollection;
 use App\Http\Resources\BillResource;
+use App\Http\Resources\BookingListResource;
 use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\DailyPatientQueue;
@@ -30,7 +32,10 @@ class BillController extends Controller
     public function store(StoreBillRequest $request): JsonResponse
     {
         $status = $request->input('is_booking') ? Bill::STATUS_BOOKED : Bill::STATUS_DOCTOR;
-        $bill = Bill::create([...$request->validated(), 'status' => $status]);
+
+        $system_amount = $this->getSystemAmount($request->input('is_opd'));
+
+        $bill = Bill::create([...$request->validated(), 'status' => $status, 'system_amount' => $system_amount]);
 
         $this->createDailyPatientQueue($bill->id, $request->input('doctor_id'));
 
@@ -78,8 +83,10 @@ class BillController extends Controller
                     })
                     ->orderBy('created_at', 'desc');
             })
-            ->select(['id', 'patient_id', 'doctor_id'])
-            ->where('doctor_id', '=', $doctorId)
+            ->join('daily_patient_queues', 'bills.id', '=', 'daily_patient_queues.bill_id')
+            ->select(['bills.id', 'patient_id', 'bills.doctor_id', 'daily_patient_queues.queue_number'])
+            ->where('bills.doctor_id', '=', $doctorId)
+            ->orderBy('daily_patient_queues.order_number')
             ->get();
 
         return new JsonResponse($pendingBills);
@@ -93,17 +100,35 @@ class BillController extends Controller
     public function getPendingBillsForPharmacy(): JsonResponse
     {
         $pendingBills = Bill::where('status', Bill::STATUS_PHARMACY)
-            ->with(['patient' => function ($query) {
-                $query->select('id', 'name', 'age', 'gender'); // Load only necessary patient fields
-            }])
+            ->with([
+                'patient:id,name,age,gender',
+                'doctor:id,name',
+            ])
             ->with(['billItems' => function ($query) {
                 $query->with('service:id,name')
                     ->select('id', 'bill_id', 'service_id', 'bill_amount'); // Load only necessary fields for bill items
             }])
-            ->with('doctor:id,name')
-            ->get(); // Load only necessary fields for bills
+            ->get();
 
-        return response()->json($pendingBills);
+        return new JsonResponse($pendingBills);
+    }
+
+    /**
+     * Get all pending bills.
+     *
+     * @return JsonResponse
+     */
+    public function getPendingBillsForReception(): JsonResponse
+    {
+        $pendingBills = Bill::where('status', Bill::STATUS_PENDING)
+            ->with([
+                'patient:id,name,age,gender',
+                'doctor:id,name',
+                'dailyPatientQueue:id,bill_id,queue_number,queue_date',
+            ])
+            ->get(["id", "system_amount", "bill_amount", "patient_id", "doctor_id"]);
+
+        return new JsonResponse(BillReceptionResourceCollection::collection($pendingBills));
     }
 
     /**
@@ -115,7 +140,6 @@ class BillController extends Controller
      */
     public function finalizeBill(Request $request, int $billId): JsonResponse
     {
-        // Validate the incoming request
         $validatedData = $request->validate([
             'status' => 'required|string|in:done',
             'bill_amount' => 'required|numeric|min:0',
@@ -151,7 +175,7 @@ class BillController extends Controller
         $bill = Bill::find($billId);
 
         if (!$bill) {
-            return response()->json(['message' => 'Bill not found'], 404);
+            return new JsonResponse(['message' => 'Bill not found'], 404);
         }
 
         if ($validated['status'] === Bill::STATUS_PHARMACY) {
@@ -162,7 +186,7 @@ class BillController extends Controller
         $bill->save();
 
 
-        return response()->json(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
+        return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
     }
 
 
@@ -184,6 +208,26 @@ class BillController extends Controller
         $newRecord->queue_number = $latestRecord ? $latestRecord->queue_number + 1 : 1;
         $newRecord->order_number = $latestRecord ? $latestRecord->order_number + 1 : 1;
         $newRecord->save();
+
+    }
+
+    public function bookings()
+    {
+        $bookings = Bill::where('status', Bill::STATUS_BOOKED)
+            ->with(['doctor:id,name', 'patient:id,name', 'dailyPatientQueue:id,bill_id,queue_number,queue_date'])
+            ->get(['id', 'doctor_id', 'patient_id', 'bill_amount']);
+
+        return new JsonResponse(BookingListResource::collection($bookings));
+    }
+
+    private function getSystemAmount($isOpd)
+    {
+        return $isOpd ?
+            Service::where('key', Service::DEFAULT_DOCTOR_KEY)->first()->system_price :
+            Service::where('key', Service::DEFAULT_SPECIALIST_CHANNELING_KEY)->first()->system_price;
+    }
+
+    private function changeBillStatus(){
 
     }
 }

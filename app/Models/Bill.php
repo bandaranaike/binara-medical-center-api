@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @method static create(mixed $validated)
+ * @method static where(string $string, string $STATUS_PENDING)
+ * @method static whereStatus(string $STATUS_PENDING)
  */
 class Bill extends Model
 {
@@ -33,6 +35,11 @@ class Bill extends Model
         return $this->hasMany(BillItem::class);
     }
 
+    public function dailyPatientQueue(): HasOne
+    {
+        return $this->hasOne(DailyPatientQueue::class);
+    }
+
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class);
@@ -41,10 +48,5 @@ class Bill extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
-    }
-
-    public function patientMedicineBillItem(): HasOne
-    {
-        return $this->hasOne(BillItem::class)->where('service_id', '=', 3);
     }
 }
