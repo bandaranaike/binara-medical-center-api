@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBillItemRequest;
 use App\Models\BillItem;
-use App\Models\Medicine;
 use App\Models\Service;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -41,7 +41,7 @@ class BillItemController extends Controller
                 'data' => $billItem->load('service:id,name'),
             ], 201);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Handle any exceptions that may occur
             return response()->json([
                 'success' => false,
@@ -63,8 +63,29 @@ class BillItemController extends Controller
             $billItem->save();
 
             return response()->json(['message' => 'Bill item updated successfully', 'data' => $billItem], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['message' => 'Error updating bill item', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        try {
+            // Find the bill item by ID
+            $billItem = BillItem::findOrFail($id);
+
+            // Delete the bill item
+            $billItem->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Bill item deleted successfully.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting bill item: ' . $e->getMessage(),
+            ], 500);
         }
     }
 

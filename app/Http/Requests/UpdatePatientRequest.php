@@ -34,7 +34,7 @@ class UpdatePatientRequest extends FormRequest
             'gender' => 'sometimes|max:10',
             'birthday' => 'sometimes|max:50',
             'telephone' => 'sometimes|required|string|max:20',
-            'email' => 'sometimes|unique:patients,email,' . $this->patient->id,
+            'email' => 'sometimes',
         ];
     }
 }

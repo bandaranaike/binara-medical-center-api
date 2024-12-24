@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static firstOrCreate(array $array)
+ * @method static findOrFail($id)
  */
 class BillItem extends Model
 {

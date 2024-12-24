@@ -36,24 +36,22 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories']);
     Route::get('doctor-channeling-fees/get-fee/{id}/{isOPD?}', [DoctorsChannelingFeeController::class, "getFee"]);
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
-    Route::get('patients/get-by-phone/{telephone}', [PatientController::class, 'getPatientDataByTelephone']);
     Route::get('patients/search', [PatientController::class, 'search']);
 
     Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);
 
-    Route::post('bill-items', [BillItemController::class, 'store']);
     Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store']);
     Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store']);
     Route::post('patients/add-history', [PatientsHistoryController::class, 'store']);
     Route::post('patients/add-medicine', [PatientsMedicineHistoryController::class, 'store']);
 
-    Route::put('bill-items/{id}', [BillItemController::class, 'update']);
     Route::put('bills/{billId}/finalize', [BillController::class, 'finalizeBill']);
     Route::put('bills/{billId}/status', [BillController::class, 'updateStatus']);
 });
 
 Route::apiResource('allergies', AllergyController::class);
 Route::apiResource('bills', BillController::class)->except(['destroy']);
+Route::apiResource('bill-items', BillItemController::class);
 Route::apiResource('diseases', DiseaseController::class);
 Route::apiResource('doctors', DoctorController::class);
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class);

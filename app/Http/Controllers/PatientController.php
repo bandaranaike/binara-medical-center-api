@@ -41,13 +41,6 @@ class PatientController extends Controller
         return new JsonResponse($patients);
     }
 
-
-    public function getPatientDataByTelephone($telephone): JsonResponse
-    {
-        $patients = Patient::where('telephone', $telephone)->first();
-        return new JsonResponse($patients);
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -61,9 +54,9 @@ class PatientController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Patient $patient): PatientResource
+    public function show(Patient $patient): JsonResponse
     {
-        return new PatientResource($patient);
+        return new JsonResponse($patient);
     }
 
     /**
