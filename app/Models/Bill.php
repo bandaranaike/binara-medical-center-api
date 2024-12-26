@@ -21,6 +21,7 @@ class Bill extends Model
     public const STATUS_DOCTOR = 'doctor';
     public const STATUS_PENDING = 'pending';
     public const STATUS_PHARMACY = 'pharmacy';
+    public const STATUS_TEMPORARY = 'temporary';
 
     protected $fillable = [
         'system_amount',

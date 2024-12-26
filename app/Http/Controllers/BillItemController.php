@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBillItemRequest;
+use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Service;
 use Exception;
@@ -24,11 +25,12 @@ class BillItemController extends Controller
         $validatedData = $request->validated();
 
         $serviceId = $this->createNewServiceIfNotExists($validatedData['service_id'], $validatedData['service_name']);
+        $billId = $this->createTempBillIfNotExists($validatedData['bill_id']);
 
         try {
             // Create the new BillItem
             $billItem = BillItem::create([
-                'bill_id' => $validatedData['bill_id'],
+                'bill_id' => $billId,
                 'service_id' => $serviceId,
                 'system_amount' => Service::where('id', $serviceId)->first()->bill_price,
                 'bill_amount' => $validatedData['bill_amount'],
@@ -62,7 +64,7 @@ class BillItemController extends Controller
             $billItem->bill_amount = $validatedData['bill_amount'];
             $billItem->save();
 
-            return response()->json(['message' => 'Bill item updated successfully', 'data' => $billItem], 200);
+            return response()->json(['message' => 'Bill item updated successfully', 'data' => $billItem]);
         } catch (Exception $e) {
             return response()->json(['message' => 'Error updating bill item', 'error' => $e->getMessage()], 500);
         }
@@ -95,6 +97,14 @@ class BillItemController extends Controller
             $serviceId = Service::create(["name" => $serviceName, 'key' => Str::random(8)])->id;
         }
         return $serviceId;
+    }
+
+    private function createTempBillIfNotExists($billId)
+    {
+        if ($billId === "-1") {
+            $billId = Bill::create(['status' => Bill::STATUS_TEMPORARY])->id;
+        }
+        return $billId;
     }
 
 }

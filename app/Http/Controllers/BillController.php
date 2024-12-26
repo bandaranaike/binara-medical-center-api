@@ -11,6 +11,7 @@ use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\DailyPatientQueue;
 use App\Models\Service;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -158,7 +159,7 @@ class BillController extends Controller
                 'message' => 'Bill finalized successfully',
                 'data' => $bill
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Failed to finalize the bill',
                 'error' => $e->getMessage()
@@ -211,7 +212,7 @@ class BillController extends Controller
 
     }
 
-    public function bookings()
+    public function bookings(): JsonResponse
     {
         $bookings = Bill::where('status', Bill::STATUS_BOOKED)
             ->with(['doctor:id,name', 'patient:id,name', 'dailyPatientQueue:id,bill_id,queue_number,queue_date'])
@@ -227,7 +228,8 @@ class BillController extends Controller
             Service::where('key', Service::DEFAULT_SPECIALIST_CHANNELING_KEY)->first()->system_price;
     }
 
-    private function changeBillStatus(){
+    private function changeBillStatus()
+    {
 
     }
 }

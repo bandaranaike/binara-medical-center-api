@@ -26,7 +26,7 @@ class StoreBillRequest extends FormRequest
         return [
             'bill_amount' => 'required|numeric',
             'patient_id' => 'required|exists:patients,id',
-            'doctor_id' => 'required|exists:doctors,id',
+            'doctor_id' => 'nullable|exists:doctors,id',
             'is_booking' => 'required|boolean',
             'is_opd' => 'required|boolean',
         ];

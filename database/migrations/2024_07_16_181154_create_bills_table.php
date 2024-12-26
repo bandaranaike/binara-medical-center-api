@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->decimal('system_amount')->default(0);
             $table->decimal('bill_amount')->default(0);
             $table->foreignId('patient_id')->constrained('patients');
-            $table->foreignId('doctor_id')->constrained('doctors');
+            $table->foreignId('doctor_id')->nullable()->constrained('doctors');
             $table->string('status')->default('doctor');
             $table->timestamps();
         });
