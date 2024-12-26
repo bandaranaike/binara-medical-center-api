@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangeBillStatusRequest;
 use App\Http\Requests\StoreBillRequest;
 use App\Http\Requests\UpdateBillRequest;
 use App\Http\Resources\BillReceptionResourceCollection;
@@ -228,8 +229,24 @@ class BillController extends Controller
             Service::where('key', Service::DEFAULT_SPECIALIST_CHANNELING_KEY)->first()->system_price;
     }
 
-    private function changeBillStatus()
+    public function changeTempBillStatus(ChangeBillStatusRequest $request, $billId): JsonResponse
     {
+        $validatedData = $request->validated();
 
+        $status = $validatedData['is_booking'] ? Bill::STATUS_BOOKED : ($validatedData['doctor_id'] ? Bill::STATUS_DOCTOR : Bill::STATUS_PHARMACY);
+
+        $doctorId = $validatedData['doctor_id'] == 0 ? null : $validatedData['doctor_id'];
+
+        Bill::where('id', $billId)
+            ->update([
+                'status' => $status,
+                'doctor_id' => $doctorId,
+                'patient_id' => $validatedData['patient_id'],
+                'bill_amount' => $validatedData['bill_amount']
+            ]);
+
+        $this->createDailyPatientQueue($billId, $doctorId);
+
+        return response()->json('Bill status updated successfully');
     }
 }

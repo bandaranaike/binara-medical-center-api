@@ -25,7 +25,7 @@ class BillItemController extends Controller
         $validatedData = $request->validated();
 
         $serviceId = $this->createNewServiceIfNotExists($validatedData['service_id'], $validatedData['service_name']);
-        $billId = $this->createTempBillIfNotExists($validatedData['bill_id']);
+        $billId = $this->createTempBillIfNotExists($validatedData['bill_id'], $validatedData['patient_id']);
 
         try {
             // Create the new BillItem
@@ -99,10 +99,10 @@ class BillItemController extends Controller
         return $serviceId;
     }
 
-    private function createTempBillIfNotExists($billId)
+    private function createTempBillIfNotExists($billId, $patientId)
     {
-        if ($billId === "-1") {
-            $billId = Bill::create(['status' => Bill::STATUS_TEMPORARY])->id;
+        if ($billId === -1) {
+            $billId = Bill::create(['patient_id' => $patientId, 'status' => Bill::STATUS_TEMPORARY])->id;
         }
         return $billId;
     }

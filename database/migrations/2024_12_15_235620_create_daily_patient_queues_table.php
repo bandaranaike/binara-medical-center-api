@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('daily_patient_queues', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('bill_id');
-            $table->unsignedBigInteger('doctor_id');
+            $table->unsignedBigInteger('doctor_id')->nullable();
             $table->date('queue_date');
             $table->integer('queue_number');
             $table->integer('order_number');

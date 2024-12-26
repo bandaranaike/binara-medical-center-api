@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreBillItemRequest extends FormRequest
+class ChangeBillStatusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +25,9 @@ class StoreBillItemRequest extends FormRequest
     {
         return [
             'patient_id' => 'required|exists:patients,id',
-            'bill_id' => 'required|numeric',
-            'service_id' => 'required',
-            'bill_amount' => 'required|numeric|min:0',
-            'service_name' => 'nullable|string',
+            'doctor_id' => 'sometimes',
+            'bill_amount' => 'required|numeric',
+            'is_booking' => 'required|boolean',
         ];
     }
 }
