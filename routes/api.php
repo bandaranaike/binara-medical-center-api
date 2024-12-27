@@ -28,7 +28,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController::class, 'removeDisease']);
 
     Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
-    Route::get('bills/bookings', [BillController::class, "bookings"]);
+    Route::get('bills/bookings/{time?}', [BillController::class, "bookings"]);
     Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor']);
     Route::get('bills/pending/pharmacy', [BillController::class, 'getPendingBillsForPharmacy']);
     Route::get('bills/pending/reception', [BillController::class, 'getPendingBillsForReception']);
@@ -51,7 +51,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 });
 
 Route::apiResource('allergies', AllergyController::class);
-Route::apiResource('bills', BillController::class)->except(['destroy']);
+Route::apiResource('bills', BillController::class);
 Route::apiResource('bill-items', BillItemController::class);
 Route::apiResource('diseases', DiseaseController::class);
 Route::apiResource('doctors', DoctorController::class);

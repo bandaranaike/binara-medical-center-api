@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->foreignId('doctor_id')->nullable()->constrained('doctors');
             $table->string('status')->default('doctor');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,8 +14,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('key', 40)->unique();
-            $table->decimal('bill_price', 8, 2);
-            $table->decimal('system_price', 8, 2);
+            $table->decimal('bill_price')->default(0);
+            $table->decimal('system_price')->default(0);
             $table->timestamps();
         });
     }

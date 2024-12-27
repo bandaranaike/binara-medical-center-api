@@ -19,6 +19,9 @@ use Illuminate\Support\Facades\Auth;
 
 class BillController extends Controller
 {
+
+    const OLD_BOOKING_KEYWORD = 'old';
+
     /**
      * Display a listing of the resource.
      */
@@ -213,11 +216,17 @@ class BillController extends Controller
 
     }
 
-    public function bookings(): JsonResponse
+    public function bookings($time = null): JsonResponse
     {
-        $bookings = Bill::where('status', Bill::STATUS_BOOKED)
-            ->with(['doctor:id,name', 'patient:id,name', 'dailyPatientQueue:id,bill_id,queue_number,queue_date'])
-            ->get(['id', 'doctor_id', 'patient_id', 'bill_amount']);
+        $bookingsQuery = Bill::where('status', Bill::STATUS_BOOKED)
+            ->with(['doctor:id,name', 'patient:id,name', 'dailyPatientQueue:id,bill_id,queue_number,queue_date']);
+        if ($time === self::OLD_BOOKING_KEYWORD) {
+            $bookingsQuery->where('created_at', '<', now()->subDays());
+        } else {
+            $bookingsQuery->where('created_at', '>=', now()->subDays());
+        }
+
+        $bookings = $bookingsQuery->get(['id', 'doctor_id', 'patient_id', 'bill_amount']);
 
         return new JsonResponse(BookingListResource::collection($bookings));
     }
@@ -248,5 +257,21 @@ class BillController extends Controller
         $this->createDailyPatientQueue($billId, $doctorId);
 
         return response()->json('Bill status updated successfully');
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $bill = Bill::where('status', Bill::STATUS_BOOKED)->where('id', $id)->first();
+            if (!$bill) {
+                return new JsonResponse(['message' => 'Bill not found'], 404);
+            }
+            $bill->dailyPatientQueue()->delete();
+            $bill->billItems()->delete();
+            $bill->delete();
+            return new JsonResponse(['message' => 'Bill deleted successfully'], 200);
+        } catch (Exception $e) {
+            return new JsonResponse(['message' => 'Error deleting bill', 'error' => $e->getMessage()], 500);
+        }
     }
 }

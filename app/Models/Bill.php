@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @method static create(mixed $validated)
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Bill extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     public const STATUS_BOOKED = 'booked';
     public const STATUS_DOCTOR = 'doctor';

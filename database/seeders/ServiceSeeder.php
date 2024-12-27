@@ -14,7 +14,7 @@ class ServiceSeeder extends Seeder
     {
         $services = [
             [
-                'name' => "Doctor default channeling fee",
+                'name' => "Doctor channeling fee",
                 'key' => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
                 'bill_price' => 2500,
                 'system_price' => 500,
