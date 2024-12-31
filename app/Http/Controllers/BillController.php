@@ -88,7 +88,7 @@ class BillController extends Controller
                     })
                     ->orderBy('created_at', 'desc');
             })
-            ->join('daily_patient_queues', 'bills.id', '=', 'daily_patient_queues.bill_id')
+            ->join('daily_patient_queues', 'bills.id', '=', 'daily_patient_queues.bill_id', 'left')
             ->select(['bills.id', 'patient_id', 'bills.doctor_id', 'daily_patient_queues.queue_number'])
             ->where('bills.doctor_id', '=', $doctorId)
             ->orderBy('daily_patient_queues.order_number')
