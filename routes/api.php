@@ -15,6 +15,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientsDiseaseController;
 use App\Http\Controllers\PatientsHistoryController;
 use App\Http\Controllers\PatientsMedicineHistoryController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SpecialtyController;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,16 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::put('bills/{billId}/finalize', [BillController::class, 'finalizeBill']);
     Route::put('bills/{billId}/status', [BillController::class, 'updateStatus']);
     Route::put('bills/{billId}/change-temp-status', [BillController::class, 'changeTempBillStatus']);
+
+    Route::group(['prefix' => 'reports'], function () {
+        Route::get('total-revenue', [ReportController::class, 'getTotalRevenue']);
+        Route::get('revenue-by-doctor', [ReportController::class, 'getRevenueByDoctor']);
+        Route::get('outstanding-bills', [ReportController::class, 'getOutstandingBills']);
+        Route::get('bill-status-summary', [ReportController::class, 'getBillStatusSummary']);
+        Route::get('daily-report-summary', [ReportController::class, 'getDailyReportSummary']);
+
+    });
+
 });
 
 Route::apiResource('allergies', AllergyController::class);

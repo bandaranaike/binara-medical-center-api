@@ -20,8 +20,8 @@ class Bill extends Model
 
     public const STATUS_BOOKED = 'booked';
     public const STATUS_DOCTOR = 'doctor';
-    public const STATUS_PENDING = 'pending';
     public const STATUS_PHARMACY = 'pharmacy';
+    public const STATUS_RECEPTION = 'reception';
     public const STATUS_TEMPORARY = 'temporary';
 
     protected $fillable = [
@@ -50,5 +50,10 @@ class Bill extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    public function patientMedicines(): HasMany
+    {
+        return $this->hasMany(PatientMedicineHistory::class);
     }
 }
