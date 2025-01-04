@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static create(mixed $validated)
  * @method static where(string $string, string $STATUS_PENDING)
  * @method static whereStatus(string $STATUS_PENDING)
+ * @method static selectRaw(string $string)
  */
 class Bill extends Model
 {
@@ -20,6 +21,7 @@ class Bill extends Model
 
     public const STATUS_BOOKED = 'booked';
     public const STATUS_DOCTOR = 'doctor';
+    public const STATUS_DONE = 'done';
     public const STATUS_PHARMACY = 'pharmacy';
     public const STATUS_RECEPTION = 'reception';
     public const STATUS_TEMPORARY = 'temporary';

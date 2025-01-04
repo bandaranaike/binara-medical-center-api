@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Bill;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -23,8 +24,16 @@ class UpdateBillRequest extends FormRequest
      */
     public function rules(): array
     {
+        $statusArray = [
+            Bill::STATUS_BOOKED,
+            Bill::STATUS_DOCTOR,
+            Bill::STATUS_DONE,
+            Bill::STATUS_PHARMACY,
+            Bill::STATUS_RECEPTION,
+            Bill::STATUS_TEMPORARY,
+        ];
         return [
-            'status' => 'required|string|max:255',
+            'status' => 'required|string|max:255|in:' . implode(',', $statusArray),
         ];
     }
 }

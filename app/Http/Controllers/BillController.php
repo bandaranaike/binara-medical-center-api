@@ -147,7 +147,7 @@ class BillController extends Controller
      * @param int $billId
      * @return JsonResponse
      */
-    public function finalizeBill(Request $request, int $billId): JsonResponse
+    public function sendBillToReception(Request $request, int $billId): JsonResponse
     {
         $validatedData = $request->validate([
             'status' => 'required|string|in:' . Bill::STATUS_RECEPTION,
@@ -175,11 +175,9 @@ class BillController extends Controller
         }
     }
 
-    public function updateStatus($billId, Request $request): JsonResponse
+    public function updateStatus($billId, UpdateBillRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'status' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
         $bill = Bill::find($billId);
 
@@ -193,7 +191,6 @@ class BillController extends Controller
 
         $bill->status = $validated['status'];
         $bill->save();
-
 
         return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
     }
