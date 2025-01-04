@@ -15,7 +15,7 @@ class ReportController extends Controller
     private function getTotalRevenue(): array
     {
 
-        $billData = Bill::selectRaw('SUM(bill_amount) as totalRevenue, SUM(system_amount) as totalSystemRevenue')
+        $billData = Bill::selectRaw('COALESCE(SUM(bill_amount), 0) as totalRevenue, COALESCE(SUM(system_amount), 0) as totalSystemRevenue')
             ->whereBetween('created_at', [$this->start, $this->end])
             ->first();
 
