@@ -9,32 +9,19 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
-    private string $start;
     private string $end;
+    private string $start;
 
-    private function getTotalRevenue(): array
+    public function index(Request $request): JsonResponse
     {
+        $this->setStartEndDates($request);
 
-        $billData = Bill::selectRaw('COALESCE(SUM(bill_amount), 0) as totalRevenue, COALESCE(SUM(system_amount), 0) as totalSystemRevenue')
-            ->whereBetween('created_at', [$this->start, $this->end])
-            ->first();
-
-        return $billData->toArray();
-    }
-
-    private function getRevenueByDoctor(): array
-    {
-
-        $revenueByDoctor = DB::table('bills')
-            ->join('doctors', 'bills.doctor_id', '=', 'doctors.id')
-            ->select('doctors.name as doctorName', DB::raw('SUM(bills.bill_amount) as revenue'))
-            ->whereBetween('bills.created_at', [$this->start, $this->end])
-            ->whereNull('bills.deleted_at') // Exclude soft-deleted bills
-            ->groupBy('doctors.id', 'doctors.name')
-            ->orderBy('revenue', 'desc')
-            ->get();
-
-        return $revenueByDoctor->toArray();
+        return response()->json([
+            'billStatusSummary' => $this->getBillStatusSummary(),
+            'dailyReportSummary' => $this->getDailyReportSummary(),
+            'revenueByDoctor' => $this->getRevenueByDoctor(),
+            'totalRevenue' => $this->getTotalRevenue(),
+        ]);
     }
 
     private function getBillStatusSummary(): array
@@ -79,21 +66,35 @@ class ReportController extends Controller
         ];
     }
 
+    private function getRevenueByDoctor(): array
+    {
+
+        $revenueByDoctor = DB::table('bills')
+            ->join('doctors', 'bills.doctor_id', '=', 'doctors.id')
+            ->select('doctors.name as doctorName', DB::raw('SUM(bills.bill_amount) as revenue'))
+            ->whereBetween('bills.created_at', [$this->start, $this->end])
+            ->whereNull('bills.deleted_at') // Exclude soft-deleted bills
+            ->groupBy('doctors.id', 'doctors.name')
+            ->orderBy('revenue', 'desc')
+            ->get();
+
+        return $revenueByDoctor->toArray();
+    }
+
+    private function getTotalRevenue(): array
+    {
+
+        $billData = Bill::selectRaw('COALESCE(SUM(bill_amount), 0) as totalRevenue, COALESCE(SUM(system_amount), 0) as totalSystemRevenue')
+            ->whereBetween('created_at', [$this->start, $this->end])
+            ->first();
+
+        return $billData->toArray();
+    }
+
     private function setStartEndDates(Request $request): void
     {
-        $this->start = $request->get('start', now()->startOfDay()->toDateTimeString());
-        $this->end = $request->get('end', now()->endOfDay()->toDateTimeString());
+        $this->start = $request->get('startDate', now()->startOfDay()->toDateTimeString());
+        $this->end = $request->get('endDate', now()->endOfDay()->toDateTimeString());
     }
 
-    public function index(Request $request): JsonResponse
-    {
-        $this->setStartEndDates($request);
-
-        return response()->json([
-            'totalRevenue' => $this->getTotalRevenue(),
-            'revenueByDoctor' => $this->getRevenueByDoctor(),
-            'billStatusSummary' => $this->getBillStatusSummary(),
-            'dailyReportSummary' => $this->getDailyReportSummary(),
-        ]);
-    }
 }
