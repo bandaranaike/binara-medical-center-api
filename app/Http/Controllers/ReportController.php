@@ -93,8 +93,8 @@ class ReportController extends Controller
 
     private function setStartEndDates(Request $request): void
     {
-        $this->start = $request->get('startDate', now()->startOfDay()->toDateTimeString());
-        $this->end = $request->get('endDate', now()->endOfDay()->toDateTimeString());
+        $this->start = $request->get('startDate') ? now()->parse($request->get('startDate'))->startOfDay()->toDateTimeString() : now()->startOfDay()->toDateTimeString();
+        $this->end = $request->get('endDate') ? now()->parse($request->get('endDate'))->endOfDay()->toDateTimeString() : now()->endOfDay()->toDateTimeString();
     }
 
 }

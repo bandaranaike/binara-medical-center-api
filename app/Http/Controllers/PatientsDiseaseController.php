@@ -43,7 +43,7 @@ class PatientsDiseaseController extends Controller
         if (!$patient->diseases()->where('disease_id', $disease->id)->exists()) {
             $patient->diseases()->attach($disease->id);
         } else {
-            return new JsonResponse(['added' => false, 'message' => 'Disease already exists'], 409);
+            return new JsonResponse(['added' => false, 'message' => 'Disease already exists'], 208);
         }
 
         // Return the newly added disease

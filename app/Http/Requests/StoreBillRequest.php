@@ -24,9 +24,12 @@ class StoreBillRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'bill_amount' => 'required|numeric',
+            'system_amount' => 'required|numeric',
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'nullable|exists:doctors,id',
             'is_booking' => 'required|boolean',
+            'bill_items' => 'nullable|array',
         ];
     }
 }

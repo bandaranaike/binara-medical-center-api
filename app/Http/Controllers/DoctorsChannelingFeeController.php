@@ -45,15 +45,17 @@ class DoctorsChannelingFeeController extends Controller
      */
     public function getFee($id, $isOPD = false): JsonResponse
     {
-        $doctorsChannelingFee = DoctorsChannelingFee::find($id);
+        $doctorsChannelingFee = DoctorsChannelingFee::where('doctor_id', $id)->first();
+
+        $defaultServiceKey = $isOPD ? Service::DEFAULT_DOCTOR_KEY : Service::DEFAULT_SPECIALIST_CHANNELING_KEY;
+        $service = Service::getByKey($defaultServiceKey)->first();
 
         if ($doctorsChannelingFee) {
             $fee = $doctorsChannelingFee->fee;
         } else {
-            $defaultServiceKey = $isOPD ? Service::DEFAULT_DOCTOR_KEY : Service::DEFAULT_SPECIALIST_CHANNELING_KEY;
-            $fee = Service::getByKey($defaultServiceKey)->first()?->bill_price;
+            $fee = $service?->bill_price;
         }
-        return new JsonResponse($fee);
+        return new JsonResponse(['bill_price' => $fee, 'system_price' => $service?->system_price]);
     }
 
 

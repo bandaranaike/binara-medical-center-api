@@ -42,7 +42,7 @@ class PatientsAllergyController extends Controller
         if (!$patient->allergies()->where('allergy_id', $allergy->id)->exists()) {
             $patient->allergies()->attach($allergy->id);
         } else {
-            return new JsonResponse(['added' => false, 'message' => 'Allergy already exists.'], 409);
+            return new JsonResponse(['added' => false, 'message' => 'Allergy already exists.'], 208);
         }
 
         // Return the newly added allergy

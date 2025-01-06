@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use function PHPSTORM_META\map;
 
 class BillController extends Controller
 {
@@ -42,9 +43,14 @@ class BillController extends Controller
 
         $bill = Bill::create([...$request->validated(), 'status' => $status, 'system_amount' => $system_amount]);
 
-        $this->createDailyPatientQueue($bill->id, $request->input('doctor_id'));
+        $this->insertBillItems($request->get('bill_items'), $bill->id);
 
-        return new JsonResponse($bill->id);
+        $queueNumber = $this->createDailyPatientQueue($bill->id, $request->input('doctor_id'));
+
+
+        $billItems = $this->getBillItemsFroPrint($bill->id);
+
+        return new JsonResponse(["bill_id" => $bill->id, "queue_id" => $queueNumber, "bill_items" => $billItems], 201);
     }
 
     /**
@@ -201,7 +207,7 @@ class BillController extends Controller
         BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', Service::MEDICINE_KEY)->first()->id]);
     }
 
-    private function createDailyPatientQueue($billId, $doctorId): void
+    private function createDailyPatientQueue($billId, $doctorId): int
     {
         $today = date('Y-m-d');
 
@@ -214,6 +220,8 @@ class BillController extends Controller
         $newRecord->queue_number = $latestRecord ? $latestRecord->queue_number + 1 : 1;
         $newRecord->order_number = $latestRecord ? $latestRecord->order_number + 1 : 1;
         $newRecord->save();
+
+        return $newRecord->queue_number;
 
     }
 
@@ -255,9 +263,9 @@ class BillController extends Controller
                 'bill_amount' => $validatedData['bill_amount']
             ]);
 
-        $this->createDailyPatientQueue($billId, $doctorId);
+        $queueNumber = $this->createDailyPatientQueue($billId, $doctorId);
 
-        return response()->json('Bill status updated successfully');
+        return response()->json(["bill_id" => $billId, "queue_id" => $queueNumber]);
     }
 
     public function destroy(int $id): JsonResponse
@@ -274,5 +282,24 @@ class BillController extends Controller
         } catch (Exception $e) {
             return new JsonResponse(['message' => 'Error deleting bill', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    private function getBillItemsFroPrint($id)
+    {
+        $billItems = BillItem::where('bill_id', $id)->select(['bill_amount', 'service_id'])->with('service:id,name')->get();
+        $data = $billItems->map(function ($item) {
+            return ['name' => $item->service->name, 'price' => $item->bill_amount];
+        });
+
+        return $data->toArray();
+    }
+
+    private function insertBillItems(mixed $billItems, $billId): void
+    {
+        $data = array_map(function ($item) use ($billId) {
+            return ['bill_id' => $billId, 'service_id' => $item['service_id'], 'bill_amount' => $item['bill_amount']];
+        }, $billItems);
+
+        BillItem::insert($data);
     }
 }

@@ -32,8 +32,6 @@ class DoctorFactory extends Factory
             'specialty_id' => rand(1, 50),
             'telephone' => $this->faker->phoneNumber,
             'email' => $this->faker->unique()->safeEmail,
-            'age' => $this->faker->numberBetween(30, 65),
-            'address' => $this->faker->address,
             'created_at' => now(),
             'updated_at' => now(),
         ];
