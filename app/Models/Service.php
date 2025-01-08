@@ -18,6 +18,10 @@ class Service extends Model
     const DEFAULT_SPECIALIST_CHANNELING_KEY = 'channeling-fee';
     const DEFAULT_DOCTOR_KEY = 'opd-doctor-fee';
     const MEDICINE_KEY = 'medicine';
+    const DENTAL_REGISTRATION_KEY = 'dental-registration';
+    const DENTAL_TREATMENTS_KEY = 'dental-treatments';
+    const DENTAL_LAB_KEY = 'dental-lab';
+    const WOUND_DRESSING_KEY = "wound-dressing";
 
     protected $fillable = [
         'name',

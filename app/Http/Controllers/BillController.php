@@ -16,7 +16,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use function PHPSTORM_META\map;
 
 class BillController extends Controller
 {
@@ -38,15 +37,18 @@ class BillController extends Controller
     public function store(StoreBillRequest $request): JsonResponse
     {
         $status = $request->input('is_booking') ? Bill::STATUS_BOOKED : Bill::STATUS_DOCTOR;
+        $data = $request->validated();
 
-        $system_amount = $this->getSystemAmount($request->input('is_opd'));
+        // service_type:in(channeling|opd|dental)
+        $service = $this->getService($request->input('service_type'));
 
-        $bill = Bill::create([...$request->validated(), 'status' => $status, 'system_amount' => $system_amount]);
+        $system_amount = $this->calculateSystemPrice($service, $data['bill_amount'], $data['system_amount']);
 
-        $this->insertBillItems($request->get('bill_items'), $bill->id);
+        $bill = Bill::create([...$data, 'status' => $status, 'system_amount' => $system_amount]);
 
-        $queueNumber = $this->createDailyPatientQueue($bill->id, $request->input('doctor_id'));
+        $this->insertBillItems($service->id, $data['bill_amount'], $data['system_amount'], $bill->id);
 
+        $queueNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id']);
 
         $billItems = $this->getBillItemsFroPrint($bill->id);
 
@@ -185,9 +187,7 @@ class BillController extends Controller
     {
         $validated = $request->validated();
 
-        $bill = Bill::find($billId);
-
-        if (!$bill) {
+        if (!$bill = Bill::find($billId)) {
             return new JsonResponse(['message' => 'Bill not found'], 404);
         }
 
@@ -200,7 +200,6 @@ class BillController extends Controller
 
         return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
     }
-
 
     private function insertNewBillItemForMedicineIfNotExists($billId): void
     {
@@ -238,13 +237,6 @@ class BillController extends Controller
         $bookings = $bookingsQuery->get(['id', 'doctor_id', 'patient_id', 'bill_amount']);
 
         return new JsonResponse(BookingListResource::collection($bookings));
-    }
-
-    private function getSystemAmount($isOpd)
-    {
-        return $isOpd ?
-            Service::where('key', Service::DEFAULT_DOCTOR_KEY)->first()->system_price :
-            Service::where('key', Service::DEFAULT_SPECIALIST_CHANNELING_KEY)->first()->system_price;
     }
 
     public function changeTempBillStatus(ChangeBillStatusRequest $request, $billId): JsonResponse
@@ -286,20 +278,75 @@ class BillController extends Controller
 
     private function getBillItemsFroPrint($id)
     {
-        $billItems = BillItem::where('bill_id', $id)->select(['bill_amount', 'service_id'])->with('service:id,name')->get();
-        $data = $billItems->map(function ($item) {
-            return ['name' => $item->service->name, 'price' => $item->bill_amount];
-        });
+        $billItems = BillItem::where('bill_id', $id)->select(['bill_amount', 'system_amount', 'service_id'])->with('service')->get();
 
-        return $data->toArray();
+        return $billItems->flatMap(function ($item) {
+            return $this->preparePrintData($item->service, $item->bill_amount, $item->system_amount);
+        })->toArray();
     }
 
-    private function insertBillItems(mixed $billItems, $billId): void
+    private function insertBillItems($serviceId, $billAmount, $systemAmount, $billId): void
     {
-        $data = array_map(function ($item) use ($billId) {
-            return ['bill_id' => $billId, 'service_id' => $item['service_id'], 'bill_amount' => $item['bill_amount']];
-        }, $billItems);
-
+        $data = [['bill_id' => $billId, 'service_id' => $serviceId, 'bill_amount' => $billAmount, 'system_amount' => $systemAmount]];
         BillItem::insert($data);
+    }
+
+    private function getService($serviceType)
+    {
+
+        $serviceKey = match ($serviceType) {
+            'channeling' => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
+            'opd' => Service::DEFAULT_DOCTOR_KEY,
+            'dental' => Service::DENTAL_REGISTRATION_KEY
+        };
+
+        return Service::where('key', $serviceKey)->first();
+
+    }
+
+    /**
+     * @param $service
+     * @param $billAmount
+     * @param int $systemAmount
+     * @return array
+     *
+     * If seperated fields required, need to add two different records in the bill
+     */
+    public function preparePrintData($service, $billAmount, int $systemAmount = 0): array
+    {
+        $printingData = [];
+
+        if ($service) {
+            $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_ORIGINAL, 'price' => $billAmount];
+            if ($service->separate_items) {
+                $systemAmount = $systemAmount == 0 ? $this->calculateSystemPrice($service, $billAmount, $systemAmount) : $systemAmount;
+                $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_INSTITUTION, 'price' => $systemAmount];
+            }
+        }
+        return $printingData;
+    }
+
+    /**
+     * @param $service
+     * @param float $billAmount
+     * @param float $systemAmount
+     * @return float
+     *
+     * The BillAmount is the charging amount from the patient
+     * The system amount need to be calculated.
+     */
+    public function calculateSystemPrice($service, float $billAmount = 0, float $systemAmount = 0): float
+    {
+
+        if ($service) {
+            if ($service->is_percentage) {
+                return $billAmount * $service->system_price / 100;
+            } else {
+                if ($systemAmount == 0) {
+                    return $service->system_price;
+                }
+            }
+        }
+        return $systemAmount;
     }
 }

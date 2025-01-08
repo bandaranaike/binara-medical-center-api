@@ -16,6 +16,8 @@ return new class extends Migration {
             $table->string('key', 40)->unique();
             $table->decimal('bill_price')->default(0);
             $table->decimal('system_price')->default(0);
+            $table->boolean('separate_items')->default(false);
+            $table->boolean('is_percentage')->default(false);
             $table->timestamps();
         });
     }

@@ -66,4 +66,6 @@ Route::apiResource('services', ServiceController::class);
 Route::apiResource('specialties', SpecialtyController::class);
 
 
+require base_path('routes/admin.php');
+
 

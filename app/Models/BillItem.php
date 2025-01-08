@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @method static firstOrCreate(array $array)
  * @method static findOrFail($id)
+ * @method static insert(array[] $data)
+ * @method static where(string $string, $id)
  */
 class BillItem extends Model
 {

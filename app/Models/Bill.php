@@ -19,6 +19,8 @@ class Bill extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public const FEE_ORIGINAL = 'fee';
+    public const FEE_INSTITUTION = 'institution fee';
     public const STATUS_BOOKED = 'booked';
     public const STATUS_DOCTOR = 'doctor';
     public const STATUS_DONE = 'done';
