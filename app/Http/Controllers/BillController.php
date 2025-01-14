@@ -52,7 +52,7 @@ class BillController extends Controller
 
         $billItems = $this->getBillItemsFroPrint($bill->id);
 
-        return new JsonResponse(["bill_id" => $bill->id, "queue_id" => $queueNumber, "bill_items" => $billItems], 201);
+        return new JsonResponse(["bill_id" => $bill->id, "queue_id" => $queueNumber, "bill_items" => $billItems, 'total' => $bill->bill_amount + $bill->system_amount], 201);
     }
 
     /**

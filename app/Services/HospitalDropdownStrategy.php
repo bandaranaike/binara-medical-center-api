@@ -3,13 +3,14 @@
 namespace App\Services;
 
 use App\Models\Hospital;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class HospitalDropdownStrategy implements DropdownStrategyInterface
 {
 
-    public function getResults(Request $request): Collection
+    public function getQuery(Request $request): Builder
     {
         $query = Hospital::query();
 
@@ -20,6 +21,6 @@ class HospitalDropdownStrategy implements DropdownStrategyInterface
 
         $query->select(['id', 'name AS label']);
 
-        return $query->get();
+        return $query;
     }
 }

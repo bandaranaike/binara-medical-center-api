@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Disease;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -12,9 +13,9 @@ class DiseasesDropdownStrategy implements DropdownStrategyInterface
      * Get the results for the diseases dropdown.
      *
      * @param Request $request
-     * @return Collection
+     * @return Builder
      */
-    public function getResults(Request $request): Collection
+    public function getQuery(Request $request): Builder
     {
         $query = Disease::query();
 
@@ -26,6 +27,6 @@ class DiseasesDropdownStrategy implements DropdownStrategyInterface
         // Select id and name (as label) for the dropdown options
         $query->select(['id', 'name AS label']);
 
-        return $query->get();
+        return $query;
     }
 }

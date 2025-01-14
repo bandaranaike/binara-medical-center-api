@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 
 class DropdownController extends Controller
 {
+
+    const DEFAULT_RESULT_LIMIT = 10;
+
     public function __construct(private readonly DropdownStrategyFactory $factory)
     {
     }
@@ -19,7 +22,9 @@ class DropdownController extends Controller
     {
         $strategy = $this->factory->make($apiUri);
 
-        $data = $strategy->getResults($request);
+        $query = $strategy->getQuery($request);
+
+        $data = $query->limit($request->get('limit', self::DEFAULT_RESULT_LIMIT))->get();
 
         return new JsonResponse(DropdownResource::collection($data));
     }

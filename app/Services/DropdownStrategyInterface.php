@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 interface DropdownStrategyInterface
 {
-    public function getResults(Request $request): Collection;
+    public function getQuery(Request $request): Builder;
 }

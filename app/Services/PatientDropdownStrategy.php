@@ -3,13 +3,14 @@
 namespace App\Services;
 
 use App\Models\Patient;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class PatientDropdownStrategy implements DropdownStrategyInterface
 {
 
-    public function getResults(Request $request): Collection
+    public function getQuery(Request $request): Builder
     {
         $query = Patient::query();
 
@@ -19,6 +20,6 @@ class PatientDropdownStrategy implements DropdownStrategyInterface
 
         $query->select(['id', 'telephone AS label']);
 
-        return $query->get();
+        return $query;
     }
 }

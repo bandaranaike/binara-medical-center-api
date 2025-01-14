@@ -4,13 +4,14 @@ namespace App\Services;
 
 use App\Models\Hospital;
 use App\Models\Specialty;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class SpecialtyDropdownStrategy implements DropdownStrategyInterface
 {
 
-    public function getResults(Request $request): Collection
+    public function getQuery(Request $request): Builder
     {
         $query = Specialty::query();
 
@@ -20,6 +21,6 @@ class SpecialtyDropdownStrategy implements DropdownStrategyInterface
 
         $query->select(['id', 'name AS label']);
 
-        return $query->get();
+        return $query;
     }
 }
