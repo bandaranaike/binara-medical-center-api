@@ -15,7 +15,7 @@ class DoctorDropdownStrategy implements DropdownStrategyInterface
 
         if ($request->has('search')) {
             $query->where('name', 'LIKE', '%' . $request->get('search') . '%')
-                ->where('is_opd', false);
+                ->where('doctor_type', $request->get('type', Doctor::DOCTOR_TYPE_SPECIALIST));
         }
 
         $query->select(['id', 'name AS label']);

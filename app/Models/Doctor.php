@@ -9,6 +9,10 @@ class Doctor extends Model
 {
     use HasFactory;
 
+    const DOCTOR_TYPE_DENTAL = "dental";
+    const DOCTOR_TYPE_OPD = "opd";
+    const DOCTOR_TYPE_SPECIALIST = "specialist";
+
     protected $fillable = [
         'name',
         'hospital_id',
@@ -17,6 +21,6 @@ class Doctor extends Model
         'email',
         'age',
         'address',
-        'is_opd',
+        'doctor_type',
     ];
 }

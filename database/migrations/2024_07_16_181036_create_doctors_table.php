@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Doctor;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ return new class extends Migration {
             $table->foreignId('hospital_id')->nullable()->constrained('hospitals');
             $table->foreignId('specialty_id')->nullable()->constrained('specialties');
             $table->string('telephone')->nullable();
-            $table->boolean('is_opd')->default(false);
+            $table->enum('doctor_type', [Doctor::DOCTOR_TYPE_DENTAL, Doctor::DOCTOR_TYPE_OPD, Doctor::DOCTOR_TYPE_SPECIALIST])->default(Doctor::DOCTOR_TYPE_SPECIALIST);
             $table->string('email')->unique()->nullable();
             $table->timestamps();
         });

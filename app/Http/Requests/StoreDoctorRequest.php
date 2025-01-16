@@ -29,7 +29,7 @@ class StoreDoctorRequest extends FormRequest
             'specialty_id' => 'nullable|exists:specialties,id',
             'telephone' => 'required|string|max:20',
             'email' => 'nullable|email|unique:doctors,email',
-            'is_opd' => 'boolean',
+            'doctor_type' => 'string',
         ];
     }
 }
