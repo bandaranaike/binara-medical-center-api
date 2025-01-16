@@ -35,7 +35,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::get('bills/pending/reception', [BillController::class, 'getPendingBillsForReception']);
     Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory']);
     Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories']);
-    Route::get('doctor-channeling-fees/get-fee/{id}/{isOPD?}', [DoctorsChannelingFeeController::class, "getFee"]);
+    Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"]);
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
     Route::get('patients/search', [PatientController::class, 'search']);
 

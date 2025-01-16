@@ -15,8 +15,8 @@ class Service extends Model
 {
     use HasFactory;
 
-    const DEFAULT_SPECIALIST_CHANNELING_KEY = 'channeling-fee';
-    const DEFAULT_DOCTOR_KEY = 'opd-doctor-fee';
+    const DEFAULT_SPECIALIST_CHANNELING_KEY = 'channeling';
+    const DEFAULT_DOCTOR_KEY = 'opd-doctor';
     const MEDICINE_KEY = 'medicine';
     const DENTAL_REGISTRATION_KEY = 'dental-registration';
     const DENTAL_TREATMENTS_KEY = 'dental-treatments';

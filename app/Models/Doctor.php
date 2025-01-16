@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Doctor extends Model
 {
@@ -23,4 +24,9 @@ class Doctor extends Model
         'address',
         'doctor_type',
     ];
+
+    public function channellingFee(): HasOne
+    {
+        return $this->hasOne(DoctorsChannelingFee::class);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\SystemPriceCalculator;
 use App\Http\Requests\ChangeBillStatusRequest;
 use App\Http\Requests\StoreBillRequest;
 use App\Http\Requests\UpdateBillRequest;
@@ -17,9 +18,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
 class BillController extends Controller
 {
 
+    use SystemPriceCalculator;
     const OLD_BOOKING_KEYWORD = 'old';
 
     /**
@@ -326,27 +329,4 @@ class BillController extends Controller
         return $printingData;
     }
 
-    /**
-     * @param $service
-     * @param float $billAmount
-     * @param float $systemAmount
-     * @return float
-     *
-     * The BillAmount is the charging amount from the patient
-     * The system amount need to be calculated.
-     */
-    public function calculateSystemPrice($service, float $billAmount = 0, float $systemAmount = 0): float
-    {
-
-        if ($service) {
-            if ($service->is_percentage) {
-                return $billAmount * $service->system_price / 100;
-            } else {
-                if ($systemAmount == 0) {
-                    return $service->system_price;
-                }
-            }
-        }
-        return $systemAmount;
-    }
 }

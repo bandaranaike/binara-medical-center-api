@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\SystemPriceCalculator;
 use App\Http\Requests\StoreDoctorsChannelingFeeRequest;
 use App\Http\Requests\UpdateDoctorsChannelingFeeRequest;
 use App\Http\Resources\DoctorChannelingFeeResource;
+use App\Models\Doctor;
 use App\Models\DoctorsChannelingFee;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Config;
 
 class DoctorsChannelingFeeController extends Controller
 {
+    use SystemPriceCalculator;
+
     /**
      * Display a listing of the resource.
      */
@@ -43,21 +46,34 @@ class DoctorsChannelingFeeController extends Controller
     /**
      * Display the specified resource.s
      */
-    public function getFee($id, $isOPD = false): JsonResponse
+    public function getFee($id): JsonResponse
     {
-        $doctorsChannelingFee = DoctorsChannelingFee::where('doctor_id', $id)->first();
+        /**
+         * If the doctor is specialist : get the channeling fee
+         * If the doctor is opd : get the channeling fee
+         * If the doctor is dental : get the dental registration fee
+         */
 
-        $defaultServiceKey = $isOPD ? Service::DEFAULT_DOCTOR_KEY : Service::DEFAULT_SPECIALIST_CHANNELING_KEY;
+        $doctor = Doctor::with('channellingFee:doctor_id,fee')->select(['id', 'doctor_type'])->find($id);
+
+        $defaultServiceKey = match ($doctor->doctor_type) {
+            Doctor::DOCTOR_TYPE_DENTAL => Service::DENTAL_REGISTRATION_KEY,
+            Doctor::DOCTOR_TYPE_OPD => Service::DEFAULT_DOCTOR_KEY,
+            Doctor::DOCTOR_TYPE_SPECIALIST => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
+        };
+
         $service = Service::getByKey($defaultServiceKey)->first();
 
-        if ($doctorsChannelingFee) {
-            $fee = $doctorsChannelingFee->fee;
+        if ($doctor->channellingFee) {
+            $fee = $doctor->channellingFee->fee;
         } else {
             $fee = $service?->bill_price;
         }
-        return new JsonResponse(['bill_price' => $fee, 'system_price' => $service?->system_price]);
-    }
 
+        [$billPrice, $systemPrice] = $this->getBillPriceAndSystemPrice($service, $fee);
+
+        return new JsonResponse(['bill_price' => $billPrice, 'system_price' => $systemPrice]);
+    }
 
     /**
      * Update the specified resource in storage.
