@@ -23,6 +23,7 @@ class BillController extends Controller
 {
 
     use SystemPriceCalculator;
+
     const OLD_BOOKING_KEYWORD = 'old';
 
     /**
@@ -45,9 +46,7 @@ class BillController extends Controller
         // service_type:in(channeling|opd|dental)
         $service = $this->getService($request->input('service_type'));
 
-        $system_amount = $this->calculateSystemPrice($service, $data['bill_amount'], $data['system_amount']);
-
-        $bill = Bill::create([...$data, 'status' => $status, 'system_amount' => $system_amount]);
+        $bill = Bill::create([...$data, 'status' => $status]);
 
         $this->insertBillItems($service->id, $data['bill_amount'], $data['system_amount'], $bill->id);
 
@@ -320,7 +319,7 @@ class BillController extends Controller
         $printingData = [];
 
         if ($service) {
-            $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_ORIGINAL, 'price' => $billAmount];
+            $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_ORIGINAL, 'price' => $billAmount + $systemAmount];
             if ($service->separate_items) {
                 $systemAmount = $systemAmount == 0 ? $this->calculateSystemPrice($service, $billAmount, $systemAmount) : $systemAmount;
                 $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_INSTITUTION, 'price' => $systemAmount];

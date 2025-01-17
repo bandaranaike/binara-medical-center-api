@@ -54,7 +54,7 @@ class DoctorsChannelingFeeController extends Controller
          * If the doctor is dental : get the dental registration fee
          */
 
-        $doctor = Doctor::with('channellingFee:doctor_id,fee')->select(['id', 'doctor_type'])->find($id);
+        $doctor = Doctor::with('channellingFee:doctor_id,fee')->select(['id', 'doctor_type', 'name'])->find($id);
 
         $defaultServiceKey = match ($doctor->doctor_type) {
             Doctor::DOCTOR_TYPE_DENTAL => Service::DENTAL_REGISTRATION_KEY,
@@ -72,7 +72,7 @@ class DoctorsChannelingFeeController extends Controller
 
         [$billPrice, $systemPrice] = $this->getBillPriceAndSystemPrice($service, $fee);
 
-        return new JsonResponse(['bill_price' => $billPrice, 'system_price' => $systemPrice]);
+        return new JsonResponse(['bill_price' => $billPrice, 'system_price' => $systemPrice, 'name' => $doctor->name]);
     }
 
     /**
