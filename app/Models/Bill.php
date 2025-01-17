@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @method static create(mixed $validated)
- * @method static where(string $string, string $STATUS_PENDING)
+ * @method static where(string $string, string $operator, string $STATUS_PENDING = null)
  * @method static whereStatus(string $STATUS_PENDING)
  * @method static selectRaw(string $string)
  */

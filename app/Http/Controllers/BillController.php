@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\PrintingDataProcess;
 use App\Http\Controllers\Traits\SystemPriceCalculator;
 use App\Http\Requests\ChangeBillStatusRequest;
 use App\Http\Requests\StoreBillRequest;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Auth;
 
 class BillController extends Controller
 {
-
+    use PrintingDataProcess;
     use SystemPriceCalculator;
 
     const OLD_BOOKING_KEYWORD = 'old';
@@ -139,13 +140,13 @@ class BillController extends Controller
      */
     public function getPendingBillsForReception(): JsonResponse
     {
-        $pendingBills = Bill::where('status', Bill::STATUS_RECEPTION)
+        $pendingBills = Bill::where('status', "!=", Bill::STATUS_DONE)
             ->with([
                 'patient:id,name,age,gender',
                 'doctor:id,name',
                 'dailyPatientQueue:id,bill_id,queue_number,queue_date',
             ])
-            ->get(["id", "system_amount", "bill_amount", "patient_id", "doctor_id"]);
+            ->get(["id", "system_amount", "bill_amount", "patient_id", "doctor_id", "status"]);
 
         return new JsonResponse(BillReceptionResourceCollection::collection($pendingBills));
     }
@@ -278,15 +279,6 @@ class BillController extends Controller
         }
     }
 
-    private function getBillItemsFroPrint($id)
-    {
-        $billItems = BillItem::where('bill_id', $id)->select(['bill_amount', 'system_amount', 'service_id'])->with('service')->get();
-
-        return $billItems->flatMap(function ($item) {
-            return $this->preparePrintData($item->service, $item->bill_amount, $item->system_amount);
-        })->toArray();
-    }
-
     private function insertBillItems($serviceId, $billAmount, $systemAmount, $billId): void
     {
         $data = [['bill_id' => $billId, 'service_id' => $serviceId, 'bill_amount' => $billAmount, 'system_amount' => $systemAmount]];
@@ -306,26 +298,5 @@ class BillController extends Controller
 
     }
 
-    /**
-     * @param $service
-     * @param $billAmount
-     * @param int $systemAmount
-     * @return array
-     *
-     * If seperated fields required, need to add two different records in the bill
-     */
-    public function preparePrintData($service, $billAmount, int $systemAmount = 0): array
-    {
-        $printingData = [];
-
-        if ($service) {
-            $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_ORIGINAL, 'price' => $billAmount + $systemAmount];
-            if ($service->separate_items) {
-                $systemAmount = $systemAmount == 0 ? $this->calculateSystemPrice($service, $billAmount, $systemAmount) : $systemAmount;
-                $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_INSTITUTION, 'price' => $systemAmount];
-            }
-        }
-        return $printingData;
-    }
 
 }
