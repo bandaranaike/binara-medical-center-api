@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             HospitalSeeder::class,
             MedicineSeeder::class,
             ServiceSeeder::class,
+            RoleSeeder::class,
             UsersSeeder::class,
         ]);
     }

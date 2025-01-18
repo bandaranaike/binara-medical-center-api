@@ -2,41 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function checkEmail(Request $request)
+
+    public function register(Request $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        $exists = User::where('email', $request->email)->exists();
-
-        return response()->json(['exists' => $exists]);
-    }
-
-    public function register(Request $request)
-    {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'password' => ['required', 'confirmed', Password::defaults()],
+            'role' => ['required', 'string'],
         ]);
 
-        $user = User::create([
+        $roleId = Role::where("key", $validatedData['role'])->select(['id'])->first()?->id;
+
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role_id' => $roleId,
         ]);
 
-        return response()->json($user);
+        return $this->sendToken($request);
     }
 
     public function oldLogin(Request $request)
@@ -58,21 +54,30 @@ class AuthController extends Controller
     }
 
     // Laravel controller example
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
+        return $this->sendToken($request);
+    }
+
+    private function sendToken($request): JsonResponse
+    {
         $credentials = $request->only('email', 'password');
-
         if (Auth::attempt($credentials)) {
-            $token = auth()->user()->createToken('API Token')->plainTextToken;
+            $user = Auth::user();
+            $token = $user->createToken('API Token')->plainTextToken;
 
-            return new JsonResponse(['message' => 'Logged in successfully', 'token'=>$token], 200);
+            return new JsonResponse([
+                'message' => 'Logged in successfully',
+                'token' => $token,
+                'role' => $user->role?->key,
+                'name' => $user->name
+            ], 200);
         }
-
         return new JsonResponse(['message' => 'Unauthorized'], 401);
     }
 

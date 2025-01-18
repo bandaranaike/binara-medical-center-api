@@ -20,50 +20,51 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SpecialtyController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('check-email', [AuthController::class, 'checkEmail']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
 Route::middleware(['auth:sanctum', 'auth'])->group(function () {
-    Route::delete('patients/remove-allergy/{allergyId}', [PatientsAllergyController::class, 'removeAllergy']);
-    Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController::class, 'removeDisease']);
+    Route::delete('patients/remove-allergy/{allergyId}', [PatientsAllergyController::class, 'removeAllergy'])
+        ->middleware('role:doctor');
+    Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController::class, 'removeDisease'])
+        ->middleware('role:doctor');
 
     Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
-    Route::get('bills/bookings/{time?}', [BillController::class, "bookings"]);
-    Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor']);
-    Route::get('bills/pending/pharmacy', [BillController::class, 'getPendingBillsForPharmacy']);
-    Route::get('bills/pending/reception', [BillController::class, 'getPendingBillsForReception']);
-    Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory']);
-    Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories']);
-    Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"]);
+    Route::get('bills/bookings/{time?}', [BillController::class, "bookings"])->middleware('role:reception');
+    Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])->middleware('role:doctor');
+    Route::get('bills/pending/pharmacy', [BillController::class, 'getPendingBillsForPharmacy'])->middleware('role:pharmacy');
+    Route::get('bills/pending/reception', [BillController::class, 'getPendingBillsForReception'])->middleware('role:reception');
+    Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory'])->middleware('role:doctor');
+    Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])->middleware('role:doctor');
+    Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])->middleware('role:reception');
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
-    Route::get('patients/search', [PatientController::class, 'search']);
+    Route::get('patients/search', [PatientController::class, 'search'])->middleware('role:reception');
 
     Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);
 
-    Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store']);
-    Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store']);
-    Route::post('patients/add-history', [PatientsHistoryController::class, 'store']);
-    Route::post('patients/add-medicine', [PatientsMedicineHistoryController::class, 'store']);
+    Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])->middleware('role:doctor');
+    Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store'])->middleware('role:doctor');
+    Route::post('patients/add-history', [PatientsHistoryController::class, 'store'])->middleware('role:doctor');
+    Route::post('patients/add-medicine', [PatientsMedicineHistoryController::class, 'store'])->middleware('role:doctor');
 
     Route::put('bills/{billId}/send-to-reception', [BillController::class, 'sendBillToReception']);
     Route::put('bills/{billId}/status', [BillController::class, 'updateStatus']);
-    Route::put('bills/{billId}/change-temp-status', [BillController::class, 'changeTempBillStatus']);
+    Route::put('bills/{billId}/change-temp-status', [BillController::class, 'changeTempBillStatus'])->middleware('role:reception,nurse');
 
-    Route::get('reports', [ReportController::class, 'index']);
+    Route::get('reports', [ReportController::class, 'index'])->middleware(["role:admin"]);
 
 });
 
-Route::apiResource('allergies', AllergyController::class);
-Route::apiResource('bills', BillController::class);
-Route::apiResource('bill-items', BillItemController::class);
-Route::apiResource('diseases', DiseaseController::class);
-Route::apiResource('doctors', DoctorController::class);
-Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class);
-Route::apiResource('hospitals', HospitalController::class);
-Route::apiResource('patients', PatientController::class);
-Route::apiResource('services', ServiceController::class);
-Route::apiResource('specialties', SpecialtyController::class);
+Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);
+Route::apiResource('bills', BillController::class)->middleware(['role:admin']);
+Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin']);
+Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
+Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin']);
+Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);
+Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);
+Route::apiResource('patients', PatientController::class)->middleware(['role:admin']);
+Route::apiResource('services', ServiceController::class)->middleware(['role:admin']);
+Route::apiResource('specialties', SpecialtyController::class)->middleware(['role:admin']);
 
 
 require base_path('routes/admin.php');
