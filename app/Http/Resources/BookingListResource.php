@@ -16,11 +16,12 @@ class BookingListResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'queue_number' => $this->dailyPatientQueue->queue_number ?? null,
+            'queue_number' => $this->dailyPatientQueue?->queue_number ?? null,
             'patient_name' => $this->patient->name ?? null,
             'doctor_name' => $this->doctor->name ?? null,
-            'queue_date' => $this->dailyPatientQueue->queue_date ?? null,
+            'queue_date' => $this->dailyPatientQueue?->queue_date ?? null,
             'bill_amount' => $this->bill_amount ?? null,
+            'system_amount' => $this->system_amount ?? null,
         ];
     }
 }

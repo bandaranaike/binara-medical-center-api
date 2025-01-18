@@ -102,7 +102,7 @@ class BillItemController extends Controller
     private function createTempBillIfNotExists($billId, $patientId)
     {
         if ($billId === -1) {
-            $billId = Bill::create(['patient_id' => $patientId, 'status' => Bill::STATUS_TEMPORARY])->id;
+            $billId = Bill::create(['patient_id' => $patientId, 'status' => Bill::STATUS_TREATMENT])->id;
         }
         return $billId;
     }

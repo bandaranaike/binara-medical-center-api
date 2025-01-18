@@ -13,11 +13,10 @@ Database :
     disease_patient(disease_id,patient_id)
     patient_histories(id,patient_id,doctor_id,note)
 
-
 Dental
     - Dental doctor gives medicine, treatments and labs
-    - Institution fee (~200LKR) is taking from every patient
-    - Treatments charge will go 50% to doctor, other half to hospital
+    - ✔ Institution fee (~200LKR) is taking from every patient
+    - ✔ Treatments charge will go 50% to doctor, other half to hospital
     - If patient has medicines to take from the pharmacy, the bill should direct to the pharmacy. Unless it should skip it.
     - Labs charge will get from the patient and will transfer to the third party vendor
 
@@ -25,3 +24,10 @@ New requirements
     - Age should be increased by every year
     - A medicine record by a doctor : Paracetamol 500mg QID for 2days (8 tablets)
     - Payment type need to mention in the bill. (Cache or Card)
+
+Authorization
+    - User has user_role_id : user_roles(specialist doctor,patient,reception,dental doctor,pharmacy,dental nurse,specialist nurse,opd doctor, opd nurse,admin)
+    - Logged user will come with User->role->key : (specialist-doctor,pharmacy-nurse..)
+    - In the front end all the tabs has user role array which need to check with the current user
+    - In the backend need to implement a middleware to check user role in every request
+        - Middleware accepts a role array which need to compare with the logged user role

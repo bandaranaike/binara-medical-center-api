@@ -146,6 +146,8 @@ class BillController extends Controller
                 'doctor:id,name',
                 'dailyPatientQueue:id,bill_id,queue_number,queue_date',
             ])
+            ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
+            ->orderByDesc('id')
             ->get(["id", "system_amount", "bill_amount", "patient_id", "doctor_id", "status"]);
 
         return new JsonResponse(BillReceptionResourceCollection::collection($pendingBills));
@@ -237,7 +239,7 @@ class BillController extends Controller
             $bookingsQuery->where('created_at', '>=', now()->subDays());
         }
 
-        $bookings = $bookingsQuery->get(['id', 'doctor_id', 'patient_id', 'bill_amount']);
+        $bookings = $bookingsQuery->get(['id', 'doctor_id', 'patient_id', 'bill_amount', 'system_amount']);
 
         return new JsonResponse(BookingListResource::collection($bookings));
     }

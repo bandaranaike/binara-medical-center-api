@@ -17,10 +17,10 @@ class BillReceptionResourceCollection extends JsonResource
         return [
             'id' => $this->id,
             'bill_amount' => $this->bill_amount + $this->system_amount,
-            'queue_number' => $this->dailyPatientQueue->queue_number,
+            'queue_number' => $this->dailyPatientQueue?->queue_number,
             'patient_name' => $this->patient->name,
-            'doctor_name' => $this->doctor->name,
-            'queue_date' => $this->dailyPatientQueue->queue_date,
+            'doctor_name' => $this->doctor?->name,
+            'queue_date' => $this->dailyPatientQueue?->queue_date,
             'status' => $this->status,
         ];
     }

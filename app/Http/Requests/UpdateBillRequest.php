@@ -30,7 +30,7 @@ class UpdateBillRequest extends FormRequest
             Bill::STATUS_DONE,
             Bill::STATUS_PHARMACY,
             Bill::STATUS_RECEPTION,
-            Bill::STATUS_TEMPORARY,
+            Bill::STATUS_TREATMENT,
         ];
         return [
             'status' => 'required|string|max:255|in:' . implode(',', $statusArray),
