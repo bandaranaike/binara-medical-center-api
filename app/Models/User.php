@@ -8,6 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property mixed $role
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -49,7 +52,7 @@ class User extends Authenticatable
 
     public function hasRole(string|array $role): bool
     {
-        if ($this->role) {
+        if (!$this->role) {
             return false;
         }
 
