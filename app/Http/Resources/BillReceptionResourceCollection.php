@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,7 +21,7 @@ class BillReceptionResourceCollection extends JsonResource
             'queue_number' => $this->dailyPatientQueue?->queue_number,
             'patient_name' => $this->patient->name,
             'doctor_name' => $this->doctor?->name,
-            'queue_date' => $this->dailyPatientQueue?->queue_date,
+            'queue_date' => $this->created_at->format('d M - h:i a'),
             'status' => $this->status,
         ];
     }

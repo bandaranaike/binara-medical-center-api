@@ -56,13 +56,13 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 });
 
 Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);
-Route::apiResource('bills', BillController::class)->middleware(['role:admin']);
+Route::apiResource('bills', BillController::class)->middleware(['role:admin,reception']);
 Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin']);
 Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
 Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin']);
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);
 Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);
-Route::apiResource('patients', PatientController::class)->middleware(['role:admin']);
+Route::apiResource('patients', PatientController::class)->middleware(['role:admin,reception']);
 Route::apiResource('services', ServiceController::class)->middleware(['role:admin']);
 Route::apiResource('specialties', SpecialtyController::class)->middleware(['role:admin']);
 

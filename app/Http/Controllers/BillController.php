@@ -148,7 +148,7 @@ class BillController extends Controller
             ])
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
             ->orderByDesc('id')
-            ->get(["id", "system_amount", "bill_amount", "patient_id", "doctor_id", "status"]);
+            ->get(["id", "system_amount", "bill_amount", "patient_id", "doctor_id", "status", "created_at"]);
 
         return new JsonResponse(BillReceptionResourceCollection::collection($pendingBills));
     }
