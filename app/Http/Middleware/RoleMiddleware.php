@@ -17,6 +17,8 @@ class RoleMiddleware
     {
         $user = $request->user();
 
+//        dd($user, $roles);
+
         if (!$user || !$user->hasRole($roles)) {
             return response()->json([
                 'message' => 'Unauthorized: You do not have permission to make this request.',

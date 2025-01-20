@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\ServiceType;
 use App\Http\Controllers\Traits\SystemPriceCalculator;
 use App\Http\Requests\StoreDoctorsChannelingFeeRequest;
 use App\Http\Requests\UpdateDoctorsChannelingFeeRequest;
@@ -14,6 +15,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class DoctorsChannelingFeeController extends Controller
 {
+    use ServiceType;
     use SystemPriceCalculator;
 
     /**
@@ -56,13 +58,7 @@ class DoctorsChannelingFeeController extends Controller
 
         $doctor = Doctor::with('channellingFee:doctor_id,fee')->select(['id', 'doctor_type', 'name'])->find($id);
 
-        $defaultServiceKey = match ($doctor->doctor_type) {
-            Doctor::DOCTOR_TYPE_DENTAL => Service::DENTAL_REGISTRATION_KEY,
-            Doctor::DOCTOR_TYPE_OPD => Service::DEFAULT_DOCTOR_KEY,
-            Doctor::DOCTOR_TYPE_SPECIALIST => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
-        };
-
-        $service = Service::getByKey($defaultServiceKey)->first();
+        $service = $this->getService($doctor->doctor_type);
 
         if ($doctor->channellingFee) {
             $fee = $doctor->channellingFee->fee;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Traits\PrintingDataProcess;
+use App\Http\Controllers\Traits\ServiceType;
 use App\Http\Controllers\Traits\SystemPriceCalculator;
 use App\Http\Requests\ChangeBillStatusRequest;
 use App\Http\Requests\StoreBillRequest;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Auth;
 class BillController extends Controller
 {
     use PrintingDataProcess;
+    use ServiceType;
     use SystemPriceCalculator;
 
     const OLD_BOOKING_KEYWORD = 'old';
@@ -286,19 +288,4 @@ class BillController extends Controller
         $data = [['bill_id' => $billId, 'service_id' => $serviceId, 'bill_amount' => $billAmount, 'system_amount' => $systemAmount]];
         BillItem::insert($data);
     }
-
-    private function getService($serviceType)
-    {
-
-        $serviceKey = match ($serviceType) {
-            'channeling' => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
-            'opd' => Service::DEFAULT_DOCTOR_KEY,
-            'dental' => Service::DENTAL_REGISTRATION_KEY
-        };
-
-        return Service::where('key', $serviceKey)->first();
-
-    }
-
-
 }
