@@ -56,6 +56,13 @@ class RoleSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
+            [
+                'name' => 'Pharmacy admin',
+                'key' => Role::ROLE_PHARMACY_ADMIN,
+                'description' => 'Role for pharmacy admin.',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
         ];
 
         Role::upsert($roles, ['key'], ['name', 'description', 'updated_at']);

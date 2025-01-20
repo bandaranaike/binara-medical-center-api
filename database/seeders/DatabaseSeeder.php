@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             AllergiesTableSeeder::class,
             DiseasesTableSeeder::class,
             DoctorSpecialtySeeder::class,
+            DrugSeeder::class,
             HospitalSeeder::class,
             MedicineSeeder::class,
             ServiceSeeder::class,
