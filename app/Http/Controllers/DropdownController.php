@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\DropdownResource;
-use App\Models\Doctor;
-use App\Models\Patient;
 use App\Services\DropdownStrategyFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

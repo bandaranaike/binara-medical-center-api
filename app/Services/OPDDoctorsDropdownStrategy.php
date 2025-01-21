@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Doctor;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 class OPDDoctorsDropdownStrategy implements DropdownStrategyInterface
 {

@@ -27,7 +27,8 @@ New requirements
 
 Authorization
     - User has user_role_id : user_roles(specialist doctor,patient,reception,dental doctor,pharmacy,dental nurse,specialist nurse,opd doctor, opd nurse,admin)
-    - Logged user will come with User->role->key : (specialist-doctor,pharmacy-nurse..)
-    - In the front end all the tabs has user role array which need to check with the current user
+    - Logged user will come with User->role->key : (specialist-doctor,pharmacy-nurse...)
+    - In the front end all the tabs have user role array which need to check with the current user
     - In the backend need to implement a middleware to check user role in every request
         - Middleware accepts a role array which need to compare with the logged user role
+

@@ -14,6 +14,7 @@ use App\Http\Resources\BookingListResource;
 use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\DailyPatientQueue;
+use App\Models\Doctor;
 use App\Models\Service;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -90,7 +91,9 @@ class BillController extends Controller
      */
     public function getPendingBillsForDoctor(): JsonResponse
     {
-        $doctorId = Auth::id();
+        $doctorId = Doctor::where('user_id', Auth::id())->first()?->id;
+        if (!$doctorId) return new JsonResponse(null, JsonResponse::HTTP_UNAUTHORIZED);
+
         $pendingBills = Bill::where('status', Bill::STATUS_DOCTOR)
             ->with(['patient.allergies:id,name', 'patient.diseases:id,name'])
             ->with('patient', function ($query) use ($doctorId) {

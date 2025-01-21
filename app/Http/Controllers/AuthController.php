@@ -20,7 +20,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Password::defaults()],
-            'role' => ['required', 'string'],
+            'role' => ['required', 'string', 'in:reception,patient,pharmacy,doctor,nurse'],
         ]);
 
         $roleId = Role::where("key", $validatedData['role'])->select(['id'])->first()?->id;
@@ -33,24 +33,6 @@ class AuthController extends Controller
         ]);
 
         return $this->sendToken($request);
-    }
-
-    public function oldLogin(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
-        return $user->createToken('token-name')->plainTextToken;
     }
 
     // Laravel controller example

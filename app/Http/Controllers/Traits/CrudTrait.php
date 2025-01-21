@@ -17,10 +17,10 @@ trait CrudTrait
 
     const DEFAULT_PAGE_SIZE = 30;
 
-    protected $model;
-    protected $storeRequest;
-    protected $updateRequest;
-    protected $searchField;
+    protected Model $model;
+    protected Request $storeRequest;
+    protected Request $updateRequest;
+    protected string $searchField;
 
     public function index(Request $request)
     {
@@ -33,7 +33,7 @@ trait CrudTrait
 
     public function store(Request $request): JsonResponse
     {
-        $validated = $this->validate($request, (new $this->storeRequest)->rules());
+        $validated = $this->validate($request, $this->storeRequest->rules());
         $this->model::create($validated);
         return response()->json(['message' => 'Record created successfully'], 201);
     }
@@ -45,8 +45,8 @@ trait CrudTrait
 
     public function update(Request $request, $id): JsonResponse
     {
-        $this->validate($request, $this->updateRequest->rules());
-        $this->model::findOrFail($id)->update($request->validated());
+        $validated = $this->validate($request, $this->updateRequest->rules());
+        $this->model::findOrFail($id)->update($validated);
         return response()->json(['message' => 'Record updated successfully']);
     }
 

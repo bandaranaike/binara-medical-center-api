@@ -10,4 +10,6 @@ class Supplier extends Model
 {
     /** @use HasFactory<SuplierFactory> */
     use HasFactory;
+
+    protected $fillable = ["name", "address", "phone", "email"];
 }

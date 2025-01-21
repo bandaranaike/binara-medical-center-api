@@ -10,14 +10,20 @@ class DropdownStrategyFactory
     {
         return match ($type) {
             'allergies' => new AllergiesDropdownStrategy(),
+            'brands' => new BrandsDropdownStrategy(),
+            'categories' => new CategoriesDropdownStrategy(),
             'diseases' => new DiseasesDropdownStrategy(),
-            'doctors' => new DoctorDropdownStrategy(),
-            'hospitals' => new HospitalDropdownStrategy(),
-            'medicines' => new MedicineDropdownStrategy(),
+            'doctors' => new DoctorsDropdownStrategy(),
+            'drugs' => new DrugsDropdownStrategy(),
+            'hospitals' => new HospitalsDropdownStrategy(),
+            'medicines' => new MedicinesDropdownStrategy(),
             'opd-doctors' => new OPDDoctorsDropdownStrategy(),
-            'patients' => new PatientDropdownStrategy(),
-            'specialties' => new SpecialtyDropdownStrategy(),
+            'patients' => new PatientsDropdownStrategy(),
+            'roles' => new RolesDropdownStrategy(),
             'services' => new ServicesDropdownStrategy(),
+            'specialties' => new SpecialtiesDropdownStrategy(),
+            'suppliers' => new SuppliersDropdownStrategy(),
+            'users' => new UsersDropdownStrategy(),
             default => throw new InvalidArgumentException("Invalid type: {$type}")
         };
     }

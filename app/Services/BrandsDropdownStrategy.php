@@ -2,23 +2,23 @@
 
 namespace App\Services;
 
-use App\Models\Disease;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use App\Models\Brand;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
-class DiseasesDropdownStrategy implements DropdownStrategyInterface
+class BrandsDropdownStrategy implements DropdownStrategyInterface
 {
     /**
-     * Get the results for the diseases dropdown.
+     * Get the results for the allergies dropdown.
      *
      * @param Request $request
      * @return Builder
      */
     public function getQuery(Request $request): Builder
     {
-        $query = Disease::query();
+        $query = Brand::query();
 
-        // If a search query is present, filter by the name of the disease
+        // If a search query is present, filter by the name of the allergy
         if ($request->has('search')) {
             $query->where('name', 'LIKE', '%' . $request->get('search') . '%');
         }

@@ -2,20 +2,20 @@
 
 namespace App\Services;
 
-use App\Models\Doctor;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Medicine;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
-class DoctorDropdownStrategy implements DropdownStrategyInterface
+class MedicinesDropdownStrategy implements DropdownStrategyInterface
 {
 
     public function getQuery(Request $request): Builder
     {
-        $query = Doctor::query();
+        $query = Medicine::query();
 
         if ($request->has('search')) {
             $query->where('name', 'LIKE', '%' . $request->get('search') . '%')
-                ->where('doctor_type', $request->get('type', Doctor::DOCTOR_TYPE_SPECIALIST));
+                ->orWhere('drug_name', 'LIKE', '%' . $request->get('search') . '%');
         }
 
         $query->select(['id', 'name AS label']);

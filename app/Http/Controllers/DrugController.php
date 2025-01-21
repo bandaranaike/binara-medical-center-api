@@ -16,9 +16,9 @@ class DrugController extends Controller
 
     public function __construct()
     {
-        $this->model = Drug::class;
-        $this->storeRequest = StoreDrugRequest::class;
-        $this->updateRequest = UpdateDrugRequest::class;
+        $this->model = new Drug();
+        $this->storeRequest = new StoreDrugRequest();
+        $this->updateRequest = new UpdateDrugRequest();
     }
 
     public function getDrugStockSaleData(): JsonResponse

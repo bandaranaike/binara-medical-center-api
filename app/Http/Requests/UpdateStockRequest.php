@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateStockRequest extends FormRequest
 {
@@ -11,18 +13,24 @@ class UpdateStockRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::guard('sanctum')->check();
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
-            //
+            "brand_id" => "required|integer|exists:brands,id",
+            "supplier_id" => "required|integer|exists:suppliers,id",
+            "unit_price" => "required|numeric",
+            "batch_number" => "sometimes|string",
+            "quantity" => "required|numeric",
+            "expire_date" => "required|date",
+            "cost" => "sometimes|numeric",
         ];
     }
 }
