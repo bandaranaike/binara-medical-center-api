@@ -17,7 +17,7 @@ class MedicineSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        DB::table('medicines')->insert([
+        DB::table('medicines')->upsert([
             [
                 'name' => 'Paracetamol',
                 'drug_name' => 'Acetaminophen',
@@ -114,6 +114,6 @@ class MedicineSeeder extends Seeder
                 'quantity' => 180,
                 'price' => 0.90,
             ]
-        ]);
+        ], ['name'], ['drug_name', 'expire_date', 'initial_quantity', 'quantity', 'price']);
     }
 }

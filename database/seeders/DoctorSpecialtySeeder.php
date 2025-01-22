@@ -14,7 +14,7 @@ class DoctorSpecialtySeeder extends Seeder
      */
     public function run()
     {
-        DB::table('specialties')->insert([
+        DB::table('specialties')->upsert([
             ['name' => 'Cardiology'],
             ['name' => 'Dermatology'],
             ['name' => 'Endocrinology'],
@@ -65,6 +65,6 @@ class DoctorSpecialtySeeder extends Seeder
             ['name' => 'Interventional Radiology'],
             ['name' => 'Occupational Medicine'],
             ['name' => 'Palliative Care'],
-        ]);
+        ], ['name']);
     }
 }

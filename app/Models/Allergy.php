@@ -12,4 +12,6 @@ class Allergy extends Model
     protected $fillable = [
         'name',
     ];
+
+    public $timestamps = false;
 }

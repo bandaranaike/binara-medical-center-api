@@ -14,7 +14,7 @@ class HospitalSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('hospitals')->insert([
+        DB::table('hospitals')->upsert([
             [
                 'name' => 'No hospital',
                 'location' => 'There is no hospital',
@@ -27,6 +27,6 @@ class HospitalSeeder extends Seeder
                 'name' => 'Peradeniya',
                 'location' => 'Kandy, Sri Lanka',
             ]
-        ]);
+        ], ['name'], ['location']);
     }
 }

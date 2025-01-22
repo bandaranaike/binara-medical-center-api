@@ -16,13 +16,17 @@ class UsersSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert([
-            'name' => 'Administrator',
-            'email' => 'admin@email.com',
-            'password' => Hash::make('9,$wCD:Kf,3YwEu'),
-            'role_id' => Role::where('key', Role::ROLE_ADMIN)->first()?->id ?? 1, // Make sure RolesSeeder has already been run
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::table('users')->upsert(
+            [
+                'email' => 'admin@email.com',
+                'name' => 'Administrator',
+                'password' => Hash::make('9,$wCD:Kf,3YwEu'),
+                'role_id' => Role::where('key', Role::ROLE_ADMIN)->first()?->id ?? 1, // Make sure RolesSeeder has already been run
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            ['email'],
+            ['name', 'password', 'role_id', 'created_at', 'updated_at']
+        );
     }
 }
