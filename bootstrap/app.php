@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureDoctor;
 use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RoleMiddleware;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
+            'ensure.doctor' => EnsureDoctor::class,
             'role' => RoleMiddleware::class,
             'verified' => EnsureEmailIsVerified::class,
         ]);

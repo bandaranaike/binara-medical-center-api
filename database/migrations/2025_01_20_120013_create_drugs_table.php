@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->decimal('minimum_quantity');
+            $table->foreignId('category_id')->constrained('categories');
             $table->timestamps();
         });
     }

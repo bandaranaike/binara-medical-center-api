@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('name');
             $table->foreignId('hospital_id')->nullable()->constrained('hospitals');
             $table->foreignId('specialty_id')->nullable()->constrained('specialties');
-            $table->foreignId('user_id')->nullable()->constrained('uses');
+            $table->foreignId('user_id')->nullable()->constrained('users');
             $table->string('telephone')->nullable();
             $table->enum('doctor_type', [Doctor::DOCTOR_TYPE_DENTAL, Doctor::DOCTOR_TYPE_OPD, Doctor::DOCTOR_TYPE_SPECIALIST])->default(Doctor::DOCTOR_TYPE_SPECIALIST);
             $table->string('email')->unique()->nullable();

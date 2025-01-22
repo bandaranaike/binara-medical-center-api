@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -49,7 +48,7 @@ class AuthController extends Controller
     private function sendToken($request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, $request->get('remember'))) {
             $user = Auth::user();
             $token = $user->createToken('API Token')->plainTextToken;
 

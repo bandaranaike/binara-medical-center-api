@@ -16,6 +16,10 @@ class HospitalSeeder extends Seeder
     {
         DB::table('hospitals')->insert([
             [
+                'name' => 'No hospital',
+                'location' => 'There is no hospital',
+            ],
+            [
                 'name' => 'Kandy',
                 'location' => 'Kandy, Sri Lanka',
             ],

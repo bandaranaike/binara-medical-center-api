@@ -37,12 +37,13 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
     Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
     Route::get('bills/bookings/{time?}', [BillController::class, "bookings"])->middleware('role:reception,admin');
-    Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])->middleware('role:doctor');
+    Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])->middleware(['role:doctor', 'ensure.doctor']);
     Route::get('bills/pending/pharmacy', [BillController::class, 'getPendingBillsForPharmacy'])
         ->middleware('role:pharmacy,pharmacy_admin');
     Route::get('bills/pending/reception', [BillController::class, 'getPendingBillsForReception'])
         ->middleware('role:reception,admin');
-    Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory'])->middleware('role:doctor');
+    Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory'])
+        ->middleware(['role:doctor', 'ensure.doctor']);
     Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])->middleware('role:doctor');
     Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])->middleware('role:reception');
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
@@ -51,10 +52,14 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
     Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);
 
-    Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])->middleware('role:doctor');
-    Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store'])->middleware('role:doctor');
-    Route::post('patients/add-history', [PatientsHistoryController::class, 'store'])->middleware('role:doctor');
-    Route::post('patients/add-medicine', [PatientsMedicineHistoryController::class, 'store'])->middleware('role:doctor');
+    Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])
+        ->middleware('role:doctor');
+    Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store'])
+        ->middleware('role:doctor');
+    Route::post('patients/add-history', [PatientsHistoryController::class, 'store'])
+        ->middleware(['role:doctor', 'ensure.doctor']);
+    Route::post('patients/add-medicine', [PatientsMedicineHistoryController::class, 'store'])
+        ->middleware(['role:doctor', 'ensure.doctor']);
 
     Route::put('bills/{billId}/send-to-reception', [BillController::class, 'sendBillToReception']);
     Route::put('bills/{billId}/status', [BillController::class, 'updateStatus']);
@@ -69,7 +74,7 @@ Route::apiResource('bills', BillController::class)->middleware(['role:admin,rece
 Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin']);
 Route::apiResource('brands', BrandController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
-Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin']);
+Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin,reception']);
 Route::apiResource('drugs', DrugController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);
 Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);

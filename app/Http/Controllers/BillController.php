@@ -91,9 +91,7 @@ class BillController extends Controller
      */
     public function getPendingBillsForDoctor(): JsonResponse
     {
-        $doctorId = Doctor::where('user_id', Auth::id())->first()?->id;
-        if (!$doctorId) return new JsonResponse(null, JsonResponse::HTTP_UNAUTHORIZED);
-
+        $doctorId = request('doctor_id');
         $pendingBills = Bill::where('status', Bill::STATUS_DOCTOR)
             ->with(['patient.allergies:id,name', 'patient.diseases:id,name'])
             ->with('patient', function ($query) use ($doctorId) {

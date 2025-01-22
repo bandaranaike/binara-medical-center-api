@@ -6,6 +6,7 @@ use App\Http\Requests\StorePatientMedicineRequest;
 use App\Http\Resources\PatientMedicineHistoryCollection;
 use App\Models\Bill;
 use App\Models\BillItem;
+use App\Models\Doctor;
 use App\Models\Medicine;
 use App\Models\PatientMedicineHistory;
 use App\Models\Service;
@@ -53,13 +54,16 @@ class PatientsMedicineHistoryController extends Controller
             $medicineId = $this->createNewMedicineIfNotExists($validated['medicine_id'], $validated['medicine_name']);
 
             // Get the logged-in doctor's ID
-            $doctorId = Auth::id();
+            $doctorId = Doctor::where('user_id', Auth::id())->first()?->id;
+            if (!$doctorId) {
+                return new JsonResponse("Doctor not found", 404);
+            }
 
             // Insert the new medicine record
             PatientMedicineHistory::create([
                 'patient_id' => $validated['patient_id'],
                 'bill_id' => $validated['bill_id'],
-                'doctor_id' => $doctorId,
+                'doctor_id' => $request->doctor_id,
                 'medicine_id' => $medicineId,
                 'dosage' => $validated['dosage'],
                 'type' => $validated['type'],
