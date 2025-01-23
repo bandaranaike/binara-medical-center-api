@@ -25,6 +25,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SpecialtyController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
@@ -87,6 +88,7 @@ Route::apiResource('services', ServiceController::class)->middleware(['role:admi
 Route::apiResource('specialties', SpecialtyController::class)->middleware(['role:admin']);
 Route::apiResource('stocks', StockController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('suppliers', SupplierController::class)->middleware(['role:admin,pharmacy_admin']);
+Route::apiResource('users', UserController::class)->middleware(['role:admin']);
 
 
 require base_path('routes/admin.php');

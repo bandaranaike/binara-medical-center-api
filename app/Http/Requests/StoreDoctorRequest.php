@@ -26,7 +26,7 @@ class StoreDoctorRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'hospital_id' => 'nullable|exists:hospitals,id',
-            'user_id' => 'nullable|required|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
             'specialty_id' => 'nullable|exists:specialties,id',
             'telephone' => 'required|string|max:20',
             'email' => 'nullable|email|unique:doctors,email',

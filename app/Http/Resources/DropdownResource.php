@@ -15,6 +15,7 @@ class DropdownResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            "id" => $this->id,
             'value' => $this->id,
             'label' => $this->label,
         ];
