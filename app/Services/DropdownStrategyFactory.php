@@ -16,6 +16,7 @@ class DropdownStrategyFactory
             'doctors' => new DoctorsDropdownStrategy(),
             'drugs' => new DrugsDropdownStrategy(),
             'hospitals' => new HospitalsDropdownStrategy(),
+            'medicines' => new MedicationFrequenciesDropdownStrategy(),
             'medicines' => new MedicinesDropdownStrategy(),
             'opd-doctors' => new OPDDoctorsDropdownStrategy(),
             'patients' => new PatientsDropdownStrategy(),

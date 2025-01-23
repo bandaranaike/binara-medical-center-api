@@ -25,7 +25,7 @@ class StoreDrugRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
-            'minimum_quantity' => ['required', 'integer', 'min:1'],
+            'minimum_quantity' => ['required', 'min:1'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
         ];
     }

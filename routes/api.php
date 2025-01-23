@@ -6,6 +6,7 @@ use App\Http\Controllers\BillController;
 use App\Http\Controllers\BillItemController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DiseaseController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
@@ -73,6 +74,7 @@ Route::apiResource('allergies', AllergyController::class)->middleware(['role:adm
 Route::apiResource('bills', BillController::class)->middleware(['role:admin,reception']);
 Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin']);
 Route::apiResource('brands', BrandController::class)->middleware(['role:admin,pharmacy_admin']);
+Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin    ']);
 Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
 Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin,reception']);
 Route::apiResource('drugs', DrugController::class)->middleware(['role:admin,pharmacy_admin']);

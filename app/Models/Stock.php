@@ -18,4 +18,9 @@ class Stock extends Model
     {
         return $this->belongsTo(Brand::class);
     }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
 }

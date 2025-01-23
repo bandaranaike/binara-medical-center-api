@@ -21,14 +21,26 @@ trait CrudTrait
     protected Request $storeRequest;
     protected Request $updateRequest;
     protected string $searchField;
+    protected array $relationships = [];
+
+    protected string $resource;
 
     public function index(Request $request)
     {
+        $query = $this->model->query();
+
         if ($request->has('search')) {
-            return $this->model::where($this->searchField, 'LIKE', "%" . $request->get('search') . "%")->paginate(self::DEFAULT_PAGE_SIZE);
+            $query = $query::where($this->searchField, 'LIKE', "%" . $request->get('search') . "%");
         }
 
-        return $this->model::paginate(self::DEFAULT_PAGE_SIZE);
+        $records = $query->with($this->relationships)->paginate(self::DEFAULT_PAGE_SIZE);
+
+        if (isset($this->resource)) {
+            $data = $this->resource::collection($records);
+        } else {
+            $data = $records->items();
+        }
+        return new JsonResponse(["data" => $data, "last_page" => $records->lastPage()]);
     }
 
     public function store(Request $request): JsonResponse

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Traits\CrudTrait;
 use App\Http\Requests\StoreDrugRequest;
 use App\Http\Requests\UpdateDrugRequest;
+use App\Http\Resources\DrugResource;
 use App\Models\Drug;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,8 @@ class DrugController extends Controller
         $this->model = new Drug();
         $this->storeRequest = new StoreDrugRequest();
         $this->updateRequest = new UpdateDrugRequest();
+        $this->resource = DrugResource::class;
+        $this->relationships = ['category:id,name'];
     }
 
     public function getDrugStockSaleData(): JsonResponse

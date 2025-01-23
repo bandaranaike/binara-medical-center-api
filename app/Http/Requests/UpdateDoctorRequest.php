@@ -25,11 +25,12 @@ class UpdateDoctorRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
-            'hospital_id' => 'sometimes|required|exists:hospitals,id',
-            'user_id' => 'sometimes|required|exists:users,id',
+            'hospital_id' => 'sometimes|exists:hospitals,id',
+            'user_id' => 'sometimes|nullable|exists:users,id',
             'specialty_id' => 'sometimes|exists:specialties,id',
             'telephone' => 'sometimes|required|string|max:20',
-            'email' => 'sometimes|email',
+            'email' => 'sometimes|nullable|email',
+            'doctor_type' => 'string',
         ];
     }
 }
