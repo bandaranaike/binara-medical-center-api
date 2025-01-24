@@ -39,17 +39,21 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
     Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
     Route::get('bills/bookings/{time?}', [BillController::class, "bookings"])->middleware('role:reception,admin');
-    Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])->middleware(['role:doctor', 'ensure.doctor']);
+    Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])
+        ->middleware(['role:doctor', 'ensure.doctor']);
     Route::get('bills/pending/pharmacy', [BillController::class, 'getPendingBillsForPharmacy'])
         ->middleware('role:pharmacy,pharmacy_admin');
     Route::get('bills/pending/reception', [BillController::class, 'getPendingBillsForReception'])
         ->middleware('role:reception,admin');
     Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory'])
         ->middleware(['role:doctor', 'ensure.doctor']);
-    Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])->middleware('role:doctor');
-    Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])->middleware('role:reception');
+    Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])
+        ->middleware(['role:doctor', 'ensure.doctor']);
+    Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])
+        ->middleware('role:reception');
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
-    Route::get('drugs/stock-sale-data', [DrugController::class, 'getDrugStockSaleData'])->middleware('role:pharmacy_admin,admin');
+    Route::get('drugs/stock-sale-data', [DrugController::class, 'getDrugStockSaleData'])
+        ->middleware('role:pharmacy_admin,admin');
     Route::get('patients/search', [PatientController::class, 'search'])->middleware('role:reception');
 
     Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);

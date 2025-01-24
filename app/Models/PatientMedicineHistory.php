@@ -19,8 +19,7 @@ class PatientMedicineHistory extends Model
         'medicine_id',
         'doctor_id',
         'bill_id',
-        'dosage',
-        'type',
+        'medication_frequency_id',
         'duration'
     ];
 
@@ -37,5 +36,10 @@ class PatientMedicineHistory extends Model
     public function bill(): BelongsTo
     {
         return $this->belongsTo(Bill::class);
+    }
+
+    public function medicationFrequency(): BelongsTo
+    {
+        return $this->belongsTo(MedicationFrequency::class);
     }
 }
