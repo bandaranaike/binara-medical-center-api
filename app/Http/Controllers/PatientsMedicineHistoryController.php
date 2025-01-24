@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePatientMedicineRequest;
 use App\Http\Resources\PatientMedicineHistoryCollection;
 use App\Models\Bill;
+use App\Models\MedicationFrequency;
 use App\Models\Medicine;
 use App\Models\PatientMedicineHistory;
 use Exception;
@@ -49,8 +50,9 @@ class PatientsMedicineHistoryController extends Controller
             $validated = $request->validated();
 
             $medicineId = $this->createNewMedicineIfNotExists($validated['medicine_id'], $validated['medicine_name']);
+            $medicationFrequencyId = $this->createNewMedicationFrequencyIfNotExists($validated['medicine_id'], $validated['medicine_name']);
 
-            // Get the logged-in doctor's ID
+            // Get the logged-in user id then related doctor id (the middleware handles)
             $doctorId = $request->doctor_id;
 
             // Insert the new medicine record
@@ -59,8 +61,7 @@ class PatientsMedicineHistoryController extends Controller
                 'bill_id' => $validated['bill_id'],
                 'doctor_id' => $doctorId,
                 'medicine_id' => $medicineId,
-                'dosage' => $validated['dosage'],
-                'type' => $validated['type'],
+                'medication_frequency_id' => $medicationFrequencyId,
                 'duration' => $validated['duration'],
             ]);
 
@@ -98,6 +99,14 @@ class PatientsMedicineHistoryController extends Controller
                 $query->where("status", Bill::STATUS_DOCTOR);
             })
             ->get();
+    }
+
+    private function createNewMedicationFrequencyIfNotExists(mixed $medicationFrequencyId, mixed $medicationFrequencyName)
+    {
+        if ($medicationFrequencyId === "-1") {
+            $medicationFrequencyId = MedicationFrequency::create(["name" => $medicationFrequencyName])->id;
+        }
+        return $medicationFrequencyId;
     }
 
 }

@@ -46,8 +46,8 @@ trait CrudTrait
     public function store(Request $request): JsonResponse
     {
         $validated = $this->validate($request, $this->storeRequest->rules());
-        $this->model::create($validated);
-        return response()->json(['message' => 'Record created successfully'], 201);
+        $item = $this->model::create($validated);
+        return response()->json(['message' => 'Record created successfully', "item" => $item], 201);
     }
 
     public function show($id)

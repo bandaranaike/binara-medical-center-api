@@ -24,13 +24,9 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "brand_id" => "required|integer|exists:brands,id",
-            "supplier_id" => "required|integer|exists:suppliers,id",
-            "unit_price" => "required|numeric",
-            "batch_number" => "sometimes|string",
-            "quantity" => "required|numeric",
-            "expire_date" => "required|date",
-            "cost" => "sometimes|numeric",
+            "email" => ["required", "email", "unique:users,email"],
+            "name" => ["required", "string", "max:255"],
+            "role_id" => ["required", "integer", "exists:roles,id"],
         ];
     }
 }

@@ -19,14 +19,7 @@ class DoctorController extends Controller
         $this->model = new Doctor();
         $this->updateRequest = new UpdateDoctorRequest();
         $this->storeRequest = new StoreDoctorRequest();
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $doctors = Doctor::with('hospital:id,name', 'specialty:id,name', 'user:id,name')->paginate(self::DEFAULT_PAGE_SIZE);
-        return ["data" => DoctorResource::collection($doctors), "last_page" => $doctors->lastPage()];
+        $this->resource = DoctorResource::class;
+        $this->relationships = ['hospital:id,name', 'specialty:id,name', 'user:id,name'];
     }
 }

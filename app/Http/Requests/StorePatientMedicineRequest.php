@@ -27,10 +27,10 @@ class StorePatientMedicineRequest extends FormRequest
             'patient_id' => 'required|exists:patients,id',
             'bill_id' => 'required|exists:bills,id',
             'medicine_id' => 'required',
-            'dosage' => 'nullable|string',
-            'type' => 'nullable|string',
+            'medication_frequency_name' => 'nullable|string',
             'duration' => 'nullable|string',
             'medicine_name' => 'nullable|string',
+            'medication_frequency_id' => 'required',
         ];
     }
 }
