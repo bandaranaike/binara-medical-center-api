@@ -28,6 +28,7 @@ class UpdateStockRequest extends FormRequest
             "supplier_id" => "required|integer|exists:suppliers,id",
             "unit_price" => "required|numeric",
             "batch_number" => "sometimes|string",
+            "initial_quantity" => "required|numeric",
             "quantity" => "required|numeric",
             "expire_date" => "required|date",
             "cost" => "sometimes|numeric",

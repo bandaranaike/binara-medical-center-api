@@ -18,6 +18,7 @@ class DropdownResource extends JsonResource
             "id" => $this->id,
             'value' => $this->id,
             'label' => $this->label,
+            'extra' => $this->extra
         ];
     }
 }

@@ -12,7 +12,7 @@ class Stock extends Model
     /** @use HasFactory<StockFactory> */
     use HasFactory;
 
-    protected $fillable = ['brand_id', 'supplier_id', 'unit_price', 'batch_number', 'quantity', 'expire_date', 'cost'];
+    protected $fillable = ['brand_id', 'supplier_id', 'unit_price', 'batch_number', 'initial_quantity', 'quantity', 'expire_date', 'cost'];
 
     public function brand(): BelongsTo
     {
