@@ -25,8 +25,9 @@ class StoreSaleRequest extends FormRequest
     {
         return [
             "brand_id" => "required|integer|exists:brands,id",
-            "quantity" => "required|numeric",
-            "total_price" => "required|numeric",
+            "bill_id" => "required|integer|exists:bills,id",
+            "quantity" => "required|numeric|max:999999",
+            "total_price" => "required|numeric|max:999999",
         ];
     }
 }

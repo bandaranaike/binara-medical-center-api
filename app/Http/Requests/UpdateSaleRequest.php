@@ -25,6 +25,7 @@ class UpdateSaleRequest extends FormRequest
     {
         return [
             "brand_id" => "required|integer|exists:brands,id",
+            "bill_id" => "required|integer|exists:bills,id",
             "quantity" => "required|integer",
             "total_price" => "required|integer",
         ];

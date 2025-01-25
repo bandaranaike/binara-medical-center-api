@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->foreignId('brand_id')->nullable()->constrained('brands')->onDelete('set null');
+            $table->foreignId('bill_id')->nullable()->constrained('bills')->onDelete('set null');
             $table->decimal('quantity');
             $table->decimal('total_price');
             $table->timestamps();

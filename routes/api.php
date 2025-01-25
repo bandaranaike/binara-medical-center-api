@@ -37,7 +37,8 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController::class, 'removeDisease'])
         ->middleware('role:doctor');
 
-    Route::get('bills/get-next-bill-number', [BillController::class, "getNextBillNumber"]);
+    Route::get('bills/{billId}/sales', [SaleController::class, "getDrugSalesForBill"])
+        ->middleware('role:reception,pharmacy,pharmacy_admin,admin');
     Route::get('bills/bookings/{time?}', [BillController::class, "bookings"])->middleware('role:reception,admin');
     Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])
         ->middleware(['role:doctor', 'ensure.doctor']);
@@ -77,7 +78,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
 Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);
 Route::apiResource('bills', BillController::class)->middleware(['role:admin,reception']);
-Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin']);
+Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin,pharmacy_admin,pharmacy']);
 Route::apiResource('brands', BrandController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin    ']);
 Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
@@ -87,7 +88,7 @@ Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::cla
 Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);
 Route::apiResource('patients', PatientController::class)->middleware(['role:admin,reception']);
 Route::apiResource('roles', RoleController::class)->middleware(['role:admin']);
-Route::apiResource('sales', SaleController::class)->middleware(['role:admin,pharmacy_admin']);
+Route::apiResource('sales', SaleController::class)->middleware(['role:admin,pharmacy_admin,reception,pharmacy']);
 Route::apiResource('services', ServiceController::class)->middleware(['role:admin']);
 Route::apiResource('specialties', SpecialtyController::class)->middleware(['role:admin']);
 Route::apiResource('stocks', StockController::class)->middleware(['role:admin,pharmacy_admin']);

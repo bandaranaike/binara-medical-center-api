@@ -128,8 +128,8 @@ class BillController extends Controller
                     ->select('id', 'bill_id', 'service_id', 'bill_amount'); // Load only necessary fields for bill items
             }])
             ->with('patientMedicines', function ($query) {
-                $query->with('medicine:id,name')
-                    ->select('id', 'bill_id', 'medicine_id', 'dosage', 'type', 'duration');
+                $query->with('medicine:id,name', 'medicationFrequency:id,name')
+                    ->select('id', 'bill_id', 'medicine_id', 'medication_frequency_id', 'duration');
             })
             ->get();
 
