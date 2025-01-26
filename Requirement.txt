@@ -12,6 +12,12 @@ Database :
     allergy_patient(allergy_id,patient_id)
     disease_patient(disease_id,patient_id)
     patient_histories(id,patient_id,doctor_id,note)
+    sales(id,brand_id,bill_id,quantity,total_price,created_at,updated_at)
+    stocks(id,brand_id,supplier_id,unit_price,batch_number,initial_quantity,quantity,expire_date,cost,created_at,updated_at)
+    suppliers(id,name,address,phone,email,created_at,updated_at)
+    drugs(id,name,minimum_quantity,category_id,created_at,updated_at)
+    brands(id,name,drug_id,created_at,updated_at)
+    categories(id,name)
 
 Dental
     - Dental doctor gives medicine, treatments and labs
