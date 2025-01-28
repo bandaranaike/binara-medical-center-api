@@ -10,9 +10,13 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Psy\Util\Json;
 
 class BillItemController extends Controller
 {
+
+    private bool $isNewBill = false;
+
     /**
      * Store a new bill item in the database.
      *
@@ -21,14 +25,12 @@ class BillItemController extends Controller
      */
     public function store(StoreBillItemRequest $request): JsonResponse
     {
-        // Validate the incoming request
         $validatedData = $request->validated();
 
         $serviceId = $this->createNewServiceIfNotExists($validatedData['service_id'], $validatedData['service_name']);
         $billId = $this->createTempBillIfNotExists($validatedData['bill_id'], $validatedData['patient_id']);
 
         try {
-            // Create the new BillItem
             $billItem = BillItem::create([
                 'bill_id' => $billId,
                 'service_id' => $serviceId,
@@ -36,20 +38,14 @@ class BillItemController extends Controller
                 'bill_amount' => $validatedData['bill_amount'],
             ]);
 
-            // Return success response
-            return response()->json([
-                'success' => true,
-                'message' => 'Bill item added successfully.',
-                'data' => $billItem->load('service:id,name'),
-            ], 201);
+            if ($this->isNewBill) {
+                return new JsonResponse($this->getBillForServices($billId), 201);
+            }
+
+            return response()->json($billItem->load('service:id,name'), 201);
 
         } catch (Exception $e) {
-            // Handle any exceptions that may occur
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while adding the bill item.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return response()->json('An error occurred while adding the bill item.', 500);
         }
     }
 
@@ -102,9 +98,20 @@ class BillItemController extends Controller
     private function createTempBillIfNotExists($billId, $patientId)
     {
         if ($billId === -1) {
+            $this->isNewBill = true;
             $billId = Bill::create(['patient_id' => $patientId, 'status' => Bill::STATUS_TREATMENT])->id;
         }
         return $billId;
+    }
+
+    public function getBillForServices($billId): Bill
+    {
+        return Bill::where('status', Bill::STATUS_TREATMENT)
+            ->where('id', $billId)
+            ->with(['billItems' => function ($query) {
+                $query->with('service:id,name')
+                    ->select('id', 'bill_id', 'service_id', 'bill_amount');
+            }])->first();
     }
 
 }

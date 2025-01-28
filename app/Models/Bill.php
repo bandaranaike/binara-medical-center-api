@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 /**
  * @method static create(mixed $validated)
  * @method static where(string $string, string $operator, string $STATUS_PENDING = null)
  * @method static whereStatus(string $STATUS_PENDING)
  * @method static selectRaw(string $string)
+ * @method static firstOrCreate(array $array, array $array1)
  */
 class Bill extends Model
 {
@@ -35,6 +37,15 @@ class Bill extends Model
         'doctor_id',
         'status'
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($bill) {
+            $bill->uuid = (string)Str::uuid();
+        });
+    }
 
     public function billItems(): HasMany
     {
@@ -60,4 +71,5 @@ class Bill extends Model
     {
         return $this->hasMany(PatientMedicineHistory::class);
     }
+
 }

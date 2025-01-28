@@ -31,9 +31,9 @@ trait PrintingDataProcess
         return $printingData;
     }
 
-    public function getBillItemsFroPrint($id)
+    public function getBillItemsFroPrint($billId)
     {
-        $billItems = BillItem::where('bill_id', $id)->select(['bill_amount', 'system_amount', 'service_id'])->with('service')->get();
+        $billItems = BillItem::where('bill_id', $billId)->select(['bill_amount', 'system_amount', 'service_id'])->with('service')->get();
 
         return $billItems->flatMap(function ($item) {
             return $this->preparePrintData($item->service, $item->bill_amount, $item->system_amount);

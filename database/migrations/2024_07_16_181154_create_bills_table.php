@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
+            $table->uuid();
             $table->decimal('system_amount')->default(0);
             $table->decimal('bill_amount')->default(0);
             $table->foreignId('patient_id')->constrained('patients');

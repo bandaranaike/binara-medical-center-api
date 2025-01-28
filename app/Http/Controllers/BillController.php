@@ -15,6 +15,7 @@ use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\DailyPatientQueue;
 use App\Models\Doctor;
+use App\Models\Role;
 use App\Models\Service;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -50,7 +51,7 @@ class BillController extends Controller
         // service_type:in(channeling|opd|dental)
         $service = $this->getService($request->input('service_type'));
 
-        $bill = Bill::create([...$data, 'status' => $status]);
+        $bill = Bill::firstOrCreate(["id" => $request->get('bill_id')], [...$data, 'status' => $status]);
 
         $this->insertBillItems($service->id, $data['bill_amount'], $data['system_amount'], $bill->id);
 
@@ -77,11 +78,6 @@ class BillController extends Controller
         $bill->update($request->only('status'));
 
         return new BillResource($bill->load('billItems'));
-    }
-
-    public function getNextBillNumber(): JsonResponse
-    {
-        return new JsonResponse(Bill::latest()->first()->id + 1);
     }
 
     /**
@@ -116,9 +112,9 @@ class BillController extends Controller
      *
      * @return JsonResponse
      */
-    public function getPendingBillsForPharmacy(): JsonResponse
+    public function getPendingBillsForPharmacy(Request $request): JsonResponse
     {
-        $pendingBills = Bill::where('status', Bill::STATUS_PHARMACY)
+        $pendingBillsQuery = Bill::where('status', Bill::STATUS_PHARMACY)
             ->with([
                 'patient:id,name,age,gender',
                 'doctor:id,name',
@@ -130,8 +126,13 @@ class BillController extends Controller
             ->with('patientMedicines', function ($query) {
                 $query->with('medicine:id,name', 'medicationFrequency:id,name')
                     ->select('id', 'bill_id', 'medicine_id', 'medication_frequency_id', 'duration');
-            })
-            ->get();
+            });
+
+        if (Auth::user()->hasRole(Role::ROLE_DOCTOR)) {
+            $pendingBillsQuery->where('doctor_id', Doctor::where('user_id', Auth::id())->first('id')?->id);
+        }
+
+        $pendingBills = $pendingBillsQuery->get();
 
         return new JsonResponse($pendingBills);
     }
@@ -205,6 +206,11 @@ class BillController extends Controller
 
         $bill->status = $validated['status'];
         $bill->save();
+        if ($validated['status'] === Bill::STATUS_DONE) {
+            $billItems = $this->getBillItemsFroPrint($bill->id);
+            return new JsonResponse(["bill_id" => $bill->id, "bill_items" => $billItems, 'total' => $bill->bill_amount + $bill->system_amount], 201);
+        }
+
 
         return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
     }

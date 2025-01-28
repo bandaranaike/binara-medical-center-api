@@ -13,6 +13,7 @@ trait ServiceType
             Doctor::DOCTOR_TYPE_DENTAL => Service::DENTAL_REGISTRATION_KEY,
             Doctor::DOCTOR_TYPE_OPD => Service::DEFAULT_DOCTOR_KEY,
             Doctor::DOCTOR_TYPE_SPECIALIST => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
+            default => null,
         };
 
         return Service::where('key', $serviceKey)->first();
