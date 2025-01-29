@@ -59,8 +59,49 @@ class BillController extends Controller
 
         $billItems = $this->getBillItemsFroPrint($bill->id);
 
-        return new JsonResponse(["bill_id" => $bill->id, "queue_id" => $queueNumber, "bill_items" => $billItems, 'total' => $bill->bill_amount + $bill->system_amount], 201);
+        return new JsonResponse([
+            "bill_id" => $bill->id,
+            "queue_id" => $queueNumber,
+            "bill_items" => $billItems,
+            'total' => ($bill->bill_amount + $bill->system_amount),
+            "bill_reference" => $bill->status
+        ], 201);
     }
+
+    /**
+     * bill_amount    2000
+     * bill_id    0
+     * channeling_charge    500
+     * channeling_fee    2000
+     * doctor_id    2
+     * is_booking    false
+     * patient_id    7
+     * service_type    "specialist"
+     * system_amount    500
+     *
+     * @param Bill $bill
+     * @return void
+     */
+    private function storeChannelingBill(Bill $bill, $isBooking)
+    {
+        $this->insertBillItems();
+    }
+
+    private function storeOPDBill(Bill $bill)
+    {
+
+    }
+
+    private function storeDentalBill(Bill $bill)
+    {
+
+    }
+
+    private function storeTreatmentBill(Bill $bill)
+    {
+
+    }
+
 
     /**
      * Display the specified resource.
@@ -99,7 +140,7 @@ class BillController extends Controller
                     ->orderBy('created_at', 'desc');
             })
             ->join('daily_patient_queues', 'bills.id', '=', 'daily_patient_queues.bill_id', 'left')
-            ->select(['bills.id', 'patient_id', 'bills.doctor_id', 'daily_patient_queues.queue_number'])
+            ->select(['bills.id', 'patient_id', 'uuid', 'bills.doctor_id', 'daily_patient_queues.queue_number'])
             ->where('bills.doctor_id', '=', $doctorId)
             ->orderBy('daily_patient_queues.order_number')
             ->get();
@@ -206,11 +247,16 @@ class BillController extends Controller
 
         $bill->status = $validated['status'];
         $bill->save();
+
         if ($validated['status'] === Bill::STATUS_DONE) {
             $billItems = $this->getBillItemsFroPrint($bill->id);
-            return new JsonResponse(["bill_id" => $bill->id, "bill_items" => $billItems, 'total' => $bill->bill_amount + $bill->system_amount], 201);
+            return new JsonResponse([
+                "bill_id" => $bill->id,
+                "bill_items" => $billItems,
+                'total' => $bill->bill_amount + $bill->system_amount,
+                "bill_reference" => $bill->status
+            ], 201);
         }
-
 
         return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
     }

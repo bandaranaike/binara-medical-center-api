@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\SystemPriceCalculator;
 use App\Http\Requests\StoreBillItemRequest;
 use App\Models\Bill;
 use App\Models\BillItem;
@@ -10,10 +11,11 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Psy\Util\Json;
 
 class BillItemController extends Controller
 {
+
+    use SystemPriceCalculator;
 
     private bool $isNewBill = false;
 
@@ -30,12 +32,17 @@ class BillItemController extends Controller
         $serviceId = $this->createNewServiceIfNotExists($validatedData['service_id'], $validatedData['service_name']);
         $billId = $this->createTempBillIfNotExists($validatedData['bill_id'], $validatedData['patient_id']);
 
+        [$billAmount, $systemAmount] = $this->getBillPriceAndSystemPrice(
+            Service::where('id', $serviceId)->first(),
+            $validatedData['bill_amount']
+        );
+
         try {
             $billItem = BillItem::create([
                 'bill_id' => $billId,
                 'service_id' => $serviceId,
-                'system_amount' => Service::where('id', $serviceId)->first()->bill_price,
-                'bill_amount' => $validatedData['bill_amount'],
+                'system_amount' => $systemAmount,
+                'bill_amount' => $billAmount,
             ]);
 
             if ($this->isNewBill) {

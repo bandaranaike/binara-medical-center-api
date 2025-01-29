@@ -22,7 +22,7 @@ trait PrintingDataProcess
         $printingData = [];
 
         if ($service) {
-            $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_ORIGINAL, 'price' => $billAmount + $systemAmount];
+            $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_ORIGINAL, 'price' => $billAmount];
             if ($service->separate_items) {
                 $systemAmount = $systemAmount == 0 ? $this->calculateSystemPrice($service, $billAmount, $systemAmount) : $systemAmount;
                 $printingData[] = ['name' => $service->name . ' ' . Bill::FEE_INSTITUTION, 'price' => $systemAmount];

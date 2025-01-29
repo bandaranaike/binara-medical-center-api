@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property numeric $id
  * @method static find(int $patientId)
+ * @method static select(string...$string)
  */
 class Patient extends Model
 {
@@ -48,17 +49,6 @@ class Patient extends Model
     public function diseases(): BelongsToMany
     {
         return $this->belongsToMany(Disease::class);
-    }
-
-    /**
-     * Get the patient's birthday.
-     *
-     * @param string|null $value
-     * @return string
-     */
-    public function getBirthdayAttribute(string|null $value): string
-    {
-        return Carbon::parse($value)->toDateString();
     }
 
     /**
