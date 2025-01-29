@@ -30,12 +30,17 @@ class Bill extends Model
     public const STATUS_RECEPTION = 'reception';
     public const STATUS_TREATMENT = 'treatment';
 
+    public const PAYMENT_TYPE_CASH = 'cash';
+    public const PAYMENT_TYPE_CARD = 'card';
+    public const PAYMENT_TYPE_ONLINE = 'online';
+
     protected $fillable = [
         'system_amount',
         'bill_amount',
         'patient_id',
         'doctor_id',
-        'status'
+        'status',
+        'payment_type',
     ];
 
     protected static function boot(): void

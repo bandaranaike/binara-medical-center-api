@@ -68,7 +68,7 @@ trait SystemPriceCalculator
             $calculatedBillAmount = $billAmount;
         }
 
-        return [$calculatedBillAmount, $calculatedSystemAmount];
+        return [number_format($calculatedBillAmount, 2, thousands_separator: ''), number_format($calculatedSystemAmount, 2, thousands_separator: '')];
     }
 
 }

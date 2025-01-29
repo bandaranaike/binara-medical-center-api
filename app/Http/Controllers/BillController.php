@@ -57,51 +57,22 @@ class BillController extends Controller
 
         $queueNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id']);
 
-        $billItems = $this->getBillItemsFroPrint($bill->id);
-
         return new JsonResponse([
-            "bill_id" => $bill->id,
+            ...$this->billPrintingResponse($bill),
             "queue_id" => $queueNumber,
-            "bill_items" => $billItems,
-            'total' => ($bill->bill_amount + $bill->system_amount),
-            "bill_reference" => $bill->status
         ], 201);
     }
 
-    /**
-     * bill_amount    2000
-     * bill_id    0
-     * channeling_charge    500
-     * channeling_fee    2000
-     * doctor_id    2
-     * is_booking    false
-     * patient_id    7
-     * service_type    "specialist"
-     * system_amount    500
-     *
-     * @param Bill $bill
-     * @return void
-     */
-    private function storeChannelingBill(Bill $bill, $isBooking)
+    private function billPrintingResponse($bill): array
     {
-        $this->insertBillItems();
+        return [
+            "bill_reference" => '',
+            "payment_type" => $bill->payment_type,
+            "bill_id" => $bill->id,
+            "bill_items" => $this->getBillItemsFroPrint($bill->id),
+            'total' => ($bill->bill_amount + $bill->system_amount)
+        ];
     }
-
-    private function storeOPDBill(Bill $bill)
-    {
-
-    }
-
-    private function storeDentalBill(Bill $bill)
-    {
-
-    }
-
-    private function storeTreatmentBill(Bill $bill)
-    {
-
-    }
-
 
     /**
      * Display the specified resource.
@@ -249,13 +220,7 @@ class BillController extends Controller
         $bill->save();
 
         if ($validated['status'] === Bill::STATUS_DONE) {
-            $billItems = $this->getBillItemsFroPrint($bill->id);
-            return new JsonResponse([
-                "bill_id" => $bill->id,
-                "bill_items" => $billItems,
-                'total' => $bill->bill_amount + $bill->system_amount,
-                "bill_reference" => $bill->status
-            ], 201);
+            return new JsonResponse($this->billPrintingResponse($bill), 201);
         }
 
         return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);

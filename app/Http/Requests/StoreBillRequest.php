@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Bill;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -23,8 +24,11 @@ class StoreBillRequest extends FormRequest
      */
     public function rules(): array
     {
+        $paymentTypes = [Bill::PAYMENT_TYPE_CASH, Bill::PAYMENT_TYPE_CARD, Bill::PAYMENT_TYPE_ONLINE];
+
         return [
             'bill_amount' => 'required|numeric',
+            'payment_type' => 'required|string|in:' . implode(",", $paymentTypes),
             'system_amount' => 'required|numeric',
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'nullable|exists:doctors,id',
