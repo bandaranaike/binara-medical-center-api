@@ -51,7 +51,7 @@ class BillItemController extends Controller
 
             return response()->json($billItem->load('service:id,name'), 201);
 
-        } catch (Exception $e) {
+        } catch (Exception) {
             return response()->json('An error occurred while adding the bill item.', 500);
         }
     }

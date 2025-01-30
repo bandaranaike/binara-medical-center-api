@@ -124,7 +124,7 @@ class BillController extends Controller
      *
      * @return JsonResponse
      */
-    public function getPendingBillsForPharmacy(Request $request): JsonResponse
+    public function getPendingBillsForPharmacy(): JsonResponse
     {
         $pendingBillsQuery = Bill::where('status', Bill::STATUS_PHARMACY)
             ->with([
@@ -133,7 +133,7 @@ class BillController extends Controller
             ])
             ->with(['billItems' => function ($query) {
                 $query->with('service:id,name')
-                    ->select('id', 'bill_id', 'service_id', 'bill_amount'); // Load only necessary fields for bill items
+                    ->select('id', 'bill_id', 'service_id', 'system_amount', 'bill_amount'); // Load only necessary fields for bill items
             }])
             ->with('patientMedicines', function ($query) {
                 $query->with('medicine:id,name', 'medicationFrequency:id,name')
@@ -181,6 +181,7 @@ class BillController extends Controller
         $validatedData = $request->validate([
             'status' => 'required|string|in:' . Bill::STATUS_RECEPTION,
             'bill_amount' => 'required|numeric|min:0',
+            'system_amount' => 'required|numeric|min:0',
         ]);
 
         try {
@@ -190,6 +191,7 @@ class BillController extends Controller
             // Update the bill's status and bill amount
             $bill->status = $validatedData['status'];
             $bill->bill_amount = $validatedData['bill_amount'];
+            $bill->system_amount = $validatedData['system_amount'];
             $bill->save();
 
             return response()->json([

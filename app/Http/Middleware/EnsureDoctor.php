@@ -20,7 +20,7 @@ class EnsureDoctor
         $doctor = Doctor::where('user_id', Auth::id())->first();
 
         if (!$doctor) {
-            return response()->json(['message' => 'Doctor not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => 'There is no doctor assigned to the logged-in user'], Response::HTTP_NOT_FOUND);
         }
 
         $request->merge(['doctor_id' => $doctor->id]);

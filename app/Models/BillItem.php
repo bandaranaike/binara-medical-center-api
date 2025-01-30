@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static findOrFail($id)
  * @method static insert(array[] $data)
  * @method static where(string $string, $id)
+ * @method static create(array $array)
  */
 class BillItem extends Model
 {
