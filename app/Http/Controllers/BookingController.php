@@ -23,6 +23,8 @@ class BookingController extends Controller
         $bill->save();
 
         return new JsonResponse([
+            "bill_reference" => '',
+            "payment_type" => $bill->payment_type,
             'patient_name' => $bill->patient->name,
             'doctor_name' => $bill->doctor?->name,
             "bill_items" => $billItems,
