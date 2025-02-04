@@ -1,0 +1,42 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "name": "laravel-app",
+            "image": "459579655737.dkr.ecr.us-east-1.amazonaws.com/binara-medical-centre-api:latest",
+            "memory": 512,
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 9000,
+                    "hostPort": 9000
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "laravel-storage",
+                    "containerPath": "/var/www/html/storage"
+                }
+            ],
+            "environment": [
+                { "name": "APP_ENV", "value": "production" },
+                { "name": "APP_KEY", "value": "base64:your-app-key" },
+                { "name": "DB_CONNECTION", "value": "mysql" },
+                { "name": "DB_HOST", "value": "binara-database.cvkuac68anfy.us-east-1.rds.amazonaws.com" },
+                { "name": "DB_DATABASE", "value": "laravel_db" },
+                { "name": "DB_USERNAME", "value": "your_rds_username" },
+                { "name": "DB_PASSWORD", "value": "your_rds_password" },
+                { "name": "WWWUSER", "value": "1000" },
+                { "name": "WWWGROUP", "value": "1000" }
+            ]
+        }
+    ],
+    "volumes": [
+        {
+            "name": "laravel-storage",
+            "host": {
+                "sourcePath": "/var/app/storage"
+            }
+        }
+    ]
+}

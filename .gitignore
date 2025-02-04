@@ -27,3 +27,4 @@ yarn-error.log
 aws
 awscliv2.zip
 /.ebextensions/
+*.pem
