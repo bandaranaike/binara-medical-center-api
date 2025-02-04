@@ -67,6 +67,8 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
         ->middleware(['role:doctor', 'ensure.doctor']);
     Route::post('patients/add-medicine', [PatientsMedicineHistoryController::class, 'store'])
         ->middleware(['role:doctor', 'ensure.doctor']);
+    Route::post('users/create-from-doctor', [UserController::class, 'createUserForDoctor'])
+        ->middleware(['role:admin']);
 
     Route::put('bills/{billId}/send-to-reception', [BillController::class, 'sendBillToReception']);
     Route::put('bills/{billId}/status', [BillController::class, 'updateStatus']);

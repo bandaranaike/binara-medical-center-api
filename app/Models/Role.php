@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @method static upsert(array[] $roles, string[] $array, string[] $array1)
+ * @method static where(string $string, string $ROLE_DOCTOR)
  */
 class Role extends Model
 {
