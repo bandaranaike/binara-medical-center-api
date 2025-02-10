@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             MedicineSeeder::class,
             ServiceSeeder::class,
             RoleSeeder::class,
+            TrustedSiteSeeder::class,
             UsersSeeder::class,
         ]);
     }

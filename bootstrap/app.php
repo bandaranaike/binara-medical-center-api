@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureDoctor;
 use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\VerifyApiKey;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'ensure.doctor' => EnsureDoctor::class,
             'role' => RoleMiddleware::class,
             'verified' => EnsureEmailIsVerified::class,
+            'verify.apikey' => VerifyApiKey::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

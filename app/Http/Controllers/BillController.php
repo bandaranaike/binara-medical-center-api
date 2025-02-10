@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\BillItemsTrait;
+use App\Http\Controllers\Traits\DailyPatientQueueTrait;
 use App\Http\Controllers\Traits\PrintingDataProcess;
 use App\Http\Controllers\Traits\ServiceType;
 use App\Http\Controllers\Traits\SystemPriceCalculator;
@@ -13,7 +15,6 @@ use App\Http\Resources\BillResource;
 use App\Http\Resources\BookingListResource;
 use App\Models\Bill;
 use App\Models\BillItem;
-use App\Models\DailyPatientQueue;
 use App\Models\Doctor;
 use App\Models\Role;
 use App\Models\Service;
@@ -25,6 +26,8 @@ use Illuminate\Support\Facades\Auth;
 
 class BillController extends Controller
 {
+    use BillItemsTrait;
+    use DailyPatientQueueTrait;
     use PrintingDataProcess;
     use ServiceType;
     use SystemPriceCalculator;
@@ -233,24 +236,6 @@ class BillController extends Controller
         BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', Service::MEDICINE_KEY)->first()->id]);
     }
 
-    private function createDailyPatientQueue($billId, $doctorId): int
-    {
-        $today = date('Y-m-d');
-
-        $latestRecord = DailyPatientQueue::where('doctor_id', $doctorId)->where('queue_date', $today)->orderByDesc('id')->first();
-
-        $newRecord = new DailyPatientQueue();
-        $newRecord->bill_id = $billId;
-        $newRecord->doctor_id = $doctorId;
-        $newRecord->queue_date = $today;
-        $newRecord->queue_number = $latestRecord ? $latestRecord->queue_number + 1 : 1;
-        $newRecord->order_number = $latestRecord ? $latestRecord->order_number + 1 : 1;
-        $newRecord->save();
-
-        return $newRecord->queue_number;
-
-    }
-
     public function bookings($time = null): JsonResponse
     {
         $bookingsQuery = Bill::where('status', Bill::STATUS_BOOKED)
@@ -303,9 +288,4 @@ class BillController extends Controller
         }
     }
 
-    private function insertBillItems($serviceId, $billAmount, $systemAmount, $billId): void
-    {
-        $data = [['bill_id' => $billId, 'service_id' => $serviceId, 'bill_amount' => $billAmount, 'system_amount' => $systemAmount]];
-        BillItem::insert($data);
-    }
 }

@@ -78,6 +78,11 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
 });
 
+// Public APIs
+Route::middleware(['verify.apikey'])->group(function () {
+    Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
+});
+
 Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);
 Route::apiResource('bills', BillController::class)->middleware(['role:admin,reception']);
 Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin,pharmacy_admin,pharmacy,reception,doctor']);
