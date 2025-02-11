@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests\Website;
 
-use App\Models\Bill;
+use App\Models\Doctor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class StoreBookingRequest extends FormRequest
 {
@@ -14,7 +13,7 @@ class StoreBookingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::guard('sanctum')->check();
+        return true;
     }
 
     /**
@@ -24,16 +23,17 @@ class StoreBookingRequest extends FormRequest
      */
     public function rules(): array
     {
-        $paymentTypes = [Bill::PAYMENT_TYPE_CASH, Bill::PAYMENT_TYPE_CARD, Bill::PAYMENT_TYPE_ONLINE];
+
+        $doctorTypes = [Doctor::DOCTOR_TYPE_SPECIALIST, Doctor::DOCTOR_TYPE_DENTAL];
 
         return [
-            'bill_amount' => 'required|numeric',
-            'payment_type' => 'required|string|in:' . implode(",", $paymentTypes),
-            'system_amount' => 'required|numeric',
-            'patient_id' => 'required|exists:patients,id',
-            'doctor_id' => 'nullable|exists:doctors,id',
-            'is_booking' => 'required|boolean',
-            'service_type' => 'required|string',
+            'name' => 'required|string',
+            'phone' => 'required|string',
+            'email' => 'required|email',
+            'age' => 'required|string|between:1,100',
+            'doctor_id' => 'required|string|exists:doctors,id',
+            'doctor_type' => 'required|string|in:' . implode(',', $doctorTypes),
+            'date' => 'required|date',
         ];
     }
 }

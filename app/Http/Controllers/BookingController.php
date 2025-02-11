@@ -9,6 +9,7 @@ use App\Http\Controllers\Traits\ServiceType;
 use App\Http\Requests\Website\StoreBookingRequest;
 use App\Models\Bill;
 use App\Models\Doctor;
+use App\Models\Patient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -58,33 +59,57 @@ class BookingController extends Controller
     }
 
 
-    public function store(StoreBookingRequest $request): JsonResponse
+    public function makeAppointment(StoreBookingRequest $request): JsonResponse
     {
+
         $data = $request->validated();
 
-        // service_type:in(channeling|opd|dental)
-        $service = $this->getService($request->input('service_type'));
+        $service = $this->getService($request->input('doctor_type'));
+        [$billAmount, $systemAmount] = $this->getBillPriceAndSystemPrice($service);
+        $patientId = $this->getOrCreatePatient($data['name'], $data['phone'], $data['age'], $data['email']);
 
-        $bill = Bill::firstOrCreate(["id" => $request->get('bill_id')], [...$data, 'status' => Bill::STATUS_BOOKED]);
+        $bill = Bill::create(
+            [
+                'system_amount' => $systemAmount,
+                "bill_amount" => $billAmount,
+                "patient_id" => $patientId,
+                "doctor_id" => $data['doctor_id'],
+                "date" => $data['date'],
+                'status' => Bill::STATUS_BOOKED
+            ]
+        );
 
-        $this->insertBillItems($service->id, $data['bill_amount'], $data['system_amount'], $bill->id);
+        $this->insertBillItems($service->id, $systemAmount, $billAmount, $bill->id);
 
-        $booking_number = $this->createDailyPatientQueue($bill->id, $data['doctor_id']);
+        $bookingNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id']);
 
+        [$doctorName, $doctorSpecialty] = $this->getDoctorDetails($data['doctor_id'], $data['doctor_type']);
 
-        return new JsonResponse(compact(
-            "doctor_name",
-            "booking_number",
-            "date",
-            "time",
-            "reference",
-            "generated_at",
-            "bill_id"
+        return new JsonResponse(array(
+            "doctor_name" => $doctorName,
+            "doctor_specialty" => $doctorSpecialty,
+            "booking_number" => $bookingNumber,
+            "date" => $bill->date,
+            "reference" => $bill->uuid,
+            "generated_at" => $bill->created_at,
+            "bill_id" => $bill->id
         ));
     }
 
-    public function getOrCreatePatient(Request $request): JsonResponse
+    public function getOrCreatePatient($name, $phone, $age, $email): int
     {
+        $patient = Patient::firstOrCreate(['name' => $name, 'telephone' => $phone], ['age' => $age, 'email' => $email]);
+        return $patient->id;
+    }
 
+    private function getDoctorDetails($doctorId, $type): array
+    {
+        if ($type == Doctor::DOCTOR_TYPE_SPECIALIST) {
+            $doctor = Doctor::with('specialty:id,name')->find($doctorId);
+            return [$doctor->name, $doctor->specialty->name];
+        } else {
+            $doctor = Doctor::find($doctorId);
+            return [$doctor->name, "Dental Surgical Doctor"];
+        }
     }
 }

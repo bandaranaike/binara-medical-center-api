@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->decimal('bill_amount')->default(0);
             $table->foreignId('patient_id')->constrained('patients');
             $table->foreignId('doctor_id')->nullable()->constrained('doctors');
+            $table->dateTime('date')->useCurrent();
             $table->string('status')->default('doctor');
             $table->enum('payment_type', [Bill::PAYMENT_TYPE_CASH, Bill::PAYMENT_TYPE_CARD, Bill::PAYMENT_TYPE_ONLINE])
                 ->default(Bill::PAYMENT_TYPE_CASH);

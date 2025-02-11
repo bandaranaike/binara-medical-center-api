@@ -41,6 +41,7 @@ class Bill extends Model
         'doctor_id',
         'status',
         'payment_type',
+        'date',
     ];
 
     protected static function boot(): void
