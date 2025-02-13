@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BillStatus;
 use App\Http\Controllers\Traits\SystemPriceCalculator;
 use App\Http\Requests\StoreBillItemRequest;
 use App\Models\Bill;
@@ -106,14 +107,14 @@ class BillItemController extends Controller
     {
         if ($billId === -1) {
             $this->isNewBill = true;
-            $billId = Bill::create(['patient_id' => $patientId, 'status' => Bill::STATUS_TREATMENT])->id;
+            $billId = Bill::create(['patient_id' => $patientId, 'status' => BillStatus::TREATMENT])->id;
         }
         return $billId;
     }
 
     public function getBillForServices($billId): Bill
     {
-        return Bill::where('status', Bill::STATUS_TREATMENT)
+        return Bill::where('status', BillStatus::TREATMENT)
             ->where('id', $billId)
             ->with(['billItems' => function ($query) {
                 $query->with('service:id,name')

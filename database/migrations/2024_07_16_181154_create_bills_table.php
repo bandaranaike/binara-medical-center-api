@@ -1,6 +1,9 @@
 <?php
 
-use App\Models\Bill;
+use App\Enums\AppointmentType;
+use App\Enums\BillPaymentStatus;
+use App\Enums\BillStatus;
+use App\Enums\PaymentType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,9 +22,10 @@ return new class extends Migration {
             $table->foreignId('patient_id')->constrained('patients');
             $table->foreignId('doctor_id')->nullable()->constrained('doctors');
             $table->dateTime('date')->useCurrent();
-            $table->string('status')->default('doctor');
-            $table->enum('payment_type', [Bill::PAYMENT_TYPE_CASH, Bill::PAYMENT_TYPE_CARD, Bill::PAYMENT_TYPE_ONLINE])
-                ->default(Bill::PAYMENT_TYPE_CASH);
+            $table->enum('status', BillStatus::toArray())->default(BillStatus::DOCTOR);
+            $table->enum('payment_type', [PaymentType::toArray()])->default(PaymentType::CASH);
+            $table->enum('payment_status', BillPaymentStatus::toArray())->default(BillPaymentStatus::PENDING);
+            $table->enum('appointment_type', AppointmentType::toArray())->default(AppointmentType::SPECIALIST);
             $table->timestamps();
             $table->softDeletes();
         });

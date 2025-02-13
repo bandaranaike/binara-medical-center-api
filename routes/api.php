@@ -83,10 +83,13 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 // Public APIs
 Route::middleware(['verify.apikey'])->group(function () {
     Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
+    Route::get('bookings/patients/history', [BookingController::class, 'getPatientsHistoryForWeb'])
+        ->middleware(['ensure.patient', 'auth:sanctum']);
+
     Route::post('bookings/make-appointment', [BookingController::class, 'makeAppointment']);
     Route::post('contacts', [ContactController::class, 'store']);
-    Route::post('register', [PatientAuthController::class, 'register']);
-    Route::post('login', [PatientAuthController::class, 'login']);
+    Route::post('patient/login', [PatientAuthController::class, 'login']);
+    Route::post('patient/register', [PatientAuthController::class, 'register']);
 });
 
 Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);

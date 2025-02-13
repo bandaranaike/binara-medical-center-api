@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BillStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 
 /**
  * @method static create(mixed $validated)
- * @method static where(string $string, string $operator, string $STATUS_PENDING = null)
+ * @method static where(string $string, string|BillStatus $operator, string|BillStatus $STATUS_PENDING = null)
  * @method static whereStatus(string $STATUS_PENDING)
  * @method static selectRaw(string $string)
  * @method static firstOrCreate(array $array, array $array1)
@@ -23,16 +24,6 @@ class Bill extends Model
 
     public const FEE_ORIGINAL = 'fee';
     public const FEE_INSTITUTION = 'institution fee';
-    public const STATUS_BOOKED = 'booked';
-    public const STATUS_DOCTOR = 'doctor';
-    public const STATUS_DONE = 'done';
-    public const STATUS_PHARMACY = 'pharmacy';
-    public const STATUS_RECEPTION = 'reception';
-    public const STATUS_TREATMENT = 'treatment';
-
-    public const PAYMENT_TYPE_CASH = 'cash';
-    public const PAYMENT_TYPE_CARD = 'card';
-    public const PAYMENT_TYPE_ONLINE = 'online';
 
     protected $fillable = [
         'system_amount',

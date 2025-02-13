@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Website;
 
+use App\Enums\AppointmentType;
 use App\Models\Doctor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -24,7 +25,7 @@ class StoreBookingRequest extends FormRequest
     public function rules(): array
     {
 
-        $doctorTypes = [Doctor::DOCTOR_TYPE_SPECIALIST, Doctor::DOCTOR_TYPE_DENTAL];
+        $doctorTypes = [AppointmentType::SPECIALIST, AppointmentType::DENTAL];
 
         return [
             'name' => 'required|string',

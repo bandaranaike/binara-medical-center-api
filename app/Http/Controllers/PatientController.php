@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Resources\PatientResource;
 use App\Models\Patient;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class PatientController extends Controller
 {
@@ -48,6 +52,11 @@ class PatientController extends Controller
     {
         $patient = Patient::create($request->validated());
 
+        $user_id = $this->createUserIfNotExitsForPatient($patient);
+
+        $patient->user_id = $user_id;
+        $patient->save();
+
         return new PatientResource($patient);
     }
 
@@ -77,5 +86,27 @@ class PatientController extends Controller
         $patient->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function createUserIfNotExitsForPatient($patient)
+    {
+        $role = Role::where('key', UserRole::PATIENT->value)->first();
+
+        $user = User::where(function ($query) use ($patient) {
+            $query->where('phone', $patient->telephone)->whereNotNull('phone');
+        })->orWhere(function ($query) use ($patient) {
+            $query->where('email', $patient->email)->whereNotNull('email');
+        })->first();
+
+        if (!$user) {
+            $user = User::create([
+                "name" => $patient->name,
+                "role_id" => $role->id,
+                "phone" => $patient->telephone,
+                "email" => $patient->email,
+                "password" => Hash::make(Str::random(8)),
+            ]);
+        }
+        return $user->id;
     }
 }

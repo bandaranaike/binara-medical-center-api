@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AppointmentType;
+use App\Enums\BillStatus;
 use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
 use App\Http\Controllers\Traits\PrintingDataProcess;
 use App\Http\Controllers\Traits\ServiceType;
 use App\Http\Requests\Website\StoreBookingRequest;
+use App\Http\Resources\PatientAppointmentHistory;
 use App\Models\Bill;
 use App\Models\Doctor;
 use App\Models\Patient;
@@ -28,7 +31,7 @@ class BookingController extends Controller
             ->first();
         $billItems = $this->getBillItemsFroPrint($bill->id);
 
-        $bill->status = Bill::STATUS_DOCTOR;
+        $bill->status = BillStatus::DOCTOR;
         $bill->save();
 
         return new JsonResponse([
@@ -44,7 +47,7 @@ class BookingController extends Controller
     public function getDoctorsList(Request $request): JsonResponse
     {
 
-        $doctorTypes = [Doctor::DOCTOR_TYPE_SPECIALIST, Doctor::DOCTOR_TYPE_DENTAL];
+        $doctorTypes = [AppointmentType::SPECIALIST, AppointmentType::DENTAL];
 
         $validated = $request->validate([
             'doctor_type' => 'required|in:' . implode(',', $doctorTypes),
@@ -75,7 +78,7 @@ class BookingController extends Controller
                 "patient_id" => $patientId,
                 "doctor_id" => $data['doctor_id'],
                 "date" => $data['date'],
-                'status' => Bill::STATUS_BOOKED
+                'status' => BillStatus::BOOKED
             ]
         );
 
@@ -104,12 +107,23 @@ class BookingController extends Controller
 
     private function getDoctorDetails($doctorId, $type): array
     {
-        if ($type == Doctor::DOCTOR_TYPE_SPECIALIST) {
+        if ($type == AppointmentType::SPECIALIST) {
             $doctor = Doctor::with('specialty:id,name')->find($doctorId);
             return [$doctor->name, $doctor->specialty->name];
         } else {
             $doctor = Doctor::find($doctorId);
             return [$doctor->name, "Dental Surgical Doctor"];
         }
+    }
+
+    public function getPatientsHistoryForWeb(Request $request): JsonResponse
+    {
+        $patientBillHistories = Bill::where('patient_id', $request->get('ensure_middleware_patient_id'))
+            ->with('doctor.specialty:id,name')
+            ->with('doctor:id,name,specialty_id')
+            ->select(['id', 'doctor_id', 'payment_status', 'appointment_type', 'status', 'date'])
+            ->get();
+
+        return new JsonResponse(PatientAppointmentHistory::collection($patientBillHistories));
     }
 }

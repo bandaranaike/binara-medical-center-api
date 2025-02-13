@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureDoctor;
 use App\Http\Middleware\EnsureEmailIsVerified;
+use App\Http\Middleware\EnsurePatient;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\VerifyApiKey;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'ensure.doctor' => EnsureDoctor::class,
+            'ensure.patient' => EnsurePatient::class,
             'role' => RoleMiddleware::class,
             'verified' => EnsureEmailIsVerified::class,
             'verify.apikey' => VerifyApiKey::class,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PaymentType;
 use App\Models\Bill;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -24,7 +25,7 @@ class StoreBillRequest extends FormRequest
      */
     public function rules(): array
     {
-        $paymentTypes = [Bill::PAYMENT_TYPE_CASH, Bill::PAYMENT_TYPE_CARD, Bill::PAYMENT_TYPE_ONLINE];
+        $paymentTypes = [PaymentType::CASH, PaymentType::CARD, PaymentType::ONLINE];
 
         return [
             'bill_amount' => 'required|numeric',

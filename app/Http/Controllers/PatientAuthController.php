@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
+use App\Models\Patient;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
 class PatientAuthController extends Controller
@@ -32,15 +34,19 @@ class PatientAuthController extends Controller
             'phone' => 'required_without:email',
         ]);
 
-        $roleId = Role::where("key", Role::ROLE_PATIENT)->select(['id'])->first()?->id;
+        $roleId = Role::where("key", UserRole::PATIENT->value)->select(['id'])->first()?->id;
 
-        User::create([
+        $user = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
-            'phone' => $validatedData['email'],
+            'phone' => $validatedData['phone'],
             'password' => Hash::make($validatedData['password']),
             'role_id' => $roleId,
         ]);
+
+        Log::info($user);
+
+        $this->createPatientIfNotExists($user);
 
         return $this->loginAndSendToken($validatedData['email'], $validatedData['password']);
     }
@@ -75,6 +81,27 @@ class PatientAuthController extends Controller
             return new JsonResponse($userDataArray, 200);
         }
         return new JsonResponse(['message' => "Invalid $usernameField or password."], 401);
+    }
+
+    private function createPatientIfNotExists(User $user): void
+    {
+        $patient = Patient::where(function ($query) use ($user) {
+            $query->where('telephone', $user->phone)->whereNotNull('telephone');
+        })->orWhere(function ($query) use ($user) {
+            $query->where('email', $user->email)->whereNotNull('email');
+        })->first();
+
+        if (!$patient) {
+            Patient::create([
+                "user_id" => $user->id,
+                "name" => $user->name,
+                "telephone" => $user->phone,
+                "email" => $user->email,
+                "age" => 0,
+            ]);
+        } else {
+            $patient->update(["user_id" => $user->id]);
+        }
     }
 
 }

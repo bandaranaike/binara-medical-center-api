@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BillStatus;
 use App\Http\Controllers\BookingController;
 use App\Http\Requests\Website\StoreBookingRequest;
 use App\Models\Bill;
@@ -42,8 +43,8 @@ class BookingControllerTest extends TestCase
         $this->controller->shouldReceive('getService')->with('channeling')->andReturn($service);
 
         // Mock Bill Creation (or use a factory for testing)
-        $bill = new Bill(['id' => 1, 'status' => Bill::STATUS_BOOKED]); // Use factory in real tests
-        Bill::shouldReceive('firstOrCreate')->with(['id' => 1], [...$requestData, 'status' => Bill::STATUS_BOOKED])->andReturn($bill);
+        $bill = new Bill(['id' => 1, 'status' => BillStatus::BOOKED]); // Use factory in real tests
+        Bill::shouldReceive('firstOrCreate')->with(['id' => 1], [...$requestData, 'status' => BillStatus::BOOKED])->andReturn($bill);
 
         // Mock Bill Item Insertion
         $this->controller->shouldReceive('insertBillItems')->with($service->id, $requestData['bill_amount'], $requestData['system_amount'], $bill->id);

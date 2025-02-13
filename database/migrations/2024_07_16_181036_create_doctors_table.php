@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AppointmentType;
 use App\Models\Doctor;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,7 +19,7 @@ return new class extends Migration {
             $table->foreignId('specialty_id')->nullable()->constrained('specialties');
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->string('telephone')->nullable();
-            $table->enum('doctor_type', [Doctor::DOCTOR_TYPE_DENTAL, Doctor::DOCTOR_TYPE_OPD, Doctor::DOCTOR_TYPE_SPECIALIST])->default(Doctor::DOCTOR_TYPE_SPECIALIST);
+            $table->enum('doctor_type', [AppointmentType::DENTAL, AppointmentType::OPD, AppointmentType::SPECIALIST])->default(AppointmentType::SPECIALIST);
             $table->string('email')->unique()->nullable();
             $table->timestamps();
         });

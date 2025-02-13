@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Role;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -16,49 +17,49 @@ class RoleSeeder extends Seeder
         $roles = [
             [
                 'name' => 'Admin',
-                'key' => Role::ROLE_ADMIN,
+                'key' => UserRole::ADMIN,
                 'description' => 'Administrator with full access.',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
                 'name' => 'Patient',
-                'key' => Role::ROLE_PATIENT,
+                'key' => UserRole::PATIENT,
                 'description' => 'User role for patients.',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
                 'name' => 'Pharmacy',
-                'key' => Role::ROLE_PHARMACY,
+                'key' => UserRole::PHARMACY,
                 'description' => 'Role for pharmacy users.',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
                 'name' => 'Doctor',
-                'key' => Role::ROLE_DOCTOR,
+                'key' => UserRole::DOCTOR,
                 'description' => 'Role for doctors.',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
                 'name' => 'Nurse',
-                'key' => Role::ROLE_NURSE,
+                'key' => UserRole::NURSE,
                 'description' => 'Role for nurses.',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
                 'name' => 'Reception',
-                'key' => Role::ROLE_RECEPTION,
+                'key' => UserRole::RECEPTION,
                 'description' => 'Role for reception staff.',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
                 'name' => 'Pharmacy admin',
-                'key' => Role::ROLE_PHARMACY_ADMIN,
+                'key' => UserRole::PHARMACY_ADMIN,
                 'description' => 'Role for pharmacy admin.',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),

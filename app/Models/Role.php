@@ -12,13 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Role extends Model
 {
 
-    const ROLE_ADMIN = 'admin';
-    const ROLE_PATIENT = 'patient';
-    const ROLE_PHARMACY = 'pharmacy';
-    const ROLE_DOCTOR = 'doctor';
-    const ROLE_NURSE = 'nurse';
-    const ROLE_RECEPTION = 'reception';
-    const ROLE_PHARMACY_ADMIN = 'pharmacy_admin';
+
 
     public function users(): HasMany
     {

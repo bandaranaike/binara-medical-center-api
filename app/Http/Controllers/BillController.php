@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BillStatus;
+use App\Enums\UserRole;
 use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
 use App\Http\Controllers\Traits\PrintingDataProcess;
@@ -48,7 +50,7 @@ class BillController extends Controller
      */
     public function store(StoreBillRequest $request): JsonResponse
     {
-        $status = $request->input('is_booking') ? Bill::STATUS_BOOKED : Bill::STATUS_DOCTOR;
+        $status = $request->input('is_booking') ? BillStatus::BOOKED : BillStatus::DOCTOR;
         $data = $request->validated();
 
         // service_type:in(channeling|opd|dental)
@@ -103,7 +105,7 @@ class BillController extends Controller
     public function getPendingBillsForDoctor(): JsonResponse
     {
         $doctorId = request('doctor_id');
-        $pendingBills = Bill::where('status', Bill::STATUS_DOCTOR)
+        $pendingBills = Bill::where('status', BillStatus::DOCTOR)
             ->with(['patient.allergies:id,name', 'patient.diseases:id,name'])
             ->with('patient', function ($query) use ($doctorId) {
                 $query->select(['id', 'name', 'age', 'gender'])
@@ -129,7 +131,7 @@ class BillController extends Controller
      */
     public function getPendingBillsForPharmacy(): JsonResponse
     {
-        $pendingBillsQuery = Bill::where('status', Bill::STATUS_PHARMACY)
+        $pendingBillsQuery = Bill::where('status', BillStatus::PHARMACY)
             ->with([
                 'patient:id,name,age,gender',
                 'doctor:id,name',
@@ -143,7 +145,7 @@ class BillController extends Controller
                     ->select('id', 'bill_id', 'medicine_id', 'medication_frequency_id', 'duration');
             });
 
-        if (Auth::user()->hasRole(Role::ROLE_DOCTOR)) {
+        if (Auth::user()->hasRole(UserRole::DOCTOR->value)) {
             $pendingBillsQuery->where('doctor_id', Doctor::where('user_id', Auth::id())->first('id')?->id);
         }
 
@@ -159,7 +161,7 @@ class BillController extends Controller
      */
     public function getPendingBillsForReception(): JsonResponse
     {
-        $pendingBills = Bill::where('status', "!=", Bill::STATUS_DONE)
+        $pendingBills = Bill::where('status', "!=", BillStatus::DONE)
             ->with([
                 'patient:id,name,age,gender',
                 'doctor:id,name',
@@ -182,7 +184,7 @@ class BillController extends Controller
     public function sendBillToReception(Request $request, int $billId): JsonResponse
     {
         $validatedData = $request->validate([
-            'status' => 'required|string|in:' . Bill::STATUS_RECEPTION,
+            'status' => 'required|string|in:' . BillStatus::RECEPTION->value,
             'bill_amount' => 'required|numeric|min:0',
             'system_amount' => 'required|numeric|min:0',
         ]);
@@ -217,14 +219,14 @@ class BillController extends Controller
             return new JsonResponse(['message' => 'Bill not found'], 404);
         }
 
-        if ($validated['status'] === Bill::STATUS_PHARMACY) {
+        if ($validated['status'] === BillStatus::PHARMACY) {
             $this->insertNewBillItemForMedicineIfNotExists($billId);
         }
 
         $bill->status = $validated['status'];
         $bill->save();
 
-        if ($validated['status'] === Bill::STATUS_DONE) {
+        if ($validated['status'] === BillStatus::DONE) {
             return new JsonResponse($this->billPrintingResponse($bill), 201);
         }
 
@@ -238,7 +240,7 @@ class BillController extends Controller
 
     public function bookings($time = null): JsonResponse
     {
-        $bookingsQuery = Bill::where('status', Bill::STATUS_BOOKED)
+        $bookingsQuery = Bill::where('status', BillStatus::BOOKED)
             ->with(['doctor:id,name', 'patient:id,name', 'dailyPatientQueue:id,bill_id,queue_number,queue_date']);
         if ($time === self::OLD_BOOKING_KEYWORD) {
             $bookingsQuery->where('created_at', '<', now()->subDays());
@@ -255,7 +257,7 @@ class BillController extends Controller
     {
         $validatedData = $request->validated();
 
-        $status = $validatedData['is_booking'] ? Bill::STATUS_BOOKED : ($validatedData['doctor_id'] ? Bill::STATUS_DOCTOR : Bill::STATUS_PHARMACY);
+        $status = $validatedData['is_booking'] ? BillStatus::BOOKED : ($validatedData['doctor_id'] ? BillStatus::DOCTOR : BillStatus::PHARMACY);
 
         $doctorId = $validatedData['doctor_id'] == 0 ? null : $validatedData['doctor_id'];
 
@@ -275,7 +277,7 @@ class BillController extends Controller
     public function destroy(int $id): JsonResponse
     {
         try {
-            $bill = Bill::where('status', Bill::STATUS_BOOKED)->where('id', $id)->first();
+            $bill = Bill::where('status', BillStatus::BOOKED)->where('id', $id)->first();
             if (!$bill) {
                 return new JsonResponse(['message' => 'Bill not found'], 404);
             }

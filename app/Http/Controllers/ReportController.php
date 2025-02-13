@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BillStatus;
 use App\Models\Bill;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -55,7 +56,7 @@ class ReportController extends Controller
         $visitedDoctorsCount = DB::table('bills')
             ->whereBetween('created_at', [$this->start, $this->end])
             ->whereNotNull('doctor_id') // Ensure doctor is assigned
-            ->where('status', Bill::STATUS_DONE)
+            ->where('status', BillStatus::DONE)
             ->distinct('doctor_id')
             ->count('doctor_id');
 

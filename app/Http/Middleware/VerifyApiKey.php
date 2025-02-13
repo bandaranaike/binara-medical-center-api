@@ -21,13 +21,13 @@ class VerifyApiKey
         $referer = parse_url($request->headers->get('referer'), PHP_URL_HOST);
 
         if (!$apiKey || !$referer) {
-            return response()->json('Unauthorized' . $referer, 403);
+            return response()->json('Please provide a valid API key. Unauthorized for ' . $referer, 403);
         }
 
         $trustedSite = TrustedSite::where('domain', $referer)->where('api_key', $apiKey)->first();
 
         if (!$trustedSite) {
-            return response()->json('Invalid API Key' . $referer, 403);
+            return response()->json('Invalid API Key for ' . $referer, 403);
         }
 
         return $next($request);

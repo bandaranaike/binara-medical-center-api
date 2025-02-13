@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Traits\CrudTrait;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -41,7 +42,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $doctor->name,
             'email' => $doctor->email,
-            'role_id' => Role::where('key', Role::ROLE_DOCTOR)->first()->id,
+            'role_id' => Role::where('key', UserRole::DOCTOR->value)->first()->id,
             'password' => bcrypt(self::DOCTOR_USER_PASSWORD),
         ]);
 

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class UsersSeeder extends Seeder
                 'email' => 'admin@email.com',
                 'name' => 'Administrator',
                 'password' => Hash::make('9,$wCD:Kf,3YwEu'),
-                'role_id' => Role::where('key', Role::ROLE_ADMIN)->first()?->id ?? 1, // Make sure RolesSeeder has already been run
+                'role_id' => Role::where('key', UserRole::ADMIN->value)->first()?->id ?? 1, // Make sure RolesSeeder has already been run
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

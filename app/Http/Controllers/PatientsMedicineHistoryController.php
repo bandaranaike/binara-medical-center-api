@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BillStatus;
 use App\Http\Requests\StorePatientMedicineRequest;
 use App\Models\Bill;
 use App\Models\MedicationFrequency;
@@ -96,7 +97,7 @@ class PatientsMedicineHistoryController extends Controller
             ->where('patient_id', $patientId)
             ->where('doctor_id', $doctorId)
             ->whereHas('bill', function ($query) {
-                $query->where("status", Bill::STATUS_DOCTOR);
+                $query->where("status", BillStatus::DOCTOR);
             })
             ->get();
     }
