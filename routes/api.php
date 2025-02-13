@@ -7,12 +7,14 @@ use App\Http\Controllers\BillItemController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DiseaseController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\DrugController;
 use App\Http\Controllers\HospitalController;
+use App\Http\Controllers\PatientAuthController;
 use App\Http\Controllers\PatientsAllergyController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientsDiseaseController;
@@ -82,6 +84,9 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 Route::middleware(['verify.apikey'])->group(function () {
     Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
     Route::post('bookings/make-appointment', [BookingController::class, 'makeAppointment']);
+    Route::post('contacts', [ContactController::class, 'store']);
+    Route::post('register', [PatientAuthController::class, 'register']);
+    Route::post('login', [PatientAuthController::class, 'login']);
 });
 
 Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);
