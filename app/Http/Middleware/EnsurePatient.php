@@ -18,14 +18,13 @@ class EnsurePatient
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $patient = Patient::where('user_id', Auth::id())->first();
+        $patients = Patient::where('user_id', Auth::id())->get();
 
-        if (!$patient) {
-            return response()->json(['message' => 'There is no patient assigned to the logged-in user'], Response::HTTP_NOT_FOUND);
+        if ($patients->isEmpty()) {
+            return response()->json(['message' => 'There are no patients assigned to the logged-in user'], Response::HTTP_NOT_FOUND);
         }
-        Log::info("Patient Id: " . $patient->id);
-        Log::warning("Auth id: " . Auth::id());
-        $request->merge(['ensure_middleware_patient_id' => $patient->id]);
+
+        $request->merge(['ensure_middleware_patient_ids' => $patients->pluck('id')]);
 
         return $next($request);
     }

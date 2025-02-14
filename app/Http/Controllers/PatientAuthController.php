@@ -68,12 +68,13 @@ class PatientAuthController extends Controller
 
         if (Auth::attempt([$usernameField => $userName, 'password' => $password], $rememberMe)) {
             $user = Auth::user();
+
             $token = $user->createToken('API Token')->plainTextToken;
 
             $userDataArray = [
                 'name' => $user->name,
                 'email' => $user->email,
-                'phone' => $user->telephone,
+                'phone' => $user->phone,
                 'message' => 'Logged in successfully',
                 'token' => $token
             ];

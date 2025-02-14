@@ -18,8 +18,9 @@ class PatientAppointmentHistory extends JsonResource
             "id" => $this->id,
             "appointmentType" => $this->appointment_type,
             "doctorName" => $this->doctor?->name ?? 'No doctor',
+            "patientName" => $this->patient?->name,
             "date" => $this->date,
-            "paymentStatus" => $this->payment_tatus,
+            "paymentStatus" => $this->payment_status,
             "status" => $this->status,
         ];
     }

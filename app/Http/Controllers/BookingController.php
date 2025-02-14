@@ -118,10 +118,11 @@ class BookingController extends Controller
 
     public function getPatientsHistoryForWeb(Request $request): JsonResponse
     {
-        $patientBillHistories = Bill::where('patient_id', $request->get('ensure_middleware_patient_id'))
+        $patientBillHistories = Bill::whereIn('patient_id', $request->get('ensure_middleware_patient_ids'))
             ->with('doctor.specialty:id,name')
+            ->with('patient:id,name')
             ->with('doctor:id,name,specialty_id')
-            ->select(['id', 'doctor_id', 'payment_status', 'appointment_type', 'status', 'date'])
+            ->select(['id','patient_id', 'doctor_id', 'payment_status', 'appointment_type', 'status', 'date'])
             ->get();
 
         return new JsonResponse(PatientAppointmentHistory::collection($patientBillHistories));
