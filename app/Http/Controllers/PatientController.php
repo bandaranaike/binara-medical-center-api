@@ -45,6 +45,24 @@ class PatientController extends Controller
         return new JsonResponse($patients);
     }
 
+
+    public function searchUser(Request $request)
+    {
+        $search = $request->get('query');
+
+        $patients = User::where('phone', 'LIKE', '%' . $search . '%')
+            ->orWhere('name', 'LIKE', '%' . $search . '%')
+            ->whereHas('role', function ($query) {
+                $query->where('key', UserRole::PATIENT);
+            })
+            ->with('patients', function ($query) {
+                $query->select(['id', 'name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email', 'user_id']);
+            })
+            ->get(['id', 'name', 'phone']);
+
+        return new JsonResponse($patients);
+    }
+
     /**
      * Store a newly created resource in storage.
      */

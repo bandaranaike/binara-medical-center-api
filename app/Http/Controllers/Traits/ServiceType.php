@@ -11,12 +11,11 @@ trait ServiceType
     private function getService($serviceType)
     {
         $serviceKey = match ($serviceType) {
-            AppointmentType::DENTAL => Service::DENTAL_REGISTRATION_KEY,
-            AppointmentType::OPD => Service::DEFAULT_DOCTOR_KEY,
-            AppointmentType::SPECIALIST => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
+            AppointmentType::DENTAL->value => Service::DENTAL_REGISTRATION_KEY,
+            AppointmentType::OPD->value => Service::DEFAULT_DOCTOR_KEY,
+            AppointmentType::SPECIALIST->value => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
             default => null,
         };
-
         return Service::where('key', $serviceKey)->first();
     }
 }

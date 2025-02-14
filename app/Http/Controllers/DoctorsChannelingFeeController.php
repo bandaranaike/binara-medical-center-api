@@ -65,7 +65,7 @@ class DoctorsChannelingFeeController extends Controller
         } else {
             $fee = $service?->bill_price;
         }
-
+        
         [$billPrice, $systemPrice] = $this->getBillPriceAndSystemPrice($service, $fee);
 
         return new JsonResponse(['bill_price' => $billPrice, 'system_price' => $systemPrice, 'name' => $doctor->name]);

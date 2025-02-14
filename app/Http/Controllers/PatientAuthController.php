@@ -44,8 +44,6 @@ class PatientAuthController extends Controller
             'role_id' => $roleId,
         ]);
 
-        Log::info($user);
-
         $this->createPatientIfNotExists($user);
 
         return $this->loginAndSendToken($validatedData['email'], $validatedData['password']);

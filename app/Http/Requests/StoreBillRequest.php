@@ -25,11 +25,10 @@ class StoreBillRequest extends FormRequest
      */
     public function rules(): array
     {
-        $paymentTypes = [PaymentType::CASH, PaymentType::CARD, PaymentType::ONLINE];
 
         return [
             'bill_amount' => 'required|numeric',
-            'payment_type' => 'required|string|in:' . implode(",", $paymentTypes),
+            'payment_type' => 'required|string|in:' . implode(",", PaymentType::toArray()),
             'system_amount' => 'required|numeric',
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'nullable|exists:doctors,id',

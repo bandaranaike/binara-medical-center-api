@@ -87,8 +87,6 @@ class BookingControllerTest extends TestCase
         $this->assertEquals($expectedResponse['date'], $responseData['date']);
         $this->assertEquals($expectedResponse['time'], $responseData['time']);
 
-        // Assert that Log::info was called (optional, for debugging)
-
         Mockery::close(); // Important to close Mockery after tests
     }
 
