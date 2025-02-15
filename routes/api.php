@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AllergyController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BillItemController;
@@ -85,11 +88,16 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
     Route::get('bookings/patients/history', [BookingController::class, 'getPatientsHistoryForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
+    Route::get('patient/user-patients', [PatientController::class, 'usersPatientsListForWeb'])
+        ->middleware(['ensure.patient', 'auth:sanctum']);
 
     Route::post('bookings/make-appointment', [BookingController::class, 'makeAppointment']);
     Route::post('contacts', [ContactController::class, 'store']);
+    Route::post('patient/change-password', [PasswordController::class, 'update']);
+    Route::post('patient/forgot-password', [PasswordResetLinkController::class, 'store']);
     Route::post('patient/login', [PatientAuthController::class, 'login']);
     Route::post('patient/register', [PatientAuthController::class, 'register']);
+    Route::post('patient/reset-password', [NewPasswordController::class, 'store']);
 });
 
 Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);

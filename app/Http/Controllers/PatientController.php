@@ -117,4 +117,11 @@ class PatientController extends Controller
         }
         return $user->id;
     }
+
+    public function usersPatientsListForWeb(Request $request)
+    {
+        return Patient::whereIn('id', $request->get('ensure_middleware_patient_ids'))
+            ->select(['id','name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email'])
+            ->get();
+    }
 }
