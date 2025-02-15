@@ -56,7 +56,10 @@ class BillController extends Controller
         // service_type:in(channeling|opd|dental)
         $service = $this->getService($request->input('service_type'));
 
-        $bill = Bill::firstOrCreate(["id" => $request->get('bill_id')], [...$data, 'status' => $status]);
+        $bill = Bill::firstOrCreate(
+            ["id" => $request->get('bill_id')],
+            [...$data, 'status' => $status, 'appointment_type' => $service->name]
+        );
 
         $this->insertBillItems($service->id, $data['bill_amount'], $data['system_amount'], $bill->id);
 

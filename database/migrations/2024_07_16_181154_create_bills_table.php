@@ -25,7 +25,7 @@ return new class extends Migration {
             $table->enum('status', BillStatus::toArray())->default(BillStatus::DOCTOR);
             $table->enum('payment_type', [PaymentType::toArray()])->default(PaymentType::CASH);
             $table->enum('payment_status', BillPaymentStatus::toArray())->default(BillPaymentStatus::PENDING);
-            $table->enum('appointment_type', AppointmentType::toArray())->default(AppointmentType::SPECIALIST);
+            $table->string('appointment_type')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

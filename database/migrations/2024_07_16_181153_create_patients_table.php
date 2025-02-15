@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('telephone');
             $table->date('birthday')->nullable();
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
         });
     }

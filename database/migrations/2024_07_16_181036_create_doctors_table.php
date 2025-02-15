@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->foreignId('specialty_id')->nullable()->constrained('specialties');
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->string('telephone')->nullable();
-            $table->enum('doctor_type', [AppointmentType::DENTAL, AppointmentType::OPD, AppointmentType::SPECIALIST])->default(AppointmentType::SPECIALIST);
+            $table->enum('doctor_type', AppointmentType::toArray())->default(AppointmentType::SPECIALIST);
             $table->string('email')->unique()->nullable();
             $table->timestamps();
         });

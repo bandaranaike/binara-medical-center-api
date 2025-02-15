@@ -19,6 +19,7 @@ class TrustedSiteSeeder extends Seeder
             ['domain' => 'app.binara.live', 'api_key' => Str::random(40)],
             ['domain' => 'localhost:3000', 'api_key' => Str::random(40)],
             ['domain' => 'localhost:3001', 'api_key' => Str::random(40)],
+            ['domain' => 'localhost', 'api_key' => Str::random(40)],
         ];
         TrustedSite::upsert($data, ['domain']);
     }

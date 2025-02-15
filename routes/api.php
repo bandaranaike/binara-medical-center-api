@@ -57,7 +57,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::get('dropdown/{table}', [DropdownController::class, 'index']);
     Route::get('drugs/stock-sale-data', [DrugController::class, 'getDrugStockSaleData'])
         ->middleware('role:pharmacy_admin,admin');
-    Route::get('patients/search', [PatientController::class, 'searchUser'])->middleware('role:reception');
+    Route::get('patients/search', [PatientController::class, 'search'])->middleware('role:reception');
 
     Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);
 

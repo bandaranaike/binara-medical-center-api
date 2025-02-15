@@ -38,17 +38,7 @@ class PatientController extends Controller
     {
         $search = $request->get('query');
 
-        $patients = Patient::where('telephone', 'LIKE', '%' . $search . '%')
-            ->orWhere('name', 'LIKE', '%' . $search . '%')
-            ->get(['id', 'name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email']);
-
-        return new JsonResponse($patients);
-    }
-
-
-    public function searchUser(Request $request)
-    {
-        $search = $request->get('query');
+        $search = Str::replace(['0'], '+94', $search);
 
         $patients = User::where('phone', 'LIKE', '%' . $search . '%')
             ->orWhere('name', 'LIKE', '%' . $search . '%')

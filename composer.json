@@ -7,7 +7,6 @@
     "require": {
         "php": "^8.2",
         "aws/aws-sdk-php": "^3.339",
-        "giggsey/libphonenumber-for-php": "^8.13",
         "inertiajs/inertia-laravel": "^1.0",
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
