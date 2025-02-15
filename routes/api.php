@@ -88,6 +88,8 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
     Route::get('bookings/patients/history', [BookingController::class, 'getPatientsHistoryForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
+    Route::get('patient/user', [PatientController::class, 'loggedUserDetailsForWeb'])
+        ->middleware(['ensure.patient', 'auth:sanctum']);
     Route::get('patient/user-patients', [PatientController::class, 'usersPatientsListForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
 

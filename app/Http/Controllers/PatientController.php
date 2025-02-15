@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -121,7 +122,12 @@ class PatientController extends Controller
     public function usersPatientsListForWeb(Request $request)
     {
         return Patient::whereIn('id', $request->get('ensure_middleware_patient_ids'))
-            ->select(['id','name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email'])
+            ->select(['id', 'name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email'])
             ->get();
+    }
+
+    public function loggedUserDetailsForWeb(Request $request)
+    {
+        return User::find(Auth::id());
     }
 }
