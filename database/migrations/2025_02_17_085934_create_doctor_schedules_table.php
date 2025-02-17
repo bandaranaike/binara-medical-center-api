@@ -2,6 +2,7 @@
 
 use App\Enums\Weekday;
 use App\Enums\DoctorRecurring;
+use App\Enums\DoctorScheduleStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,6 +20,7 @@ return new class extends Migration {
             $table->time('time')->default('17:00');
             $table->enum('recurring', DoctorRecurring::toArray())->default(DoctorRecurring::WEEKLY);
             $table->integer('seats')->default(20);
+            $table->enum('status', DoctorScheduleStatus::toArray())->default(DoctorScheduleStatus::ACTIVE);
             $table->timestamps();
         });
     }

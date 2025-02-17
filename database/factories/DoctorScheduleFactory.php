@@ -2,10 +2,15 @@
 
 namespace Database\Factories;
 
+use App\Enums\DoctorRecurring;
+use App\Enums\DoctorScheduleStatus;
+use App\Enums\Weekday;
+use App\Models\Doctor;
+use App\Models\DoctorSchedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\DoctorSchedule>
+ * @extends Factory<DoctorSchedule>
  */
 class DoctorScheduleFactory extends Factory
 {
@@ -17,7 +22,12 @@ class DoctorScheduleFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'doctor_id' => Doctor::factory(),
+            'weekday' => $this->faker->randomElement(Weekday::toArray()),
+            'time' => $this->faker->time(),
+            'recurring' => $this->faker->randomElement(DoctorRecurring::toArray()),
+            'seats' => $this->faker->numberBetween(1, 50),
+            'status' => $this->faker->randomElement(DoctorScheduleStatus::toArray()),
         ];
     }
 }

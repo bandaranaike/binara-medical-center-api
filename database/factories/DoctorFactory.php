@@ -29,7 +29,7 @@ class DoctorFactory extends Factory
         return [
             'name' => $this->faker->name,
             'hospital_id' => rand(1, 2),
-            'specialty_id' => rand(1, 50),
+            'specialty_id' => rand(1, 14),
             'telephone' => $this->faker->phoneNumber,
             'email' => $this->faker->unique()->safeEmail,
             'doctor_type' => [AppointmentType::DENTAL, AppointmentType::OPD, AppointmentType::SPECIALIST][rand(0, 2)],
