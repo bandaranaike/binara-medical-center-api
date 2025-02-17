@@ -14,13 +14,13 @@ return new class extends Migration {
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->foreignId('hospital_id')->nullable()->constrained('hospitals');
             $table->foreignId('specialty_id')->nullable()->constrained('specialties');
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->string('telephone')->nullable();
             $table->enum('doctor_type', AppointmentType::toArray())->default(AppointmentType::SPECIALIST);
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
         });
     }

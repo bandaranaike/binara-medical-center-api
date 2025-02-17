@@ -17,9 +17,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AllergiesTableSeeder::class,
             DiseasesTableSeeder::class,
+
             DoctorSpecialtySeeder::class,
-            DrugSeeder::class,
             HospitalSeeder::class,
+            DoctorsTableSeeder::class,
+            DoctorScheduleSeeder::class,
+
+            DrugSeeder::class,
             MedicationFrequencySeeder::class,
             MedicineSeeder::class,
             ServiceSeeder::class,

@@ -14,6 +14,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DiseaseController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
+use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\DrugController;
 use App\Http\Controllers\HospitalController;
@@ -109,6 +110,7 @@ Route::apiResource('brands', BrandController::class)->middleware(['role:admin,ph
 Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin    ']);
 Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
 Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin,reception']);
+Route::apiResource('doctors-schedules', DoctorScheduleController::class)->middleware(['role:admin']);
 Route::apiResource('drugs', DrugController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);
 Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);
