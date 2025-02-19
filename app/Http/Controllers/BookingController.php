@@ -13,8 +13,10 @@ use App\Http\Resources\PatientAppointmentHistory;
 use App\Models\Bill;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -44,24 +46,6 @@ class BookingController extends Controller
         ]);
     }
 
-    public function getDoctorsList(Request $request): JsonResponse
-    {
-
-        $doctorTypes = [AppointmentType::SPECIALIST, AppointmentType::DENTAL];
-
-        $validated = $request->validate([
-            'doctor_type' => 'required|in:' . implode(',', $doctorTypes),
-        ]);
-
-        $doctors = Doctor::where('doctor_type', $validated['doctor_type'])
-            ->with('specialty:id,name')
-            ->select('id', 'name', 'specialty_id')
-            ->get();
-
-        return new JsonResponse($doctors);
-    }
-
-
     public function makeAppointment(StoreBookingRequest $request): JsonResponse
     {
 
@@ -69,7 +53,7 @@ class BookingController extends Controller
 
         $service = $this->getService($request->input('doctor_type'));
         [$billAmount, $systemAmount] = $this->getBillPriceAndSystemPrice($service);
-        $patientId = $this->getOrCreatePatient($data['name'], $data['phone'], $data['age'], $data['email']);
+        $patientId = $this->getOrCreatePatient($data['name'], $data['phone'], $data['age'], $data['email'], $request->input('user_id'));
 
         $bill = Bill::create(
             [
@@ -77,6 +61,7 @@ class BookingController extends Controller
                 "bill_amount" => $billAmount,
                 "patient_id" => $patientId,
                 "doctor_id" => $data['doctor_id'],
+                "appointment_type" => $service->name,
                 "date" => $data['date'],
                 'status' => BillStatus::BOOKED
             ]
@@ -99,9 +84,11 @@ class BookingController extends Controller
         ));
     }
 
-    public function getOrCreatePatient($name, $phone, $age, $email): int
+    public function getOrCreatePatient($name, $phone, $age, $email, $user_uuid): int
     {
-        $patient = Patient::firstOrCreate(['name' => $name, 'telephone' => $phone], ['age' => $age, 'email' => $email]);
+        $user = User::where('uuid', $user_uuid)->first();
+
+        $patient = Patient::firstOrCreate(['name' => $name, 'telephone' => $phone, 'user_id' => $user?->id], ['age' => $age, 'email' => $email]);
         return $patient->id;
     }
 
@@ -122,7 +109,7 @@ class BookingController extends Controller
             ->with('doctor.specialty:id,name')
             ->with('patient:id,name')
             ->with('doctor:id,name,specialty_id')
-            ->select(['id','patient_id', 'doctor_id', 'payment_status', 'appointment_type', 'status', 'date'])
+            ->select(['id', 'patient_id', 'doctor_id', 'payment_status', 'appointment_type', 'status', 'date'])
             ->get();
 
         return new JsonResponse(PatientAppointmentHistory::collection($patientBillHistories));

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AppointmentType;
 use App\Http\Requests\StoreDoctorAvailabilityRequest;
 use App\Http\Requests\UpdateDoctorAvailabilityRequest;
+use App\Http\Resources\TodayAvailableDoctorsResource;
 use App\Models\Doctor;
 use App\Models\DoctorAvailability;
 use Carbon\Carbon;
@@ -12,7 +14,7 @@ use Illuminate\Http\Request;
 
 class DoctorAvailabilityController extends Controller
 {
-    public function searchDoctor(Request $request)
+    public function searchDoctor(Request $request): JsonResponse
     {
         $searchQuery = $request->query('query');
 
@@ -22,15 +24,35 @@ class DoctorAvailabilityController extends Controller
                     ->whereBetween('doctor_availabilities.date', $this->getDateRange($request));
             })
             ->join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
-            ->where('doctors.name', 'LIKE', "%{$searchQuery}%")
-            ->orWhere('specialties.name', 'LIKE', "%{$searchQuery}%")
+            ->where('doctors.name', 'LIKE', "%$searchQuery%")
+            ->orWhere('specialties.name', 'LIKE', "%$searchQuery%")
             ->groupBy('doctors.id') // Group by doctor and specialty
             ->limit(10)
             ->get();
 
-//        dd($doctors->toSql());
-
         return response()->json($doctors);
+    }
+
+    public function searchDoctorsForWebBooking(Request $request): JsonResponse
+    {
+        $searchQuery = $request->query('query');
+
+        $doctors = Doctor::select(['doctors.id', 'doctors.name', 'specialties.name as specialty_name'])
+            ->join('doctor_availabilities', function ($join) use ($request) {
+                $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')
+                    ->where('doctor_availabilities.date', ">=", date('Y-m-d'));
+            })
+            ->join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
+            ->where(function ($query) use ($searchQuery) {
+                $query->where('doctors.name', 'LIKE', "%$searchQuery%")
+                    ->orWhere('specialties.name', 'LIKE', "%$searchQuery%");
+            })
+            ->where('doctors.doctor_type', $request->get('type'))
+            ->groupBy('doctors.id') // Group by doctor and specialty
+            ->limit(10)
+            ->get();
+
+        return new JsonResponse($doctors);
     }
 
     public function getAvailability(Request $request): JsonResponse
@@ -54,8 +76,6 @@ class DoctorAvailabilityController extends Controller
             $query->whereBetween('date', [$startDate, $endDate]);
         }
 
-        // Query availability data
-
         // Filter by selected doctors (if provided)
         if ($request->has('doctor_ids')) {
             $query->whereIn('doctor_id', $request->doctor_ids);
@@ -64,6 +84,17 @@ class DoctorAvailabilityController extends Controller
         $availabilities = $query->orderBy('date')->orderBy('time')->get();
 
         return response()->json($availabilities);
+    }
+
+    public function getTodayAvailableDoctorsForWeb(): JsonResponse
+    {
+        $availableDoctors = DoctorAvailability::with('doctor.specialty:id,name')
+            ->with('doctor:id,name,specialty_id,doctor_type')
+            ->where(['date' => date('Y-m-d')])
+            ->orderBy('time')
+            ->get(['id', 'doctor_id', 'time', 'seats', 'available_seats']);
+
+        return new JsonResponse(TodayAvailableDoctorsResource::collection($availableDoctors));
     }
 
     private function getDateRange(Request $request): array

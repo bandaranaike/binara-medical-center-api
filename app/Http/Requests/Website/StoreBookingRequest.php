@@ -25,7 +25,7 @@ class StoreBookingRequest extends FormRequest
     public function rules(): array
     {
 
-        $doctorTypes = [AppointmentType::SPECIALIST, AppointmentType::DENTAL];
+        $doctorTypes = [AppointmentType::SPECIALIST->value, AppointmentType::DENTAL->value];
 
         return [
             'name' => 'required|string',
