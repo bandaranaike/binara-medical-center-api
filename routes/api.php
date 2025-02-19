@@ -12,6 +12,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DiseaseController;
+use App\Http\Controllers\DoctorAvailabilityController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
 use App\Http\Controllers\DoctorScheduleController;
@@ -89,6 +90,8 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
     Route::get('bookings/patients/history', [BookingController::class, 'getPatientsHistoryForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
+    Route::get('doctor-availabilities', [DoctorAvailabilityController::class, 'getAvailability']);
+    Route::get('doctor-availabilities/search-doctor', [DoctorAvailabilityController::class, 'searchDoctor']);
     Route::get('patient/user', [PatientController::class, 'loggedUserDetailsForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
     Route::get('patient/user-patients', [PatientController::class, 'usersPatientsListForWeb'])
