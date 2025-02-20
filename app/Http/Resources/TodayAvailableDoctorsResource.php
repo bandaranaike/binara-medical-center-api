@@ -18,6 +18,7 @@ class TodayAvailableDoctorsResource extends JsonResource
             'id' => $this->id,
             'doctor' => $this->doctor->name,
             'doctor_id' => $this->doctor->id,
+            'doctor_type' => $this->doctor->doctor_type,
             'specialty' => $this->doctor->specialty?->name ?? $this->doctor->doctor_type,
             'time' => $this->time,
             'seats' => $this->seats,

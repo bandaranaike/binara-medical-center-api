@@ -37,16 +37,12 @@ class DoctorAvailabilityController extends Controller
     {
         $searchQuery = $request->query('query');
 
-        $doctors = Doctor::select(['doctors.id', 'doctors.name', 'specialties.name as specialty_name'])
+        $doctors = Doctor::select(['doctors.id', 'doctors.name'])
             ->join('doctor_availabilities', function ($join) use ($request) {
                 $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')
                     ->where('doctor_availabilities.date', ">=", date('Y-m-d'));
             })
-            ->join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
-            ->where(function ($query) use ($searchQuery) {
-                $query->where('doctors.name', 'LIKE', "%$searchQuery%")
-                    ->orWhere('specialties.name', 'LIKE', "%$searchQuery%");
-            })
+            ->where('doctors.name', 'LIKE', "%$searchQuery%")
             ->where('doctors.doctor_type', $request->get('type'))
             ->groupBy('doctors.id') // Group by doctor and specialty
             ->limit(10)
@@ -67,7 +63,7 @@ class DoctorAvailabilityController extends Controller
             'doctor_ids.*' => 'integer|exists:doctors,id',
         ]);
 
-        $query = DoctorAvailability::with('doctor:id,name');
+        $query = DoctorAvailability::with('doctor:id,name,doctor_type');
 
         // Determine the date range
         [$startDate, $endDate] = $this->getDateRange($request);
@@ -90,7 +86,7 @@ class DoctorAvailabilityController extends Controller
     {
         $availableDoctors = DoctorAvailability::with('doctor.specialty:id,name')
             ->with('doctor:id,name,specialty_id,doctor_type')
-            ->where(['date' => date('Y-m-d')])
+            ->where('date', date('Y-m-d'))
             ->orderBy('time')
             ->get(['id', 'doctor_id', 'time', 'seats', 'available_seats']);
 
