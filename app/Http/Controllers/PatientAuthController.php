@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Http\Requests\WebUserProfileUpdateRequest;
 use App\Models\Patient;
 use App\Models\Role;
 use App\Models\User;
@@ -49,6 +50,17 @@ class PatientAuthController extends Controller
         return $this->loginAndSendToken($validatedData['email'], $validatedData['password']);
     }
 
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): JsonResponse
+    {
+        // Revoke all tokens...
+        $request->user()->tokens()->delete();
+
+        return new JsonResponse(['message' => 'Logged out successfully']);
+    }
+
     public function login(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
@@ -71,6 +83,7 @@ class PatientAuthController extends Controller
 
             $userDataArray = [
                 'name' => $user->name,
+                'id' => $user->uuid,
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'message' => 'Logged in successfully',
@@ -101,6 +114,14 @@ class PatientAuthController extends Controller
         } else {
             $patient->update(["user_id" => $user->id]);
         }
+    }
+
+    public function updateProfile(WebUserProfileUpdateRequest $request): JsonResponse
+    {
+        if (Auth::user()->update([$request->validated()])) {
+            return new JsonResponse(['message' => "Profile updated successfully"], 200);
+        }
+        return new JsonResponse(['message' => "Something went wrong"], 401);
     }
 
 }

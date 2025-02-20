@@ -4,6 +4,8 @@ namespace App\Enums;
 
 enum UserRole: string
 {
+    use EnumTrait;
+
     case ADMIN = 'admin';
     case PATIENT = 'patient';
     case PHARMACY = 'pharmacy';

@@ -60,12 +60,9 @@ class PatientController extends Controller
     public function store(StorePatientRequest $request): PatientResource
     {
         $patient = Patient::create($request->validated());
-
         $user_id = $this->createUserIfNotExitsForPatient($patient);
-
         $patient->user_id = $user_id;
         $patient->save();
-
         return new PatientResource($patient);
     }
 
@@ -83,17 +80,15 @@ class PatientController extends Controller
     public function update(UpdatePatientRequest $request, Patient $patient): PatientResource
     {
         $patient->update($request->validated());
-
         return new PatientResource($patient);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Patient $patient): \Illuminate\Http\JsonResponse
+    public function destroy(Patient $patient): JsonResponse
     {
         $patient->delete();
-
         return response()->json(null, 204);
     }
 

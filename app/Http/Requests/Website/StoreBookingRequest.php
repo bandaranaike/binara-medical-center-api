@@ -25,14 +25,14 @@ class StoreBookingRequest extends FormRequest
     public function rules(): array
     {
 
-        $doctorTypes = [AppointmentType::SPECIALIST, AppointmentType::DENTAL];
+        $doctorTypes = [AppointmentType::SPECIALIST->value, AppointmentType::DENTAL->value];
 
         return [
             'name' => 'required|string',
-            'phone' => 'required|string',
-            'email' => 'required|email',
-            'age' => 'required|string|between:1,100',
-            'doctor_id' => 'required|string|exists:doctors,id',
+            'phone' => 'required_if:user_id,null',
+            'email' => 'nullable|email',
+            'age' => 'required|numeric|between:0,100',
+            'doctor_id' => 'required|exists:doctors,id',
             'doctor_type' => 'required|string|in:' . implode(',', $doctorTypes),
             'date' => 'required|date',
         ];

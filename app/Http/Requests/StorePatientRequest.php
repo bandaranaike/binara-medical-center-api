@@ -27,7 +27,7 @@ class StorePatientRequest extends FormRequest
             'name' => 'required|string|max:255',
             'age' => 'required|integer|min:1',
             'address' => 'nullable|string|max:255',
-            'gender' => 'nullable|string|max:10',
+            'gender' => 'nullable|string|max:10|in:male,female,other',
             'birthday' => 'nullable|string|max:50',
             'telephone' => 'required|string|max:20',
             'email' => 'nullable|email',

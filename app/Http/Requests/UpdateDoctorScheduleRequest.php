@@ -2,15 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Patient;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-/**
- * @property Patient $patient
- */
-class UpdatePatientRequest extends FormRequest
+class UpdateDoctorScheduleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,13 +24,11 @@ class UpdatePatientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|max:255',
-            'age' => 'sometimes|required|integer|min:1',
-            'address' => 'sometimes|max:255',
-            'gender' => 'sometimes|max:10|in:male,female,other',
-            'birthday' => 'sometimes|max:50',
-            'telephone' => 'sometimes|required|string|max:20',
-            'email' => 'sometimes',
+            'doctor_id' => 'sometimes|integer|exists:doctors,id',
+            'weekday' => 'sometimes|string',
+            'time' => 'sometimes|string',
+            'recurring' => 'sometimes|string',
+            'seats' => 'sometimes|integer',
         ];
     }
 }

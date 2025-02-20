@@ -4,6 +4,8 @@ namespace App\Enums;
 
 enum BillStatus: string
 {
+    use EnumTrait;
+
     case BOOKED = 'booked';
     case DOCTOR = 'doctor';
     case DONE = 'done';
@@ -11,8 +13,4 @@ enum BillStatus: string
     case RECEPTION = 'reception';
     case TREATMENT = 'treatment';
 
-    public static function toArray(): array
-    {
-        return array_column(self::cases(), 'value');
-    }
 }

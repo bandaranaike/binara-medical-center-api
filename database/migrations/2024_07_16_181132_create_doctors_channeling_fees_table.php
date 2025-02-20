@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('doctors_channeling_fees', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('doctor_id')->constrained('doctors');
-            $table->decimal('fee', 8, 2);
+            $table->foreignId('doctor_id')->nullable()->constrained('doctors');
+            $table->decimal('fee');
             $table->timestamps();
         });
     }

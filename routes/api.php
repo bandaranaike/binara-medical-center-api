@@ -12,8 +12,10 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DiseaseController;
+use App\Http\Controllers\DoctorAvailabilityController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DoctorsChannelingFeeController;
+use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\DrugController;
 use App\Http\Controllers\HospitalController;
@@ -85,21 +87,35 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
 // Public APIs
 Route::middleware(['verify.apikey'])->group(function () {
+    Route::delete('patient/delete-patient/{patient}', [PatientController::class, 'destroy'])->middleware('auth:sanctum');
+
     Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
     Route::get('bookings/patients/history', [BookingController::class, 'getPatientsHistoryForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
+
+    Route::get('doctor-availabilities', [DoctorAvailabilityController::class, 'getAvailability']);
+    Route::get('doctor-availabilities/get-today-doctors', [DoctorAvailabilityController::class, 'getTodayAvailableDoctorsForWeb']);
+    Route::get('doctor-availabilities/search-doctor', [DoctorAvailabilityController::class, 'searchDoctor']);
+    Route::get('doctor-availabilities/search-booking-doctors', [DoctorAvailabilityController::class, 'searchDoctorsForWebBooking']);
+
     Route::get('patient/user', [PatientController::class, 'loggedUserDetailsForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
+
     Route::get('patient/user-patients', [PatientController::class, 'usersPatientsListForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
 
     Route::post('bookings/make-appointment', [BookingController::class, 'makeAppointment']);
     Route::post('contacts', [ContactController::class, 'store']);
-    Route::post('patient/change-password', [PasswordController::class, 'update']);
+    Route::post('patient/create-patient', [PatientController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('patient/change-password', [PasswordController::class, 'update'])->middleware('auth:sanctum');
     Route::post('patient/forgot-password', [PasswordResetLinkController::class, 'store']);
     Route::post('patient/login', [PatientAuthController::class, 'login']);
+    Route::post('patient/logout', [PatientAuthController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('patient/register', [PatientAuthController::class, 'register']);
     Route::post('patient/reset-password', [NewPasswordController::class, 'store']);
+
+    Route::put('patient/update-profile', [PatientAuthController::class, 'updateProfile'])->middleware('auth:sanctum');
+    Route::put('patient/update-patient/{patient}', [PatientController::class, 'update'])->middleware('auth:sanctum');
 });
 
 Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);
@@ -109,6 +125,7 @@ Route::apiResource('brands', BrandController::class)->middleware(['role:admin,ph
 Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin    ']);
 Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
 Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin,reception']);
+Route::apiResource('doctors-schedules', DoctorScheduleController::class)->middleware(['role:admin']);
 Route::apiResource('drugs', DrugController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);
 Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);

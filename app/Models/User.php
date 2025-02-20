@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
@@ -15,6 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property mixed $name
  * @property mixed $id
  * @property mixed $email
+ * @property mixed $uuid
  * @method static create(array $array)
  */
 class User extends Authenticatable
@@ -55,6 +57,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($bill) {
+            $bill->uuid = (string)Str::uuid();
+        });
     }
 
     public function hasRole(string|array $role): bool
