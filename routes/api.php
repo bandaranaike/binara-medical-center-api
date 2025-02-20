@@ -87,6 +87,8 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
 // Public APIs
 Route::middleware(['verify.apikey'])->group(function () {
+    Route::delete('patient/delete-patient/{patient}', [PatientController::class, 'destroy'])->middleware('auth:sanctum');
+
     Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
     Route::get('bookings/patients/history', [BookingController::class, 'getPatientsHistoryForWeb'])
         ->middleware(['ensure.patient', 'auth:sanctum']);
@@ -104,14 +106,16 @@ Route::middleware(['verify.apikey'])->group(function () {
 
     Route::post('bookings/make-appointment', [BookingController::class, 'makeAppointment']);
     Route::post('contacts', [ContactController::class, 'store']);
-    Route::post('patient/change-password', [PasswordController::class, 'update']);
+    Route::post('patient/create-patient', [PatientController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('patient/change-password', [PasswordController::class, 'update'])->middleware('auth:sanctum');
     Route::post('patient/forgot-password', [PasswordResetLinkController::class, 'store']);
     Route::post('patient/login', [PatientAuthController::class, 'login']);
+    Route::post('patient/logout', [PatientAuthController::class, 'destroy'])->middleware('auth:sanctum');
     Route::post('patient/register', [PatientAuthController::class, 'register']);
     Route::post('patient/reset-password', [NewPasswordController::class, 'store']);
 
     Route::put('patient/update-profile', [PatientAuthController::class, 'updateProfile'])->middleware('auth:sanctum');
-    Route::put('patient/update-patient', [PatientController::class, 'update'])->middleware('auth:sanctum');
+    Route::put('patient/update-patient/{patient}', [PatientController::class, 'update'])->middleware('auth:sanctum');
 });
 
 Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);

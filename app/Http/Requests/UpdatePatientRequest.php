@@ -31,7 +31,7 @@ class UpdatePatientRequest extends FormRequest
             'name' => 'sometimes|required|string|max:255',
             'age' => 'sometimes|required|integer|min:1',
             'address' => 'sometimes|max:255',
-            'gender' => 'sometimes|max:10',
+            'gender' => 'sometimes|max:10|in:male,female,other',
             'birthday' => 'sometimes|max:50',
             'telephone' => 'sometimes|required|string|max:20',
             'email' => 'sometimes',

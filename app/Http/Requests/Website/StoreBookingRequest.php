@@ -31,7 +31,7 @@ class StoreBookingRequest extends FormRequest
             'name' => 'required|string',
             'phone' => 'required_if:user_id,null',
             'email' => 'nullable|email',
-            'age' => 'required|string|between:1,100',
+            'age' => 'required|numeric|between:0,100',
             'doctor_id' => 'required|exists:doctors,id',
             'doctor_type' => 'required|string|in:' . implode(',', $doctorTypes),
             'date' => 'required|date',

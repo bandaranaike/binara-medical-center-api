@@ -50,6 +50,17 @@ class PatientAuthController extends Controller
         return $this->loginAndSendToken($validatedData['email'], $validatedData['password']);
     }
 
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): JsonResponse
+    {
+        // Revoke all tokens...
+        $request->user()->tokens()->delete();
+
+        return new JsonResponse(['message' => 'Logged out successfully']);
+    }
+
     public function login(Request $request): JsonResponse
     {
         $validatedData = $request->validate([

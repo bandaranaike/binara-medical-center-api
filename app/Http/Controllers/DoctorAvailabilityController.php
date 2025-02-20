@@ -63,7 +63,8 @@ class DoctorAvailabilityController extends Controller
             'doctor_ids.*' => 'integer|exists:doctors,id',
         ]);
 
-        $query = DoctorAvailability::with('doctor:id,name,doctor_type');
+        $query = DoctorAvailability::with('doctor.specialty:id,name')
+            ->with('doctor:id,name,doctor_type,specialty_id');
 
         // Determine the date range
         [$startDate, $endDate] = $this->getDateRange($request);
