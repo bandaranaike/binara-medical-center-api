@@ -7,6 +7,7 @@ use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UsersSeeder extends Seeder
 {
@@ -20,6 +21,7 @@ class UsersSeeder extends Seeder
         DB::table('users')->upsert(
             [
                 'email' => 'admin@email.com',
+                'uuid' => Str::uuid(),
                 'name' => 'Administrator',
                 'password' => Hash::make('9,$wCD:Kf,3YwEu'),
                 'role_id' => Role::where('key', UserRole::ADMIN->value)->first()?->id ?? 1, // Make sure RolesSeeder has already been run
