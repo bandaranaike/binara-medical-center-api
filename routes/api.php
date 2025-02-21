@@ -32,11 +32,14 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SpecialtyController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TrustedSiteController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('forgot-password', [PasswordResetLinkController::class, 'store']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
+Route::post('reset-password', [NewPasswordController::class, 'store']);
 
 Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::delete('patients/remove-allergy/{allergyId}', [PatientsAllergyController::class, 'removeAllergy'])
@@ -136,6 +139,7 @@ Route::apiResource('services', ServiceController::class)->middleware(['role:admi
 Route::apiResource('specialties', SpecialtyController::class)->middleware(['role:admin']);
 Route::apiResource('stocks', StockController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('suppliers', SupplierController::class)->middleware(['role:admin,pharmacy_admin']);
+Route::apiResource('trusted-sites', TrustedSiteController::class)->middleware(['role:admin']);
 Route::apiResource('users', UserController::class)->middleware(['role:admin']);
 
 
