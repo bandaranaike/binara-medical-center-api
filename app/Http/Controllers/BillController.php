@@ -251,7 +251,7 @@ class BillController extends Controller
             $bookingsQuery->where('created_at', '>=', now()->subDays());
         }
 
-        $bookings = $bookingsQuery->get(['id', 'doctor_id', 'patient_id', 'bill_amount', 'system_amount']);
+        $bookings = $bookingsQuery->get();
 
         return new JsonResponse(BookingListResource::collection($bookings));
     }

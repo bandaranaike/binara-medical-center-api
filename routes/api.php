@@ -69,6 +69,8 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
 
     Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);
 
+
+    Route::post('logout', [PatientAuthController::class, 'destroy']);
     Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])
         ->middleware('role:doctor');
     Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store'])

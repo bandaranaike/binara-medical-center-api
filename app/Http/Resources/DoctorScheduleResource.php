@@ -21,6 +21,7 @@ class DoctorScheduleResource extends JsonResource
             'weekday' => $this->weekday,
             'time' => $this->time,
             'recurring' => $this->recurring,
+            'status' => $this->status,
             'seats' => $this->seats,
         ];
     }

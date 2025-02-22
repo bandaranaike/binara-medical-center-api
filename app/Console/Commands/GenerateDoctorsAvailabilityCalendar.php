@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\DoctorAvailability;
 use App\Models\DoctorSchedule;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -72,5 +73,14 @@ class GenerateDoctorsAvailabilityCalendar extends Command
         });
 
         $this->info('Event calendar generated successfully.');
+
+        $this->removeOldData();
+
+        $this->info('Old event calendar data deleted successfully.');
+    }
+
+    private function removeOldData(): void
+    {
+        DoctorAvailability::where('date', Carbon::now()->subMonths(1))->destroy();
     }
 }

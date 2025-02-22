@@ -22,6 +22,9 @@ class BookingListResource extends JsonResource
             'queue_date' => $this->dailyPatientQueue?->queue_date ?? null,
             'bill_amount' => $this->bill_amount ?? null,
             'system_amount' => $this->system_amount ?? null,
+            'appointment_type' => $this->appointment_type,
+            'payment_type' => $this->payment_type,
+            'payment_status' => $this->payment_status,
         ];
     }
 }
