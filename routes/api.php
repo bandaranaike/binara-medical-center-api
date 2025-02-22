@@ -67,9 +67,6 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
         ->middleware('role:pharmacy_admin,admin');
     Route::get('patients/search', [PatientController::class, 'search'])->middleware('role:reception');
 
-    Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);
-
-
     Route::post('logout', [PatientAuthController::class, 'destroy']);
     Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])
         ->middleware('role:doctor');
