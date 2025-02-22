@@ -127,6 +127,7 @@ Route::apiResource('brands', BrandController::class)->middleware(['role:admin,ph
 Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin    ']);
 Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
 Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin,reception']);
+Route::apiResource('doctors-availabilities', DoctorAvailabilityController::class)->middleware(['role:admin']);
 Route::apiResource('doctors-schedules', DoctorScheduleController::class)->middleware(['role:admin']);
 Route::apiResource('drugs', DrugController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);

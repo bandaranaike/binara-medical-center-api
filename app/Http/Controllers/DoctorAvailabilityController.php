@@ -2,18 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\AppointmentType;
+use App\Enums\DoctorAvailabilityStatus;
+use App\Http\Controllers\Traits\CrudTrait;
 use App\Http\Requests\StoreDoctorAvailabilityRequest;
 use App\Http\Requests\UpdateDoctorAvailabilityRequest;
+use App\Http\Resources\DoctorAvailabilityResource;
 use App\Http\Resources\TodayAvailableDoctorsResource;
 use App\Models\Doctor;
 use App\Models\DoctorAvailability;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DoctorAvailabilityController extends Controller
 {
+
+    use CrudTrait;
+
+    public function __construct()
+    {
+        $this->model = new DoctorAvailability();
+        $this->updateRequest = new UpdateDoctorAvailabilityRequest();
+        $this->storeRequest = new StoreDoctorAvailabilityRequest();
+        $this->resource = DoctorAvailabilityResource::class;
+        $this->relationships = ['doctor:id,name'];
+    }
+
     public function searchDoctor(Request $request): JsonResponse
     {
         $searchQuery = $request->query('query');
@@ -64,7 +77,8 @@ class DoctorAvailabilityController extends Controller
         ]);
 
         $query = DoctorAvailability::with('doctor.specialty:id,name')
-            ->with('doctor:id,name,doctor_type,specialty_id');
+            ->with('doctor:id,name,doctor_type,specialty_id')
+            ->where('status', DoctorAvailabilityStatus::ACTIVE);
 
         // Determine the date range
         [$startDate, $endDate] = $this->getDateRange($request);
