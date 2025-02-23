@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\BillStatus;
+use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Requests\StorePatientMedicineRequest;
 use App\Models\Bill;
 use App\Models\MedicationFrequency;
@@ -14,12 +15,14 @@ use Illuminate\Http\JsonResponse;
 
 class PatientsMedicineHistoryController extends Controller
 {
+    use BillItemsTrait;
+
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PatientMedicineHistory $patientMedicine): JsonResponse
+    public function destroy($id): JsonResponse
     {
-        $patientMedicine->delete();
+        PatientMedicineHistory::findOrFail($id)->delete();
 
         return response()->json([
             'message' => 'Patient-Medicine record deleted successfully.',
@@ -66,13 +69,12 @@ class PatientsMedicineHistoryController extends Controller
                 'duration' => $validated['duration'],
             ]);
 
-            // Fetch the updated list of medicine histories for the same patient
-            $updatedHistories = $this->getDoctorsPatientMedicineHistories($validated['patient_id'], $doctorId);
+            $isMedicineItemAdded = $this->createMedicineBillItemIfNotExists($validated['bill_id']);
 
             // Return the transformed response using the collection
             return response()->json([
                 'message' => 'Medicine added successfully',
-                'data' => $updatedHistories,
+                'is_medicine_item_added' => $isMedicineItemAdded,
             ], 201);
 
         } catch (Exception $e) {
@@ -91,29 +93,14 @@ class PatientsMedicineHistoryController extends Controller
         return $medicineId;
     }
 
-    private function getDoctorsPendingMedicines($patientId, $doctorId): Collection
-    {
-        return PatientMedicineHistory::with(['medicine', 'bill'])
-            ->where('patient_id', $patientId)
-            ->where('doctor_id', $doctorId)
-            ->whereHas('bill', function ($query) {
-                $query->where("status", BillStatus::DOCTOR);
-            })
-            ->get();
-    }
-
     private function getDoctorsPatientMedicineHistories($patientId, $doctorId): Collection
     {
         return Bill::where("patient_id", $patientId)
             ->where("doctor_id", $doctorId)
-            ->with("patientMedicines", function ($query) use ($patientId, $doctorId) {
-                $query->where('patient_id', $patientId)
-                    ->where('doctor_id', $doctorId)
-                    ->with('medicine:id,name', 'medicationFrequency:id,name')
-                    ->select(['id', 'bill_id', 'medicine_id', 'duration', 'medication_frequency_id']);
-            })
+            ->where("status", BillStatus::DONE)
             ->orderBy("id", "desc")
-            ->get(['id', 'status', 'created_at']);
+            ->limit(10)
+            ->get(['id', 'created_at']);
     }
 
     private function createNewMedicationFrequencyIfNotExists(mixed $medicationFrequencyId, mixed $medicationFrequencyName)
@@ -124,4 +111,12 @@ class PatientsMedicineHistoryController extends Controller
         return $medicationFrequencyId;
     }
 
+    public function getHistoryForABill($billId): JsonResponse
+    {
+        $patientMedicineHistories = PatientMedicineHistory::where('bill_id', $billId)
+            ->with('medicine:id,name', 'medicationFrequency:id,name')
+            ->get(["id", "medicine_id", "medication_frequency_id", "duration"]);
+
+        return new JsonResponse($patientMedicineHistories);
+    }
 }

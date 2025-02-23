@@ -4,13 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePatientsHistoryRequest;
 use App\Http\Resources\PatientsHistoryResource;
-use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\PatientsHistory;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PatientsHistoryController extends Controller
 {
@@ -32,13 +29,12 @@ class PatientsHistoryController extends Controller
      * @param int $patientId
      * @return JsonResponse
      */
-    public function getPatientHistory(int $patientId, Request $request): JsonResponse
+    public function getPatientHistory(int $patientId): JsonResponse
     {
         try {
             // Check if the patient exists
             $patient = Patient::find($patientId);
 
-            $doctorId = Auth::id();
 
             if (!$patient) {
                 return response()->json([

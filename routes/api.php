@@ -59,6 +59,8 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory'])
         ->middleware(['role:doctor', 'ensure.doctor']);
     Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])
+        ->middleware(['role:pharmacy,doctor,admin', 'ensure.doctor']);
+    Route::get('doctors/patient/bill/{billId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getHistoryForABill'])
         ->middleware(['role:doctor', 'ensure.doctor']);
     Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])
         ->middleware('role:reception');
@@ -133,6 +135,8 @@ Route::apiResource('drugs', DrugController::class)->middleware(['role:admin,phar
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);
 Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);
 Route::apiResource('patients', PatientController::class)->middleware(['role:admin,reception']);
+Route::apiResource('patient-medicine-histories', PatientsMedicineHistoryController::class)
+    ->middleware(['role:admin,reception,pharmacy,pharmacy_admin,doctor']);
 Route::apiResource('roles', RoleController::class)->middleware(['role:admin']);
 Route::apiResource('sales', SaleController::class)->middleware(['role:admin,pharmacy_admin,reception,pharmacy,doctor']);
 Route::apiResource('services', ServiceController::class)->middleware(['role:admin']);

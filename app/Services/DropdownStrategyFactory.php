@@ -11,6 +11,7 @@ class DropdownStrategyFactory
         return match ($type) {
             'allergies' => new AllergiesDropdownStrategy(),
             'brands' => new BrandsDropdownStrategy(),
+            'pharmacy-brands' => new PharmacyBrandsDropdownStrategy(),
             'categories' => new CategoriesDropdownStrategy(),
             'diseases' => new DiseasesDropdownStrategy(),
             'doctors' => new DoctorsDropdownStrategy(),
@@ -25,7 +26,7 @@ class DropdownStrategyFactory
             'specialties' => new SpecialtiesDropdownStrategy(),
             'suppliers' => new SuppliersDropdownStrategy(),
             'users' => new UsersDropdownStrategy(),
-            default => throw new InvalidArgumentException("Invalid type: {$type}")
+            default => throw new InvalidArgumentException("Invalid type: $type")
         };
     }
 }

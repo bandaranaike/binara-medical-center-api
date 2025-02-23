@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BillPaymentStatus;
 use App\Enums\BillStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Traits\BillItemsTrait;
@@ -225,6 +226,10 @@ class BillController extends Controller
             return new JsonResponse(['message' => 'Bill not found'], 404);
         }
 
+        if ($validated['status'] == BillStatus::DONE->value) {
+            $bill->payment_status = BillPaymentStatus::PAID;
+        }
+
         if ($validated['status'] === BillStatus::PHARMACY) {
             $this->insertNewBillItemForMedicineIfNotExists($billId);
         }
@@ -232,11 +237,11 @@ class BillController extends Controller
         $bill->status = $validated['status'];
         $bill->save();
 
-        if ($validated['status'] === BillStatus::DONE) {
-            return new JsonResponse($this->billPrintingResponse($bill), 201);
+        if ($validated['status'] === BillStatus::DONE->value) {
+            return new JsonResponse($this->billPrintingResponse($bill));
         }
 
-        return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
+        return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill]);
     }
 
     private function insertNewBillItemForMedicineIfNotExists($billId): void
