@@ -81,7 +81,7 @@ class BillController extends Controller
             "bill_items" => $this->getBillItemsFroPrint($bill->id),
             'patient_name' => $bill->patient->name,
             'doctor_name' => $bill->doctor?->name,
-            'total' => $bill->bill_amount + $bill->system_amount
+            'total' => number_format($bill->bill_amount + $bill->system_amount, 2)
         ];
     }
 
@@ -167,12 +167,11 @@ class BillController extends Controller
      */
     public function getPendingBillsForReception(): JsonResponse
     {
-        $pendingBills = Bill::where('status', "!=", BillStatus::DONE)
-            ->with([
-                'patient:id,name,age,gender',
-                'doctor:id,name',
-                'dailyPatientQueue:id,bill_id,queue_number,queue_date',
-            ])
+        $pendingBills = Bill::with([
+            'patient:id,name,age,gender',
+            'doctor:id,name',
+            'dailyPatientQueue:id,bill_id,queue_number,queue_date',
+        ])
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
             ->orderByDesc('id')
             ->get();

@@ -74,7 +74,7 @@ class PatientsMedicineHistoryController extends Controller
             // Return the transformed response using the collection
             return response()->json([
                 'message' => 'Medicine added successfully',
-                'is_medicine_item_added' => $isMedicineItemAdded,
+                'added_medicine_item' => $isMedicineItemAdded,
             ], 201);
 
         } catch (Exception $e) {
