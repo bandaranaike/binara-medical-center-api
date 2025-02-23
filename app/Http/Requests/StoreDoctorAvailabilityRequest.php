@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreDoctorAvailabilityRequest extends FormRequest
 {
@@ -11,18 +13,23 @@ class StoreDoctorAvailabilityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::guard('sanctum')->check();
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'doctor_id' => 'required|integer|exists:doctors,id',
+            'status' => 'required|string|in:active,canceled',
+            'date' => 'required|date',
+            'seats' => 'required|integer|between:0:200',
+            'available_seats' => 'required|integer|between:0,200',
+            'time' => 'required|string',
         ];
     }
 }

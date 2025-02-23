@@ -32,11 +32,14 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SpecialtyController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TrustedSiteController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('forgot-password', [PasswordResetLinkController::class, 'store']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
+Route::post('reset-password', [NewPasswordController::class, 'store']);
 
 Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::delete('patients/remove-allergy/{allergyId}', [PatientsAllergyController::class, 'removeAllergy'])
@@ -56,6 +59,8 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
     Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory'])
         ->middleware(['role:doctor', 'ensure.doctor']);
     Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])
+        ->middleware(['role:pharmacy,doctor,admin', 'ensure.doctor']);
+    Route::get('doctors/patient/bill/{billId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getHistoryForABill'])
         ->middleware(['role:doctor', 'ensure.doctor']);
     Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])
         ->middleware('role:reception');
@@ -64,8 +69,7 @@ Route::middleware(['auth:sanctum', 'auth'])->group(function () {
         ->middleware('role:pharmacy_admin,admin');
     Route::get('patients/search', [PatientController::class, 'search'])->middleware('role:reception');
 
-    Route::patch('bookings/convert-to-bill', [BookingController::class, 'convertToBill']);
-
+    Route::post('logout', [PatientAuthController::class, 'destroy']);
     Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])
         ->middleware('role:doctor');
     Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store'])
@@ -125,17 +129,21 @@ Route::apiResource('brands', BrandController::class)->middleware(['role:admin,ph
 Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin    ']);
 Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
 Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin,reception']);
+Route::apiResource('doctors-availabilities', DoctorAvailabilityController::class)->middleware(['role:admin']);
 Route::apiResource('doctors-schedules', DoctorScheduleController::class)->middleware(['role:admin']);
 Route::apiResource('drugs', DrugController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);
 Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);
 Route::apiResource('patients', PatientController::class)->middleware(['role:admin,reception']);
+Route::apiResource('patient-medicine-histories', PatientsMedicineHistoryController::class)
+    ->middleware(['role:admin,reception,pharmacy,pharmacy_admin,doctor']);
 Route::apiResource('roles', RoleController::class)->middleware(['role:admin']);
 Route::apiResource('sales', SaleController::class)->middleware(['role:admin,pharmacy_admin,reception,pharmacy,doctor']);
 Route::apiResource('services', ServiceController::class)->middleware(['role:admin']);
 Route::apiResource('specialties', SpecialtyController::class)->middleware(['role:admin']);
 Route::apiResource('stocks', StockController::class)->middleware(['role:admin,pharmacy_admin']);
 Route::apiResource('suppliers', SupplierController::class)->middleware(['role:admin,pharmacy_admin']);
+Route::apiResource('trusted-sites', TrustedSiteController::class)->middleware(['role:admin']);
 Route::apiResource('users', UserController::class)->middleware(['role:admin']);
 
 

@@ -16,11 +16,11 @@ class UsersSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         DB::table('users')->upsert(
             [
-                'email' => 'admin@email.com',
+                'email' => 'admin@binara.live',
                 'uuid' => Str::uuid(),
                 'name' => 'Administrator',
                 'password' => Hash::make('9,$wCD:Kf,3YwEu'),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BillPaymentStatus;
 use App\Enums\BillStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Traits\BillItemsTrait;
@@ -18,11 +19,11 @@ use App\Http\Resources\BookingListResource;
 use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Doctor;
-use App\Models\Role;
 use App\Models\Service;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -39,7 +40,7 @@ class BillController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $bills = Bill::all();
         return BillResource::collection($bills);
@@ -78,14 +79,16 @@ class BillController extends Controller
             "payment_type" => $bill->payment_type,
             "bill_id" => $bill->id,
             "bill_items" => $this->getBillItemsFroPrint($bill->id),
-            'total' => ($bill->bill_amount + $bill->system_amount)
+            'patient_name' => $bill->patient->name,
+            'doctor_name' => $bill->doctor?->name,
+            'total' => number_format($bill->bill_amount + $bill->system_amount, 2)
         ];
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Bill $bill)
+    public function show(Bill $bill): BillResource
     {
         return new BillResource($bill->load('billItems'));
     }
@@ -93,7 +96,7 @@ class BillController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBillRequest $request, Bill $bill)
+    public function update(UpdateBillRequest $request, Bill $bill): BillResource
     {
         $bill->update($request->only('status'));
 
@@ -164,15 +167,14 @@ class BillController extends Controller
      */
     public function getPendingBillsForReception(): JsonResponse
     {
-        $pendingBills = Bill::where('status', "!=", BillStatus::DONE)
-            ->with([
-                'patient:id,name,age,gender',
-                'doctor:id,name',
-                'dailyPatientQueue:id,bill_id,queue_number,queue_date',
-            ])
+        $pendingBills = Bill::with([
+            'patient:id,name,age,gender',
+            'doctor:id,name',
+            'dailyPatientQueue:id,bill_id,queue_number,queue_date',
+        ])
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
             ->orderByDesc('id')
-            ->get(["id", "system_amount", "bill_amount", "patient_id", "doctor_id", "status", "created_at"]);
+            ->get();
 
         return new JsonResponse(BillReceptionResourceCollection::collection($pendingBills));
     }
@@ -218,8 +220,13 @@ class BillController extends Controller
     {
         $validated = $request->validated();
 
-        if (!$bill = Bill::find($billId)) {
+        if (!$bill = Bill::with('patient:id,name')
+            ->with('doctor:id,name')->find($billId)) {
             return new JsonResponse(['message' => 'Bill not found'], 404);
+        }
+
+        if ($validated['status'] == BillStatus::DONE->value) {
+            $bill->payment_status = BillPaymentStatus::PAID;
         }
 
         if ($validated['status'] === BillStatus::PHARMACY) {
@@ -229,11 +236,11 @@ class BillController extends Controller
         $bill->status = $validated['status'];
         $bill->save();
 
-        if ($validated['status'] === BillStatus::DONE) {
-            return new JsonResponse($this->billPrintingResponse($bill), 201);
+        if ($validated['status'] === BillStatus::DONE->value) {
+            return new JsonResponse($this->billPrintingResponse($bill));
         }
 
-        return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill], 200);
+        return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill]);
     }
 
     private function insertNewBillItemForMedicineIfNotExists($billId): void
@@ -251,7 +258,7 @@ class BillController extends Controller
             $bookingsQuery->where('created_at', '>=', now()->subDays());
         }
 
-        $bookings = $bookingsQuery->get(['id', 'doctor_id', 'patient_id', 'bill_amount', 'system_amount']);
+        $bookings = $bookingsQuery->get();
 
         return new JsonResponse(BookingListResource::collection($bookings));
     }

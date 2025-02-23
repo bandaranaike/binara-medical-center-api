@@ -19,7 +19,6 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -29,27 +28,6 @@ class BookingController extends Controller
     use DoctorAvailabilityTrait;
     use PrintingDataProcess;
     use ServiceType;
-
-    public function convertToBill(Request $request): JsonResponse
-    {
-        $bill = Bill::where('id', $request->get('bill_id'))
-            ->with('patient:id,name')
-            ->with('doctor:id,name')
-            ->first();
-        $billItems = $this->getBillItemsFroPrint($bill->id);
-
-        $bill->status = BillStatus::DOCTOR;
-        $bill->save();
-
-        return new JsonResponse([
-            "bill_reference" => '',
-            "payment_type" => $bill->payment_type,
-            'patient_name' => $bill->patient->name,
-            'doctor_name' => $bill->doctor?->name,
-            "bill_items" => $billItems,
-            'total' => $bill->bill_amount + $bill->system_amount
-        ]);
-    }
 
     public function makeAppointment(StoreBookingRequest $request): JsonResponse
     {

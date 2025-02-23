@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AppointmentType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +31,7 @@ class UpdateDoctorRequest extends FormRequest
             'specialty_id' => 'nullable|exists:specialties,id',
             'telephone' => 'sometimes|required|string|max:20',
             'email' => 'sometimes|nullable|email',
-            'doctor_type' => 'string',
+            'doctor_type' => 'string|in:' . implode(',', AppointmentType::toArray()),
         ];
     }
 }
