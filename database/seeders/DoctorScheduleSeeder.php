@@ -430,12 +430,131 @@ class DoctorScheduleSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
+
             // Prof.Dushantha Medagedara - Sunday Every Other Week @ 04:00 PM
             [
                 'doctor_id' => 27, // Assuming Prof.Dushantha Medagedara has id = 27
                 'weekday' => 'Sunday',
                 'time' => '16:00',
                 'recurring' => 'Bi-Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+
+            // Dr Janak B Abayakoon - Monday, Tuesday, Wednesday 09:30 AM #28
+            [
+                'doctor_id' => 28,
+                'weekday' => 'Monday',
+                'time' => '09:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 28,
+                'weekday' => 'Tuesday',
+                'time' => '09:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 28,
+                'weekday' => 'Wednesday',
+                'time' => '09:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+
+            // Dr Ranjith Rajasinghe - Thursday, Friday 09:30 AM, Friday 04:30 PM #29
+            [
+                'doctor_id' => 29,
+                'weekday' => 'Thursday',
+                'time' => '09:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 29,
+                'weekday' => 'Friday',
+                'time' => '09:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 29,
+                'weekday' => 'Friday',
+                'time' => '16:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+
+            // Dr Ranjith Waidyathilake - Saturday 09:30 AM #30
+            [
+                'doctor_id' => 30,
+                'weekday' => 'Saturday',
+                'time' => '09:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+
+            // Dr Mrs. Sureni Manoratna - Sunday 08:00 AM, 05:00 PM, 04:30 PM #31
+            [
+                'doctor_id' => 31,
+                'weekday' => 'Sunday',
+                'time' => '08:00',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 31,
+                'weekday' => 'Sunday',
+                'time' => '17:00',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 31,
+                'weekday' => 'Sunday',
+                'time' => '16:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+
+            // Dr A Chandrathilake - Sunday, Saturday 03:30 PM #32
+            [
+                'doctor_id' => 32,
+                'weekday' => 'Sunday',
+                'time' => '15:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 32,
+                'weekday' => 'Saturday',
+                'time' => '15:30',
+                'recurring' => 'Weekly',
                 'seats' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
@@ -447,3 +566,6 @@ class DoctorScheduleSeeder extends Seeder
         DB::table('doctor_schedules')->insert($schedules);
     }
 }
+
+/**
+ */

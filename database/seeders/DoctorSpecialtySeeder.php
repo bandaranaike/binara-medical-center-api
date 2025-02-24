@@ -30,6 +30,7 @@ class DoctorSpecialtySeeder extends Seeder
                 ['name' => 'Psychiatric'],
                 ['name' => 'Neuro Physician'],
                 ['name' => 'Chest Physician'],
+                ['name' => 'Dental Surgeon'],
             ], ['name']);
     }
 }

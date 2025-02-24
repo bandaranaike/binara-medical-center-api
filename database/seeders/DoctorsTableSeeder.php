@@ -313,6 +313,61 @@ class DoctorsTableSeeder extends Seeder
                 'email' => '',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
+            ], // Count 27
+            [
+                'name' => 'Dr Janak B Abayakoon',
+                'hospital_id' => 1,
+                'specialty_id' => 15, // Dental Surgeon
+                'user_id' => null,
+                'telephone' => 0,
+                'doctor_type' => 'dental',
+                'email' => '',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Dr Ranjith Rajasinghe',
+                'hospital_id' => 1,
+                'specialty_id' => 15, // Dental Surgeon
+                'user_id' => null,
+                'telephone' => 0,
+                'doctor_type' => 'dental',
+                'email' => '',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Dr Ranjith Waidyathilake',
+                'hospital_id' => 1,
+                'specialty_id' => 15, // Dental Surgeon
+                'user_id' => null,
+                'telephone' => 0,
+                'doctor_type' => 'dental',
+                'email' => '',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Dr Mrs. Sureni Manoratna',
+                'hospital_id' => 1,
+                'specialty_id' => 15, // Dental Surgeon
+                'user_id' => null,
+                'telephone' => 0,
+                'doctor_type' => 'dental',
+                'email' => '',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Dr A Chandrathilake',
+                'hospital_id' => 1,
+                'specialty_id' => 15, // Dental Surgeon
+                'user_id' => null,
+                'telephone' => 0,
+                'doctor_type' => 'dental',
+                'email' => '',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
         ];
         Schema::disableForeignKeyConstraints();

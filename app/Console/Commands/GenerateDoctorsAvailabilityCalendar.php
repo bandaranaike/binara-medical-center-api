@@ -15,7 +15,7 @@ class GenerateDoctorsAvailabilityCalendar extends Command
      *
      * @var string
      */
-    protected $signature = 'generate-doctors-availability-calendar';
+    protected $signature = 'generate:calendar';
 
     /**
      * The console command description.
@@ -81,6 +81,6 @@ class GenerateDoctorsAvailabilityCalendar extends Command
 
     private function removeOldData(): void
     {
-        DoctorAvailability::where('date', Carbon::now()->subMonths(1))->destroy();
+        DoctorAvailability::where('date', Carbon::now()->subMonths(1))->delete();
     }
 }
