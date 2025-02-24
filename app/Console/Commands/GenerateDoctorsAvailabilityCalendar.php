@@ -29,7 +29,7 @@ class GenerateDoctorsAvailabilityCalendar extends Command
      */
     public function handle(): void
     {
-        $startDate = Carbon::now();
+        $startDate = Carbon::now()->subDay();
         $endDate = $startDate->copy()->addMonths();
 
         // Fetch all active doctor schedules
