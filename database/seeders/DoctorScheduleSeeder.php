@@ -493,7 +493,7 @@ class DoctorScheduleSeeder extends Seeder
             [
                 'doctor_id' => 29,
                 'weekday' => 'Friday',
-                'time' => '16:30',
+                'time' => '15:30',
                 'recurring' => 'Weekly',
                 'seats' => 0,
                 'created_at' => Carbon::now(),
@@ -514,8 +514,8 @@ class DoctorScheduleSeeder extends Seeder
             // Dr Mrs. Sureni Manoratna - Sunday 08:00 AM, 05:00 PM, 04:30 PM #31
             [
                 'doctor_id' => 31,
-                'weekday' => 'Sunday',
-                'time' => '08:00',
+                'weekday' => 'Monday',
+                'time' => '17:00',
                 'recurring' => 'Weekly',
                 'seats' => 0,
                 'created_at' => Carbon::now(),
@@ -523,7 +523,16 @@ class DoctorScheduleSeeder extends Seeder
             ],
             [
                 'doctor_id' => 31,
-                'weekday' => 'Sunday',
+                'weekday' => 'Tuesday',
+                'time' => '17:00',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 31,
+                'weekday' => 'Thursday',
                 'time' => '17:00',
                 'recurring' => 'Weekly',
                 'seats' => 0,
@@ -533,7 +542,7 @@ class DoctorScheduleSeeder extends Seeder
             [
                 'doctor_id' => 31,
                 'weekday' => 'Sunday',
-                'time' => '16:30',
+                'time' => '08:00',
                 'recurring' => 'Weekly',
                 'seats' => 0,
                 'created_at' => Carbon::now(),
@@ -543,7 +552,7 @@ class DoctorScheduleSeeder extends Seeder
             // Dr A Chandrathilake - Sunday, Saturday 03:30 PM #32
             [
                 'doctor_id' => 32,
-                'weekday' => 'Sunday',
+                'weekday' => 'Wednesday',
                 'time' => '15:30',
                 'recurring' => 'Weekly',
                 'seats' => 0,
@@ -553,6 +562,15 @@ class DoctorScheduleSeeder extends Seeder
             [
                 'doctor_id' => 32,
                 'weekday' => 'Saturday',
+                'time' => '15:30',
+                'recurring' => 'Weekly',
+                'seats' => 0,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'doctor_id' => 32,
+                'weekday' => 'Sunday',
                 'time' => '15:30',
                 'recurring' => 'Weekly',
                 'seats' => 0,
