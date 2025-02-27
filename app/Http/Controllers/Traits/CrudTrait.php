@@ -20,7 +20,6 @@ trait CrudTrait
     protected Model $model;
     protected Request $storeRequest;
     protected Request $updateRequest;
-    protected string $searchField;
     protected array $relationships = [];
 
     protected string $resource;
@@ -29,8 +28,8 @@ trait CrudTrait
     {
         $query = $this->model->query();
 
-        if ($request->has('search')) {
-            $query = $query::where($this->searchField, 'LIKE', "%" . $request->get('search') . "%");
+        if ($request->get('searchField') && $request->get('searchValue')) {
+            $query = $query::where($request->get('searchField'), 'LIKE', "%" . $request->get('searchValue') . "%");
         }
 
         $records = $query->with($this->relationships)->paginate(self::DEFAULT_PAGE_SIZE);

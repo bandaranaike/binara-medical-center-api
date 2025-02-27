@@ -20,6 +20,7 @@ use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Doctor;
 use App\Models\Service;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -54,17 +55,19 @@ class BillController extends Controller
         $status = $request->input('is_booking') ? BillStatus::BOOKED : BillStatus::DOCTOR;
         $data = $request->validated();
 
+        $date = Carbon::parse($data['date'])->addDays(1)->format('Y-m-d');
+
         // service_type:in(channeling|opd|dental)
         $service = $this->getService($request->input('service_type'));
 
         $bill = Bill::firstOrCreate(
             ["id" => $request->get('bill_id')],
-            [...$data, 'status' => $status, 'appointment_type' => $service->name]
+            [...$data, 'status' => $status, 'appointment_type' => $service->name, 'date' => $date]
         );
 
         $this->insertBillItems($service->id, $data['bill_amount'], $data['system_amount'], $bill->id);
 
-        $queueNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id']);
+        $queueNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id'], $date);
 
         return new JsonResponse([
             ...$this->billPrintingResponse($bill),
