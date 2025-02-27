@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /**
  * @method validate(Request $request, $rules)
@@ -29,7 +30,18 @@ trait CrudTrait
         $query = $this->model->query();
 
         if ($request->get('searchField') && $request->get('searchValue')) {
-            $query = $query::where($request->get('searchField'), 'LIKE', "%" . $request->get('searchValue') . "%");
+
+            $searchValue = $request->get('searchValue');
+            $searchField = $request->get('searchField');
+
+            if (count($this->relationships) > 0 && Str::contains($searchField, ':')) {
+                [$relationShip, $field] = explode(':', $request->get('searchField'));
+                $query->whereHas($relationShip, function ($query) use ($searchValue, $field) {
+                    $query->where($field, 'LIKE', '%' . $searchValue . '%');
+                });
+            } else {
+                $query = $query->where($request->get('searchField'), 'LIKE', "%" . $request->get('searchValue') . "%");
+            }
         }
 
         $records = $query->with($this->relationships)->paginate(self::DEFAULT_PAGE_SIZE);
