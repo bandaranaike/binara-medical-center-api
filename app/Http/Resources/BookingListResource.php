@@ -16,6 +16,7 @@ class BookingListResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'queue_number' => $this->dailyPatientQueue?->queue_number ?? null,
             'patient_name' => $this->patient->name ?? null,
             'doctor_name' => $this->doctor->name ?? null,

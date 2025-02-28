@@ -32,10 +32,11 @@ class PatientsMedicineHistoryController extends Controller
     public function getMedicineHistories($patientId): JsonResponse
     {
         try {
-            // Get the doctor's ID from the middleware ensure.doctor
-            $doctorId = request('doctor_id');
-
-            $medicineHistories = $this->getDoctorsPatientMedicineHistories($patientId, $doctorId);
+            $medicineHistories = Bill::where("patient_id", $patientId)
+                ->where("status", BillStatus::DONE)
+                ->orderBy("id", "desc")
+                ->limit(10)
+                ->get(['id', 'created_at']);
 
             return new JsonResponse(($medicineHistories));
         } catch (Exception $e) {
@@ -91,16 +92,6 @@ class PatientsMedicineHistoryController extends Controller
             $medicineId = Medicine::create(["name" => $medicineName])->id;
         }
         return $medicineId;
-    }
-
-    private function getDoctorsPatientMedicineHistories($patientId, $doctorId): Collection
-    {
-        return Bill::where("patient_id", $patientId)
-            ->where("doctor_id", $doctorId)
-            ->where("status", BillStatus::DONE)
-            ->orderBy("id", "desc")
-            ->limit(10)
-            ->get(['id', 'created_at']);
     }
 
     private function createNewMedicationFrequencyIfNotExists(mixed $medicationFrequencyId, mixed $medicationFrequencyName)

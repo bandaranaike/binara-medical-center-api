@@ -287,10 +287,10 @@ class BillController extends Controller
         return response()->json(["bill_id" => $billId, "queue_id" => $queueNumber]);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         try {
-            $bill = Bill::where('status', BillStatus::BOOKED)->where('id', $id)->first();
+            $bill = Bill::where('status', '!=', BillStatus::DONE)->where('uuid', $id)->first();
             if (!$bill) {
                 return new JsonResponse(['message' => 'Bill not found'], 404);
             }

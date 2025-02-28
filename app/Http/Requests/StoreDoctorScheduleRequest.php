@@ -29,6 +29,7 @@ class StoreDoctorScheduleRequest extends FormRequest
             'time' => 'required|string',
             'recurring' => 'required|string',
             'seats' => 'required|integer',
+            'status' => 'required|string|in:active,inactive',
         ];
     }
 }
