@@ -64,6 +64,12 @@ class DoctorAvailabilityController extends Controller
         return new JsonResponse($doctors);
     }
 
+    public function getDatesForDoctor($doctorId): JsonResponse
+    {
+        $doctorAvailability = DoctorAvailability::where('doctor_id', $doctorId)->get(['date']);
+        return new JsonResponse($doctorAvailability);
+    }
+
     public function getAvailability(Request $request): JsonResponse
     {
         // Validate incoming request parameters
