@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 /**
- * @method static where(string $string, string $operator, $doctorId)
+ * @method static where(string $string, string $operator = null, $doctorId = null)
  * @property int $id
  * @property int $bill_id
  * @property int $doctor_id

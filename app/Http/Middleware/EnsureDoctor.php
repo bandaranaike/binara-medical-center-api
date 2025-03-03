@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Doctor;
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,12 +16,12 @@ class EnsureDoctor
      *
      * @param Closure(Request): (Response) $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): JsonResponse
     {
         $doctor = Doctor::where('user_id', Auth::id())->first();
 
         if (!$doctor) {
-            return response()->json(['message' => 'There is no doctor assigned to the logged-in user'], Response::HTTP_NOT_FOUND);
+            return new JsonResponse(['message' => 'There is no doctor assigned to the logged-in user'], Response::HTTP_NOT_FOUND);
         }
 
         $request->merge(['doctor_id' => $doctor->id]);

@@ -17,7 +17,7 @@ class ReportController extends Controller
     {
         $this->setStartEndDates($request);
 
-        return response()->json([
+        return new JsonResponse([
             'billStatusSummary' => $this->getBillStatusSummary(),
             'dailyReportSummary' => $this->getDailyReportSummary(),
             'revenueByDoctor' => $this->getRevenueByDoctor(),

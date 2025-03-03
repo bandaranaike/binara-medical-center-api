@@ -43,7 +43,7 @@ class DoctorAvailabilityController extends Controller
             ->limit(10)
             ->get();
 
-        return response()->json($doctors);
+        return new JsonResponse($doctors);
     }
 
     public function searchDoctorsForWebBooking(Request $request): JsonResponse
@@ -62,6 +62,15 @@ class DoctorAvailabilityController extends Controller
             ->get();
 
         return new JsonResponse($doctors);
+    }
+
+    public function getDatesForDoctor($doctorId): JsonResponse
+    {
+        $doctorAvailability = DoctorAvailability::where('doctor_id', $doctorId)
+            ->where('date', '>=', date('Y-m-d'))
+            ->orderBy('date', 'ASC')
+            ->get(['date']);
+        return new JsonResponse($doctorAvailability);
     }
 
     public function getAvailability(Request $request): JsonResponse
@@ -94,7 +103,7 @@ class DoctorAvailabilityController extends Controller
 
         $availabilities = $query->orderBy('date')->orderBy('time')->get();
 
-        return response()->json($availabilities);
+        return new JsonResponse($availabilities);
     }
 
     public function getTodayAvailableDoctorsForWeb(): JsonResponse

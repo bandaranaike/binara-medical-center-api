@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Enums\AppointmentType;
 use App\Enums\BillStatus;
+use App\Enums\UserRole;
 use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\BillTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
 use App\Http\Controllers\Traits\DoctorAvailabilityTrait;
+use App\Http\Controllers\Traits\OTPManager;
 use App\Http\Controllers\Traits\PrintingDataProcess;
 use App\Http\Controllers\Traits\ServiceType;
 use App\Http\Requests\Website\StoreBookingRequest;
@@ -15,10 +17,13 @@ use App\Http\Resources\PatientAppointmentHistory;
 use App\Models\Bill;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Role;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
@@ -26,12 +31,19 @@ class BookingController extends Controller
     use BillTrait;
     use DailyPatientQueueTrait;
     use DoctorAvailabilityTrait;
+    use OTPManager;
     use PrintingDataProcess;
     use ServiceType;
 
     public function makeAppointment(StoreBookingRequest $request): JsonResponse
     {
         $data = $request->validated();
+
+        try {
+            $this->checkPhoneHasVerified($data['phone']);
+        } catch (Exception $exception) {
+            return new JsonResponse($exception->getMessage(), 422);
+        }
 
         try {
             $this->adjustDoctorSeats($data['doctor_id'], $data['date']);
@@ -66,7 +78,6 @@ class BookingController extends Controller
 
         [$doctorName, $doctorSpecialty] = $this->getDoctorDetails($data['doctor_id'], $data['doctor_type']);
 
-
         return new JsonResponse(array(
             "doctor_name" => $doctorName,
             "doctor_specialty" => $doctorSpecialty,
@@ -80,8 +91,25 @@ class BookingController extends Controller
 
     public function getOrCreatePatient($name, $phone, $age, $email, $user_uuid): int
     {
-        $user = User::where('uuid', $user_uuid)->first();
-        $patient = Patient::firstOrCreate(['name' => $name, 'telephone' => $phone, 'user_id' => $user?->id], ['age' => $age, 'email' => $email]);
+        if ($user_uuid) {
+            $user = User::where('uuid', $user_uuid)->first();
+        } else {
+            $user = User::firstOrCreate(
+                ['phone' => $phone],
+                [
+                    'email' => $email,
+                    'name' => $name,
+                    'role_id' => Role::where("key", UserRole::PATIENT->value)->first()->id,
+                    'phone_verified_at' => now(),
+                    'password' => Hash::make(Str::random(8)),
+                ],
+            );
+        }
+
+        $patient = Patient::firstOrCreate(
+            ['name' => $name, 'telephone' => $phone, 'user_id' => $user->id],
+            ['age' => $age, 'email' => $email]
+        );
         return $patient->id;
     }
 

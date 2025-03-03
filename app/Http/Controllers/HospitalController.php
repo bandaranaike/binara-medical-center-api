@@ -54,6 +54,6 @@ class HospitalController extends Controller
     {
         $hospital->delete();
 
-        return response()->json(null, 204);
+        return new JsonResponse(null, 204);
     }
 }

@@ -21,6 +21,7 @@ class StockResource extends JsonResource
             "unit_price" => $this->unit_price,
             "batch_number" => $this->batch_number,
             "quantity" => $this->quantity,
+            "initial_quantity" => $this->initial_quantity,
             "expire_date" => $this->expire_date,
             "cost" => $this->cost
         ];

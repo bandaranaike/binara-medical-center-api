@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /**
  * @method validate(Request $request, $rules)
@@ -20,7 +21,6 @@ trait CrudTrait
     protected Model $model;
     protected Request $storeRequest;
     protected Request $updateRequest;
-    protected string $searchField;
     protected array $relationships = [];
 
     protected string $resource;
@@ -29,8 +29,19 @@ trait CrudTrait
     {
         $query = $this->model->query();
 
-        if ($request->has('search')) {
-            $query = $query::where($this->searchField, 'LIKE', "%" . $request->get('search') . "%");
+        if ($request->get('searchField') && $request->get('searchValue')) {
+
+            $searchValue = $request->get('searchValue');
+            $searchField = $request->get('searchField');
+
+            if (count($this->relationships) > 0 && Str::contains($searchField, ':')) {
+                [$relationShip, $field] = explode(':', $request->get('searchField'));
+                $query->whereHas($relationShip, function ($query) use ($searchValue, $field) {
+                    $query->where($field, 'LIKE', '%' . $searchValue . '%');
+                });
+            } else {
+                $query = $query->where($request->get('searchField'), 'LIKE', "%" . $request->get('searchValue') . "%");
+            }
         }
 
         $records = $query->with($this->relationships)->paginate(self::DEFAULT_PAGE_SIZE);
@@ -47,7 +58,7 @@ trait CrudTrait
     {
         $validated = $this->validate($request, $this->storeRequest->rules());
         $item = $this->model::create($validated);
-        return response()->json(['message' => 'Record created successfully', "item" => $item], 201);
+        return new JsonResponse(['message' => 'Record created successfully', "item" => $item], 201);
     }
 
     public function show($id)
@@ -59,12 +70,13 @@ trait CrudTrait
     {
         $validated = $this->validate($request, $this->updateRequest->rules());
         $this->model::findOrFail($id)->update($validated);
-        return response()->json(['message' => 'Record updated successfully']);
+        return new JsonResponse(['message' => 'Record updated successfully']);
     }
 
     public function destroy($id): JsonResponse
     {
-        $this->model::findOrFail($id)->delete();
-        return response()->json(['message' => 'Record deleted successfully']);
+        $ids = explode(',', $id);
+        $this->model::whereIn('id', $ids)->delete();
+        return new JsonResponse(['message' => 'Record deleted successfully']);
     }
 }

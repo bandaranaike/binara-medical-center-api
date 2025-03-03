@@ -4,16 +4,15 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
-class StoreDoctorScheduleRequest extends FormRequest
+class ResendPhoneVerificationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return Auth::guard('sanctum')->check();
+        return true;
     }
 
     /**
@@ -24,12 +23,7 @@ class StoreDoctorScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'doctor_id' => 'required|integer|exists:doctors,id',
-            'weekday' => 'required|string',
-            'time' => 'required|string',
-            'recurring' => 'required|string',
-            'seats' => 'required|integer',
-            'status' => 'required|string|in:active,inactive',
+            //
         ];
     }
 }

@@ -41,15 +41,11 @@ class PatientController extends Controller
 
         $search = Str::replace(['0'], '+94', $search);
 
-        $patients = User::where('phone', 'LIKE', '%' . $search . '%')
-            ->orWhere('name', 'LIKE', '%' . $search . '%')
-            ->whereHas('role', function ($query) {
-                $query->where('key', UserRole::PATIENT);
-            })
-            ->with('patients', function ($query) {
-                $query->select(['id', 'name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email', 'user_id']);
-            })
-            ->get(['id', 'name', 'phone']);
+        $patients = User::whereHas('patients', function ($query) use ($search) {
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        })->with(['patients' => function ($query) {
+            $query->select(['id', 'name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email', 'user_id']);
+        }])->get(['id', 'name', 'phone']);
 
         return new JsonResponse($patients);
     }
@@ -89,7 +85,7 @@ class PatientController extends Controller
     public function destroy(Patient $patient): JsonResponse
     {
         $patient->delete();
-        return response()->json(null, 204);
+        return new JsonResponse(null, 204);
     }
 
     private function createUserIfNotExitsForPatient($patient)

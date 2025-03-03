@@ -29,6 +29,7 @@ class UpdateDoctorScheduleRequest extends FormRequest
             'time' => 'sometimes|string',
             'recurring' => 'sometimes|string',
             'seats' => 'sometimes|integer',
+            'status' => 'sometimes|string|in:active,inactive',
         ];
     }
 }

@@ -24,7 +24,7 @@ class PatientsMedicineHistoryController extends Controller
     {
         PatientMedicineHistory::findOrFail($id)->delete();
 
-        return response()->json([
+        return new JsonResponse([
             'message' => 'Patient-Medicine record deleted successfully.',
         ]);
     }
@@ -32,14 +32,15 @@ class PatientsMedicineHistoryController extends Controller
     public function getMedicineHistories($patientId): JsonResponse
     {
         try {
-            // Get the doctor's ID from the middleware ensure.doctor
-            $doctorId = request('doctor_id');
-
-            $medicineHistories = $this->getDoctorsPatientMedicineHistories($patientId, $doctorId);
+            $medicineHistories = Bill::where("patient_id", $patientId)
+                ->where("status", BillStatus::DONE)
+                ->orderBy("id", "desc")
+                ->limit(10)
+                ->get(['id', 'created_at']);
 
             return new JsonResponse(($medicineHistories));
         } catch (Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Failed to retrieve medicine histories',
                 'error' => $e->getMessage(),
             ], 500);
@@ -72,13 +73,13 @@ class PatientsMedicineHistoryController extends Controller
             $isMedicineItemAdded = $this->createMedicineBillItemIfNotExists($validated['bill_id']);
 
             // Return the transformed response using the collection
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Medicine added successfully',
                 'added_medicine_item' => $isMedicineItemAdded,
             ], 201);
 
         } catch (Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Failed to add medicine',
                 'error' => $e->getMessage(),
             ], 500);
@@ -91,16 +92,6 @@ class PatientsMedicineHistoryController extends Controller
             $medicineId = Medicine::create(["name" => $medicineName])->id;
         }
         return $medicineId;
-    }
-
-    private function getDoctorsPatientMedicineHistories($patientId, $doctorId): Collection
-    {
-        return Bill::where("patient_id", $patientId)
-            ->where("doctor_id", $doctorId)
-            ->where("status", BillStatus::DONE)
-            ->orderBy("id", "desc")
-            ->limit(10)
-            ->get(['id', 'created_at']);
     }
 
     private function createNewMedicationFrequencyIfNotExists(mixed $medicationFrequencyId, mixed $medicationFrequencyName)

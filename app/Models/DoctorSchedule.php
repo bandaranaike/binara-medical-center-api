@@ -12,7 +12,7 @@ class DoctorSchedule extends Model
     /** @use HasFactory<DoctorScheduleFactory> */
     use HasFactory;
 
-    protected $fillable = ['doctor_id', 'seats', 'seats', 'weekday', 'time'];
+    protected $fillable = ['doctor_id', 'seats', 'seats', 'weekday', 'time', 'status'];
 
     public function doctor(): BelongsTo
     {

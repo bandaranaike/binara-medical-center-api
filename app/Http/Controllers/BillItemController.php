@@ -50,10 +50,10 @@ class BillItemController extends Controller
                 return new JsonResponse($this->getBillForServices($billId), 201);
             }
 
-            return response()->json($billItem->load('service:id,name'), 201);
+            return new JsonResponse($billItem->load('service:id,name'), 201);
 
         } catch (Exception) {
-            return response()->json('An error occurred while adding the bill item.', 500);
+            return new JsonResponse('An error occurred while adding the bill item.', 500);
         }
     }
 
@@ -70,9 +70,9 @@ class BillItemController extends Controller
             if (isset($validatedData['system_amount'])) $billItem->system_amount = $validatedData['system_amount'];
             $billItem->save();
 
-            return response()->json(['message' => 'Bill item updated successfully', 'data' => $billItem]);
+            return new JsonResponse(['message' => 'Bill item updated successfully', 'data' => $billItem]);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Error updating bill item', 'error' => $e->getMessage()], 500);
+            return new JsonResponse(['message' => 'Error updating bill item', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -85,12 +85,12 @@ class BillItemController extends Controller
             // Delete the bill item
             $billItem->delete();
 
-            return response()->json([
+            return new JsonResponse([
                 'success' => true,
                 'message' => 'Bill item deleted successfully.',
             ]);
         } catch (Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'message' => 'Error deleting bill item: ' . $e->getMessage(),
             ], 500);

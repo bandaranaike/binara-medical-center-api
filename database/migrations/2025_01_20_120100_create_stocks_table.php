@@ -16,8 +16,8 @@ return new class extends Migration {
             $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->onDelete('set null');
             $table->decimal('unit_price', 10)->default(0);
             $table->string('batch_number', 60)->nullable();
-            $table->decimal('initial_quantity')->default(0);
-            $table->decimal('quantity')->default(0);
+            $table->integer('initial_quantity')->default(0);
+            $table->integer('quantity')->default(0);
             $table->date('expire_date')->nullable(0);
             $table->decimal('cost', 12)->default(0);
             $table->timestamps();
