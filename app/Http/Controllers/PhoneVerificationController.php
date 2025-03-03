@@ -41,12 +41,12 @@ class PhoneVerificationController extends Controller
 
         // Generating a new OTP for the same token
         try {
-            [$otp] = $this->createOTP($phoneVerification->phone_number, $phoneVerification->token);
+            $this->createOTP($phoneVerification->phone_number, $phoneVerification->token);
         } catch (RandomException $e) {
             return new JsonResponse(['message' => 'OTP generate failed. ' . $e->getMessage()], 500);
         }
 
-        return new JsonResponse(['message' => 'New OTP sent successfully. Testing:' . $otp]);
+        return new JsonResponse(['message' => 'New OTP sent successfully.']);
     }
 
     public function validate(ValidatePhoneVerificationRequest $request, $token): JsonResponse
@@ -76,10 +76,10 @@ class PhoneVerificationController extends Controller
         $phoneNumber = $request->validated('phone_number');
 
         try {
-            [$otp, $token] = $this->createOTP($phoneNumber);
+            $token = $this->createOTP($phoneNumber);
         } catch (RandomException $e) {
             return new JsonResponse(['message' => 'OTP generate failed. ' . $e->getMessage()], 500);
         }
-        return new JsonResponse(['message' => 'OTP generated successfully', 'otp' => $otp, 'token' => $token]);
+        return new JsonResponse(['message' => 'OTP generated successfully', 'token' => $token]);
     }
 }

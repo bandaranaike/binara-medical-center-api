@@ -7,24 +7,30 @@ use App\Models\PhoneVerification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Str;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 use Random\RandomException;
 
 trait OTPManager
 {
 
+    const DEFAULT_REGION = "LK";
     const RESEND_WAITING_SECONDS = 30;
     const TOKEN_EXPIRE_IN_MINUTES = 10;
     const SENDER = "BinaraMedic";
 
     private function sendOTP($phoneNumber, $otp): void
     {
-        SendPhoneVerification::dispatch($phoneNumber, $otp, self::SENDER);
+        $phoneUtil = PhoneNumberUtil::getInstance();
+        $nationalPhoneNumber = $phoneUtil->format($phoneUtil->parse($phoneNumber, self::DEFAULT_REGION), PhoneNumberFormat::NATIONAL);
+        $trimmedPhoneNumber = Str::replace(" ", "", $nationalPhoneNumber);
+        SendPhoneVerification::dispatch($trimmedPhoneNumber, $otp, self::SENDER);
     }
 
     /**
      * @throws RandomException
      */
-    private function createOTP($phoneNumber, $token = null, $userId = null): array
+    private function createOTP($phoneNumber, $token = null, $userId = null): string
     {
 
         $otp = random_int(100000, 999999);
@@ -44,9 +50,9 @@ trait OTPManager
             ]
         );
 
-        // $this->sendOTP($phoneNumber, $otp);
+        $this->sendOTP($phoneNumber, $otp);
 
-        return [$otp, $token];
+        return $token;
     }
 
     /**

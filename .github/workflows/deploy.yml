@@ -1,0 +1,44 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2' # Update to the version supported by Laravel 11
+          extensions: mbstring, intl, bcmath, xml, ctype, json, tokenizer
+          ini-values: post_max_size=256M, upload_max_filesize=256M
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
+
+      - name: Deploy to server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan 147.93.111.8 >> ~/.ssh/known_hosts
+          rsync -avz --exclude=vendor --exclude=node_modules --exclude=.git ./ root@147.93.111.8:/var/www/api.binara.live
+          ssh root@147.93.111.8 << 'EOF'
+            cd /var/www/api.binara.live
+            composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            sudo systemctl restart php8.2-fpm
+            sudo systemctl reload nginx
+          EOF

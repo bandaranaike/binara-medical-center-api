@@ -44,7 +44,6 @@ class PatientsHistoryController extends Controller
             }
             // Fetch the patient's history for the given doctor
             $history = PatientsHistory::where('patient_id', $patientId)
-                ->where('doctor_id', request()->doctor_id)
                 ->select(['id', 'note'])
                 ->selectRaw('SUBSTRING(created_at, 1, 10) AS date')
                 ->get();

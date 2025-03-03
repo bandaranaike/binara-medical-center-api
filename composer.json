@@ -6,15 +6,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-curl": "*",
         "aws/aws-sdk-php": "^3.339",
+        "giggsey/libphonenumber-for-php": "^8.13",
         "inertiajs/inertia-laravel": "^1.0",
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "resend/resend-laravel": "^0.16.0",
-        "tightenco/ziggy": "^2.0",
-        "ext-http": "*",
-        "ext-curl": "*"
+        "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
