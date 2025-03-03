@@ -207,12 +207,12 @@ class BillController extends Controller
             $bill->system_amount = $validatedData['system_amount'];
             $bill->save();
 
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Bill finalized successfully',
                 'data' => $bill
             ]);
         } catch (Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Failed to finalize the bill',
                 'error' => $e->getMessage()
             ], 500);
@@ -284,7 +284,7 @@ class BillController extends Controller
 
         $queueNumber = $this->createDailyPatientQueue($billId, $doctorId);
 
-        return response()->json(["bill_id" => $billId, "queue_id" => $queueNumber]);
+        return new JsonResponse(["bill_id" => $billId, "queue_id" => $queueNumber]);
     }
 
     public function destroy(string $id): JsonResponse

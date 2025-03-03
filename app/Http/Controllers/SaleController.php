@@ -80,7 +80,7 @@ class SaleController extends Controller
                 $updatedStock['stock']->save();
             }
 
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Sale completed successfully',
                 'sale' => $sale,
                 'stocks_updated' => collect($updatedStocks)->map(function ($item) {
@@ -137,7 +137,7 @@ class SaleController extends Controller
                 $restoredStock['stock']->save();
             }
 
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Sale reversed successfully',
                 'sale_id' => $sale->id,
                 'stocks_restored' => collect($restoredStocks)->map(function ($item) {

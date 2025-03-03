@@ -37,7 +37,7 @@ class PatientsHistoryController extends Controller
 
 
             if (!$patient) {
-                return response()->json([
+                return new JsonResponse([
                     'success' => false,
                     'message' => 'Patient not found'
                 ], 404);
@@ -50,20 +50,20 @@ class PatientsHistoryController extends Controller
                 ->get();
 
             if ($history->isEmpty()) {
-                return response()->json([
+                return new JsonResponse([
                     'success' => true,
                     'message' => 'No history found for this patient with this doctor',
                     'data' => []
                 ]);
             }
 
-            return response()->json([
+            return new JsonResponse([
                 'success' => true,
                 'message' => 'Patient history retrieved successfully',
                 'data' => $history
             ]);
         } catch (Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'message' => 'An error occurred while fetching patient history',
                 'error' => $e->getMessage()

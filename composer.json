@@ -13,7 +13,8 @@
         "laravel/tinker": "^2.9",
         "resend/resend-laravel": "^0.16.0",
         "tightenco/ziggy": "^2.0",
-        "ext-http": "*"
+        "ext-http": "*",
+        "ext-curl": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

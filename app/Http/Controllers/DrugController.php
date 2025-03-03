@@ -53,6 +53,6 @@ class DrugController extends Controller
             });
         });
 
-        return response()->json($formattedData);
+        return new JsonResponse($formattedData);
     }
 }

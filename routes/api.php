@@ -160,6 +160,7 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::apiResource('users', UserController::class)->middleware(['role:admin']);
 
     require base_path('routes/admin.php');
+    require base_path('routes/otp.php');
 });
 
 

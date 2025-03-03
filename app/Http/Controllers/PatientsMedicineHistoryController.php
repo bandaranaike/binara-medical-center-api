@@ -24,7 +24,7 @@ class PatientsMedicineHistoryController extends Controller
     {
         PatientMedicineHistory::findOrFail($id)->delete();
 
-        return response()->json([
+        return new JsonResponse([
             'message' => 'Patient-Medicine record deleted successfully.',
         ]);
     }
@@ -40,7 +40,7 @@ class PatientsMedicineHistoryController extends Controller
 
             return new JsonResponse(($medicineHistories));
         } catch (Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Failed to retrieve medicine histories',
                 'error' => $e->getMessage(),
             ], 500);
@@ -73,13 +73,13 @@ class PatientsMedicineHistoryController extends Controller
             $isMedicineItemAdded = $this->createMedicineBillItemIfNotExists($validated['bill_id']);
 
             // Return the transformed response using the collection
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Medicine added successfully',
                 'added_medicine_item' => $isMedicineItemAdded,
             ], 201);
 
         } catch (Exception $e) {
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Failed to add medicine',
                 'error' => $e->getMessage(),
             ], 500);

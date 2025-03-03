@@ -58,7 +58,7 @@ trait CrudTrait
     {
         $validated = $this->validate($request, $this->storeRequest->rules());
         $item = $this->model::create($validated);
-        return response()->json(['message' => 'Record created successfully', "item" => $item], 201);
+        return new JsonResponse(['message' => 'Record created successfully', "item" => $item], 201);
     }
 
     public function show($id)
@@ -70,12 +70,13 @@ trait CrudTrait
     {
         $validated = $this->validate($request, $this->updateRequest->rules());
         $this->model::findOrFail($id)->update($validated);
-        return response()->json(['message' => 'Record updated successfully']);
+        return new JsonResponse(['message' => 'Record updated successfully']);
     }
 
     public function destroy($id): JsonResponse
     {
-        $this->model::findOrFail($id)->delete();
-        return response()->json(['message' => 'Record deleted successfully']);
+        $ids = explode(',', $id);
+        $this->model::whereIn('id', $ids)->delete();
+        return new JsonResponse(['message' => 'Record deleted successfully']);
     }
 }

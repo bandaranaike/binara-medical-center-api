@@ -20,7 +20,7 @@ class MedicineController extends Controller
         // Create the medicine record
         $medicine = Medicine::create( $request->validated());
 
-        return response()->json([
+        return new JsonResponse([
             'message' => 'Medicine created successfully.',
             'data' => $medicine,
         ], 201);
@@ -39,7 +39,7 @@ class MedicineController extends Controller
         $medicine = Medicine::find($id);
 
         if (!$medicine) {
-            return response()->json([
+            return new JsonResponse([
                 'message' => 'Medicine not found.',
             ], 404);
         }
@@ -47,7 +47,7 @@ class MedicineController extends Controller
         // Update the medicine record
         $medicine->update($request->validated());
 
-        return response()->json([
+        return new JsonResponse([
             'message' => 'Medicine updated successfully.',
             'data' => $medicine,
         ], 200);
