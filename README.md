@@ -17,3 +17,7 @@ if __name__ == "__main__":
 ```
 
 `pm2 save`
+
+```sudo chown -R www-data:www-data /var/www/api.binara.live/storage/```
+
+```sudo chown -R www-data:www-data /var/www/api.binara.live/bootstrap/```
