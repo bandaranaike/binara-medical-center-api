@@ -71,6 +71,9 @@ Route::middleware(['verify.apikey'])->group(function () {
             ->middleware('role:pharmacy_admin,admin');
         Route::get('patients/search', [PatientController::class, 'search'])->middleware('role:reception');
 
+        Route::patch('sales/update-quantity', [SaleController::class, 'changeStockQuantity'])
+            ->middleware('role:pharmacy_admin,admin,doctor,pharmacy');
+
         Route::post('logout', [PatientAuthController::class, 'destroy']);
         Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])
             ->middleware('role:doctor');

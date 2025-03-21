@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StorePatientMedicineRequest extends FormRequest
+class UpdateSaleQuantityRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,14 +24,8 @@ class StorePatientMedicineRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'patient_id' => 'required|exists:patients,id',
-            'bill_id' => 'required|exists:bills,id',
-            'brand_id' => 'required',
-            'medication_frequency_name' => 'nullable|string',
-            'duration' => 'nullable|string',
-            'quantity' => 'nullable|numeric',
-            'medicine_name' => 'nullable|string',
-            'medication_frequency_id' => 'required',
+            "sale_id" => "required|integer|exists:sales,id",
+            "quantity" => "required|integer",
         ];
     }
 }
