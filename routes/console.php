@@ -11,4 +11,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::command(UpdatePatientAges::class)->daily();
-Schedule::command(GenerateDoctorsAvailabilityCalendar::class)->lastDayOfMonth();
+Schedule::command(GenerateDoctorsAvailabilityCalendar::class)->daily();

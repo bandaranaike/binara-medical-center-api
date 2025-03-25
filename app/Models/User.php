@@ -63,8 +63,9 @@ class User extends Authenticatable
     {
         parent::boot();
 
-        static::creating(function ($bill) {
-            $bill->uuid = (string)Str::uuid();
+        static::creating(function ($user) {
+            $user->uuid = (string)Str::uuid();
+            $user->password = bcrypt($user->password);
         });
     }
 

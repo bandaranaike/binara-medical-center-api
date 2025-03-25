@@ -63,7 +63,7 @@ Route::middleware(['verify.apikey'])->group(function () {
         Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])
             ->middleware(['role:pharmacy,doctor,admin', 'ensure.doctor']);
         Route::get('doctors/patient/bill/{billId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getHistoryForABill'])
-            ->middleware(['role:doctor', 'ensure.doctor']);
+            ->middleware(['role:doctor,pharmacy']);
         Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])
             ->middleware('role:reception');
         Route::get('dropdown/{table}', [DropdownController::class, 'index']);

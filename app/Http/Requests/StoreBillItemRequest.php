@@ -28,6 +28,7 @@ class StoreBillItemRequest extends FormRequest
             'bill_id' => 'required|numeric',
             'service_id' => 'required',
             'bill_amount' => 'required|numeric|min:0',
+            'system_amount' => 'required|numeric|min:0',
             'service_name' => 'nullable|string',
         ];
     }
