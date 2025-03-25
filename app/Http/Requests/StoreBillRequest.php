@@ -34,6 +34,7 @@ class StoreBillRequest extends FormRequest
             'doctor_id' => 'nullable|exists:doctors,id',
             'is_booking' => 'required|boolean',
             'service_type' => 'required|string',
+            'shift' => 'required|string',
             'date' => 'required_if:is_booking,true|date',
         ];
     }

@@ -31,6 +31,7 @@ class Bill extends Model
         'patient_id',
         'doctor_id',
         'status',
+        'shift',
         'payment_type',
         'payment_status',
         'appointment_type',

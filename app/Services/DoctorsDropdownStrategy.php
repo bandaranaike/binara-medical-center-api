@@ -41,7 +41,6 @@ class DoctorsDropdownStrategy implements DropdownStrategyInterface
 
         $query->groupBy('doctors.id', 'doctor_id');
 
-
         return $query;
     }
 }
