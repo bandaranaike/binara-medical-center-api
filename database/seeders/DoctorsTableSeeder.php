@@ -368,7 +368,14 @@ class DoctorsTableSeeder extends Seeder
                 'email' => '',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
-            ],
+            ],// Count 32
+
+            ['name' => 'Dr W Kularathne', 'hospital_id' => 1, 'specialty_id' => 16, 'user_id' => null, 'telephone' => 0, 'doctor_type' => 'opd', 'email' => '', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Dr Sampath Athapaththu', 'hospital_id' => 1, 'specialty_id' => 16, 'user_id' => null, 'telephone' => 0, 'doctor_type' => 'opd', 'email' => '', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Dr L.W.N Kularathne', 'hospital_id' => 1, 'specialty_id' => 16, 'user_id' => null, 'telephone' => 0, 'doctor_type' => 'opd', 'email' => '', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Dr P.A.D Manjula Senarachchi', 'hospital_id' => 1, 'specialty_id' => 16, 'user_id' => null, 'telephone' => 0, 'doctor_type' => 'opd', 'email' => '', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Dr (Mrs) S.S.V Vidanapathirana', 'hospital_id' => 1, 'specialty_id' => 16, 'user_id' => null, 'telephone' => 0, 'doctor_type' => 'opd', 'email' => '', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+
         ];
         Schema::disableForeignKeyConstraints();
         DB::table('doctors')->truncate();

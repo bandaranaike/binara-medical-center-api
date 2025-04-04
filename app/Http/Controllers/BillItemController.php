@@ -42,8 +42,8 @@ class BillItemController extends Controller
             $billItem = BillItem::create([
                 'bill_id' => $billId,
                 'service_id' => $serviceId,
-                'system_amount' => $systemAmount,
-                'bill_amount' => $billAmount,
+                'system_amount' => $validatedData['system_amount'],
+                'bill_amount' => $validatedData['bill_amount'],
             ]);
 
             if ($this->isNewBill) {

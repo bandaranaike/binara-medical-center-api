@@ -27,8 +27,8 @@ class StoreDoctorAvailabilityRequest extends FormRequest
             'doctor_id' => 'required|integer|exists:doctors,id',
             'status' => 'required|string|in:active,canceled',
             'date' => 'required|date',
-            'seats' => 'required|integer|between:0:200',
-            'available_seats' => 'required|integer|between:0,200',
+            'seats' => 'required|integer',
+            'available_seats' => 'required|integer',
             'time' => 'required|string',
         ];
     }

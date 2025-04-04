@@ -63,13 +63,16 @@ Route::middleware(['verify.apikey'])->group(function () {
         Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])
             ->middleware(['role:pharmacy,doctor,admin', 'ensure.doctor']);
         Route::get('doctors/patient/bill/{billId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getHistoryForABill'])
-            ->middleware(['role:doctor', 'ensure.doctor']);
+            ->middleware(['role:doctor,pharmacy']);
         Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])
             ->middleware('role:reception');
         Route::get('dropdown/{table}', [DropdownController::class, 'index']);
         Route::get('drugs/stock-sale-data', [DrugController::class, 'getDrugStockSaleData'])
             ->middleware('role:pharmacy_admin,admin');
         Route::get('patients/search', [PatientController::class, 'search'])->middleware('role:reception');
+
+        Route::patch('sales/update-quantity', [SaleController::class, 'changeStockQuantity'])
+            ->middleware('role:pharmacy_admin,admin,doctor,pharmacy');
 
         Route::post('logout', [PatientAuthController::class, 'destroy']);
         Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])

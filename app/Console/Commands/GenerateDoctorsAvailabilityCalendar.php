@@ -15,7 +15,7 @@ class GenerateDoctorsAvailabilityCalendar extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:calendar';
+    protected $signature = 'generate:calendar {--start= : Start date} {--end= : End date}';
 
     /**
      * The console command description.
@@ -29,8 +29,11 @@ class GenerateDoctorsAvailabilityCalendar extends Command
      */
     public function handle(): void
     {
-        $startDate = Carbon::now()->subDay();
-        $endDate = $startDate->copy()->addMonths();
+        $startDateInput = $this->option('start');
+        $endDateInput = $this->option('end');
+
+        $startDate = $startDateInput ? Carbon::parse($startDateInput) : Carbon::now()->addMonth();
+        $endDate = $endDateInput ? Carbon::parse($endDateInput) : $startDate->copy()->addDay();
 
         // Fetch all active doctor schedules
         $doctorSchedules = DoctorSchedule::where('status', 'active')->get();
@@ -45,6 +48,7 @@ class GenerateDoctorsAvailabilityCalendar extends Command
 
             // Generate all dates for the given weekday between start and end date
             $date = $startDate->copy()->next($dayOfWeek); // Find the next occurrence of the weekday
+            $this->info($date);
             while ($date->lte($endDate)) {
                 $doctorAvailabilities[] = [
                     'doctor_id' => $schedule->doctor_id,
@@ -81,6 +85,6 @@ class GenerateDoctorsAvailabilityCalendar extends Command
 
     private function removeOldData(): void
     {
-        DoctorAvailability::where('date', Carbon::now()->subMonths(1))->delete();
+//        DoctorAvailability::where('date', '<', Carbon::now())->delete();
     }
 }

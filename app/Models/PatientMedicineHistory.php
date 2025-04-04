@@ -20,13 +20,9 @@ class PatientMedicineHistory extends Model
         'doctor_id',
         'bill_id',
         'medication_frequency_id',
+        'sale_id',
         'duration'
     ];
-
-    public function medicine(): BelongsTo
-    {
-        return $this->belongsTo(Medicine::class);
-    }
 
     public function doctor(): BelongsTo
     {
@@ -41,5 +37,10 @@ class PatientMedicineHistory extends Model
     public function medicationFrequency(): BelongsTo
     {
         return $this->belongsTo(MedicationFrequency::class);
+    }
+
+    public function sale(): BelongsTo
+    {
+        return $this->belongsTo(Sale::class);
     }
 }

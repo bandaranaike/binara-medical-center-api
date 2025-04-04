@@ -20,6 +20,8 @@ class VerifyApiKey
         $apiKey = $request->header('X-API-KEY');
         $referer = parse_url($request->headers->get('referer'), PHP_URL_HOST);
 
+//        dd($apiKey);
+
         if (!$apiKey || !$referer) {
             return new JsonResponse('Please provide a valid API key. Unauthorized for ' . $referer, 403);
         }

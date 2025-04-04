@@ -55,7 +55,7 @@ class BillController extends Controller
         $status = $request->input('is_booking') ? BillStatus::BOOKED : BillStatus::DOCTOR;
         $data = $request->validated();
 
-        $date = Carbon::parse($data['date'])->addDays(1)->format('Y-m-d');
+        $date = isset($data['date']) && $request->input('is_booking') ? Carbon::parse($data['date'])->addDays(1)->format('Y-m-d') : Carbon::now();
 
         // service_type:in(channeling|opd|dental)
         $service = $this->getService($request->input('service_type'));
@@ -150,8 +150,8 @@ class BillController extends Controller
                     ->select('id', 'bill_id', 'service_id', 'system_amount', 'bill_amount'); // Load only necessary fields for bill items
             }])
             ->with('patientMedicines', function ($query) {
-                $query->with('medicine:id,name', 'medicationFrequency:id,name')
-                    ->select('id', 'bill_id', 'medicine_id', 'medication_frequency_id', 'duration');
+                $query->with('medicationFrequency:id,name')
+                    ->select('id', 'bill_id', 'medication_frequency_id', 'duration');
             });
 
         if (Auth::user()->hasRole(UserRole::DOCTOR->value)) {

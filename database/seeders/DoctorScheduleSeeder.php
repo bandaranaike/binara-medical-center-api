@@ -577,6 +577,27 @@ class DoctorScheduleSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
+            ['doctor_id' => 33, 'weekday' => 'Monday', 'time' => '08:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['doctor_id' => 34, 'weekday' => 'Monday', 'time' => '18:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+
+            ['doctor_id' => 33, 'weekday' => 'Tuesday', 'time' => '08:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['doctor_id' => 35, 'weekday' => 'Tuesday', 'time' => '18:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+
+            ['doctor_id' => 33, 'weekday' => 'Wednesday', 'time' => '08:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['doctor_id' => 35, 'weekday' => 'Wednesday', 'time' => '18:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+
+            ['doctor_id' => 33, 'weekday' => 'Thursday', 'time' => '08:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['doctor_id' => 36, 'weekday' => 'Thursday', 'time' => '18:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+
+            ['doctor_id' => 36, 'weekday' => 'Friday', 'time' => '08:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['doctor_id' => 34, 'weekday' => 'Friday', 'time' => '18:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+
+            ['doctor_id' => 33, 'weekday' => 'Saturday', 'time' => '08:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['doctor_id' => 36, 'weekday' => 'Saturday', 'time' => '18:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+
+            ['doctor_id' => 36, 'weekday' => 'Sunday', 'time' => '08:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['doctor_id' => 37, 'weekday' => 'Sunday', 'time' => '18:00', 'recurring' => 'Weekly', 'seats' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+
         ];
 
         // Insert the schedules into the database

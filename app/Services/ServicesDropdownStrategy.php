@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Service;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ServicesDropdownStrategy implements DropdownStrategyInterface
 {
@@ -15,10 +16,11 @@ class ServicesDropdownStrategy implements DropdownStrategyInterface
 
         if ($request->has('search')) {
             $query->where('name', 'LIKE', '%' . $request->get('search') . '%')
-            ->orWhere('key', 'LIKE', '%' . $request->get('search') . '%');
+                ->orWhere('key', 'LIKE', '%' . $request->get('search') . '%');
         }
 
-        $query->select(['id', 'name AS label']);
+
+        $query->select(['id', 'name AS label', DB::raw("CONCAT_WS('-',bill_price, system_price) AS extra")]);
 
         return $query;
     }

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Medicine;
+use App\Models\Brand;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
@@ -11,14 +11,15 @@ class MedicinesDropdownStrategy implements DropdownStrategyInterface
 
     public function getQuery(Request $request): Builder
     {
-        $query = Medicine::query();
+        $query = Brand::query()
+            ->leftJoin('drugs', 'drugs.id', '=', 'brands.drug_id')
+            ->select(['brands.id', 'brands.name AS label', 'drugs.name AS extra']);
 
         if ($request->has('search')) {
-            $query->where('name', 'LIKE', '%' . $request->get('search') . '%')
-                ->orWhere('drug_name', 'LIKE', '%' . $request->get('search') . '%');
+            $search = $request->get('search');
+            $query->where('brands.name', 'LIKE', '%' . $search . '%')
+                ->orWhere('drugs.name', 'LIKE', '%' . $search . '%');
         }
-
-        $query->select(['id', 'name AS label']);
 
         return $query;
     }
