@@ -48,7 +48,6 @@ class GenerateDoctorsAvailabilityCalendar extends Command
 
             // Generate all dates for the given weekday between start and end date
             $date = $startDate->copy()->next($dayOfWeek); // Find the next occurrence of the weekday
-            $this->info($date);
             while ($date->lte($endDate)) {
                 $doctorAvailabilities[] = [
                     'doctor_id' => $schedule->doctor_id,
@@ -85,6 +84,6 @@ class GenerateDoctorsAvailabilityCalendar extends Command
 
     private function removeOldData(): void
     {
-//        DoctorAvailability::where('date', '<', Carbon::now())->delete();
+        DoctorAvailability::where('date', '<', Carbon::now())->delete();
     }
 }
