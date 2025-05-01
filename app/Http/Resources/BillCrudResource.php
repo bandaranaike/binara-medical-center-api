@@ -18,7 +18,7 @@ class BillCrudResource extends JsonResource
         return [
             "id" => $this->id,
             "doctor" => $this->doctor?->name,
-            "patient" => $this->patient->name,
+            "patient" => $this->patient?->name,
             "payment" => $this->system_amount + $this->bill_amount,
             "appointment_date" => Carbon::create($this->date)->format('Y-m-d'),
             "payment_type" => $this->payment_type,
