@@ -65,7 +65,6 @@ class User extends Authenticatable
 
         static::creating(function ($user) {
             $user->uuid = (string)Str::uuid();
-            $user->password = bcrypt($user->password);
         });
     }
 
