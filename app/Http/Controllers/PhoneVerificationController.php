@@ -66,7 +66,6 @@ class PhoneVerificationController extends Controller
 
         $verification->update(['verified_at' => Carbon::now()]);
 
-
         return new JsonResponse(['message' => 'Phone number verified successfully']);
 
     }
