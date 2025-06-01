@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\BillStatus;
 use App\Models\Bill;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +56,7 @@ class ReportController extends Controller
         // Visited doctors count (unique)
         $visitedDoctorsCount = DB::table('bills')
             ->whereBetween('created_at', [$this->start, $this->end])
-            ->whereNotNull('doctor_id') // Ensure doctor is assigned
+            ->whereNotNull('doctor_id') // Ensure a doctor is assigned
             ->where('status', BillStatus::DONE)
             ->distinct('doctor_id')
             ->count('doctor_id');
@@ -96,6 +97,54 @@ class ReportController extends Controller
     {
         $this->start = $request->get('startDate') ? now()->parse($request->get('startDate'))->startOfDay()->toDateTimeString() : now()->startOfDay()->toDateTimeString();
         $this->end = $request->get('endDate') ? now()->parse($request->get('endDate'))->endOfDay()->toDateTimeString() : now()->endOfDay()->toDateTimeString();
+    }
+
+    public function serviceCostReport(Request $request): JsonResponse
+    {
+        // Validate date inputs
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+
+        // Set the default date range today if not provided
+        $startDate = $request->input('start_date', Carbon::today()->toDateString());
+        $endDate = $request->input('end_date', Carbon::today()->toDateString());
+
+        // Convert to Carbon instances for proper date handling
+        $startDate = Carbon::parse($startDate)->startOfDay();
+        $endDate = Carbon::parse($endDate)->endOfDay();
+
+        // Query to get service costs
+        $report = DB::table('bill_items')
+            ->join('bills', 'bill_items.bill_id', '=', 'bills.id')
+            ->join('services', 'bill_items.service_id', '=', 'services.id')
+            ->select(
+                'services.id as service_id',
+                'services.name as service_name',
+                'services.key as service_key',
+                DB::raw('SUM(bill_items.bill_amount) as total_bill_amount'),
+                DB::raw('SUM(bill_items.system_amount) as total_system_amount'),
+                DB::raw('COUNT(bill_items.id) as item_count')
+            )
+            ->where('bill_items.bill_amount', '>', 0)
+            ->whereBetween('bills.date', [$startDate, $endDate])
+            ->where('bills.payment_status', 'paid') // Only include paid bills
+            ->groupBy('services.id', 'services.name', 'services.key')
+            ->orderBy('total_bill_amount', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $report,
+            'meta' => [
+                'start_date' => $startDate->toDateString(),
+                'end_date' => $endDate->toDateString(),
+                'total_services' => $report->count(),
+                'total_bill_amount' => $report->sum('total_bill_amount'),
+                'total_system_amount' => $report->sum('total_system_amount'),
+            ]
+        ]);
     }
 
 }

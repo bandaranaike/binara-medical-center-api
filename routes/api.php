@@ -91,6 +91,7 @@ Route::middleware(['verify.apikey'])->group(function () {
         Route::put('bills/{billId}/change-temp-status', [BillController::class, 'changeTempBillStatus'])->middleware('role:reception,nurse');
 
         Route::get('reports', [ReportController::class, 'index'])->middleware(["role:admin"]);
+        Route::get('reports/service-costs', [ReportController::class, 'serviceCostReport'])->middleware(["role:admin"]);
 
     });
 
