@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\BillPaymentStatus;
 use App\Enums\BillStatus;
+use App\Enums\ServiceKey;
 use App\Enums\UserRole;
 use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
@@ -77,14 +78,16 @@ class BillController extends Controller
 
     private function billPrintingResponse($bill): array
     {
+        $billData = $this->getBillItemsFroPrint($bill->id);
+
         return [
             "bill_reference" => '',
             "payment_type" => $bill->payment_type,
             "bill_id" => $bill->id,
-            "bill_items" => $this->getBillItemsFroPrint($bill->id),
+            "bill_items" => $billData['items'],
             'patient_name' => $bill->patient->name,
             'doctor_name' => $bill->doctor?->name,
-            'total' => number_format($bill->bill_amount + $bill->system_amount, 2)
+            'total' => number_format($billData['total'] + $billData['system_total'], 2)
         ];
     }
 
@@ -248,7 +251,7 @@ class BillController extends Controller
 
     private function insertNewBillItemForMedicineIfNotExists($billId): void
     {
-        BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', Service::MEDICINE_KEY)->first()->id]);
+        BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', ServiceKey::MEDICINE->value)->first()->id]);
     }
 
     public function bookings($time = null): JsonResponse

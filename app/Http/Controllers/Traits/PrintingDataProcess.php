@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Traits;
 
+use App\Enums\ServiceKey;
 use App\Models\Bill;
 use App\Models\BillItem;
+use App\Models\Service;
 
 trait PrintingDataProcess
 {
@@ -32,15 +34,32 @@ trait PrintingDataProcess
         return $printingData;
     }
 
-    public function getBillItemsFroPrint($billId)
+    public function getBillItemsFroPrint($billId): array
     {
-        $billItems = BillItem::where('bill_id', $billId)
-            ->select(['bill_amount', 'system_amount', 'service_id'])
-            ->with('service')
-            ->get();
+        $excludedServiceId = Service::where('key', ServiceKey::DENTAL_REGISTRATION->value)->value('id');
 
-        return $billItems->flatMap(function ($item) {
-            return $this->preparePrintData($item->service, $item->bill_amount, $item->system_amount);
-        })->toArray();
+        $billItems = BillItem::where('bill_id', $billId)
+            ->where('service_id', '!=', $excludedServiceId)
+            ->with('service:id,name')
+            ->get(['bill_amount', 'system_amount', 'service_id']);
+
+        $total = 0;
+        $systemTotal = 0;
+        $items = [];
+
+        foreach ($billItems as $item) {
+            $total += $item->bill_amount;
+            $systemTotal += $item->system_amount;
+
+            $items = array_merge($items, $this->preparePrintData($item->service, $item->bill_amount, $item->system_amount));
+        }
+
+        return [
+            'items' => $items,
+            'total' => $total,
+            'system_total' => $systemTotal
+        ];
     }
+
+
 }
