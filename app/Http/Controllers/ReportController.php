@@ -147,4 +147,25 @@ class ReportController extends Controller
         ]);
     }
 
+    public function getServicesWithPositiveSystemAmount(Request $request): JsonResponse
+    {
+        $startDate = Carbon::parse($request->input('start_date', Carbon::today()->toDateString()))->startOfDay()->toDateTimeString();
+        $endDate = Carbon::parse($request->input('end_date', Carbon::today()->toDateString()))->endOfDay()->toDateTimeString();
+
+        $items = DB::table('bill_items')
+            ->join('services', 'bill_items.service_id', '=', 'services.id')
+            ->select(
+                'services.name as service_name',
+                DB::raw('COUNT(*) as quantity'),
+                DB::raw('SUM(bill_items.system_amount) as total')
+            )
+            ->where('bill_items.system_amount', '>', 0)
+            ->whereBetween('bill_items.created_at', [$startDate, $endDate])
+            ->groupBy('services.id', 'services.name')
+            ->orderByDesc('total')
+            ->get();
+
+        return response()->json(['start_date' => $startDate, 'end_date' => $endDate, 'items' => $items]);
+    }
+
 }

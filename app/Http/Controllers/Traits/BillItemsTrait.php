@@ -9,7 +9,16 @@ trait BillItemsTrait
 {
     private function insertBillItems($serviceId, $billAmount, $systemAmount, $billId): void
     {
-        $data = [['bill_id' => $billId, 'service_id' => $serviceId, 'bill_amount' => $billAmount, 'system_amount' => $systemAmount]];
+        $data = [
+            [
+                'bill_id' => $billId,
+                'service_id' => $serviceId,
+                'bill_amount' => $billAmount,
+                'system_amount' => $systemAmount,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+        ];
         BillItem::insert($data);
     }
 
