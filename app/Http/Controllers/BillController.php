@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\BillPaymentStatus;
 use App\Enums\BillStatus;
+use App\Enums\BookingTimeFilter;
 use App\Enums\ServiceKey;
 use App\Enums\UserRole;
 use App\Http\Controllers\Traits\BillItemsTrait;
@@ -36,8 +37,6 @@ class BillController extends Controller
     use PrintingDataProcess;
     use ServiceType;
     use SystemPriceCalculator;
-
-    const OLD_BOOKING_KEYWORD = 'old';
 
     /**
      * Display a listing of the resource.
@@ -254,15 +253,29 @@ class BillController extends Controller
         BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', ServiceKey::MEDICINE->value)->first()->id]);
     }
 
-    public function bookings($time = null): JsonResponse
+    public function bookings(?string $time = null): JsonResponse
     {
+        $filter = BookingTimeFilter::tryFromOrDefault($time);
+        $now = now(); // This uses app timezone
+
         $bookingsQuery = Bill::where('status', BillStatus::BOOKED)
-            ->with(['doctor:id,name', 'patient:id,name', 'dailyPatientQueue:id,bill_id,queue_number,queue_date']);
-        if ($time === self::OLD_BOOKING_KEYWORD) {
-            $bookingsQuery->where('created_at', '<', now()->subDays());
-        } else {
-            $bookingsQuery->where('created_at', '>=', now()->subDays());
-        }
+            ->with([
+                'doctor:id,name',
+                'patient:id,name',
+                'dailyPatientQueue:id,bill_id,queue_number,queue_date'
+            ]);
+
+//        dd($now->copy()->startOfDay(),
+//            $now->copy()->endOfDay());
+
+        match ($filter) {
+            BookingTimeFilter::TODAY => $bookingsQuery->whereBetween('date', [
+                $now->copy()->startOfDay(),
+                $now->copy()->endOfDay()
+            ]),
+            BookingTimeFilter::FUTURE => $bookingsQuery->where('date', '>', $now->copy()->endOfDay()),
+            BookingTimeFilter::OLD => $bookingsQuery->where('date', '<', $now->copy()->startOfDay()),
+        };
 
         $bookings = $bookingsQuery->get();
 
