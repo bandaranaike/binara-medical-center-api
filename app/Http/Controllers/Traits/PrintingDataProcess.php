@@ -34,13 +34,13 @@ trait PrintingDataProcess
         return $printingData;
     }
 
-    public function getBillItemsFroPrint($billId): array
+    public function getBillItemsFroPrint($billId, $excludeDentalRegFee): array
     {
-        $excludedServiceId = Service::where('key', ServiceKey::DENTAL_REGISTRATION->value)->value('id');
+        $excludedServiceId = $excludeDentalRegFee ? Service::where('key', ServiceKey::DENTAL_REGISTRATION->value)->value('id') : null;
 
         $billItems = BillItem::where('bill_id', $billId)
             ->where('service_id', '!=', $excludedServiceId)
-            ->with('service:id,name')
+            ->with('service:id,name,separate_items')
             ->get(['bill_amount', 'system_amount', 'service_id']);
 
         $total = 0;

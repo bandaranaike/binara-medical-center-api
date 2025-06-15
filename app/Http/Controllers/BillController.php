@@ -69,15 +69,28 @@ class BillController extends Controller
 
         $queueNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id'], $date);
 
+        // Check for duplicate booking AFTER creation
+        $duplicate = $this->checkDuplicateBooking($data['doctor_id'], $data['patient_id'], $date, $bill->id);
+
         return new JsonResponse([
             ...$this->billPrintingResponse($bill),
             "queue_id" => $queueNumber,
+            "warning" => $duplicate ? 'Note: This patient already has a booking with the same doctor on this date.' : null,
         ], 201);
     }
 
-    private function billPrintingResponse($bill): array
+    private function checkDuplicateBooking(int $doctorId, int $patientId, string $date, int $currentBillId): ?Bill
     {
-        $billData = $this->getBillItemsFroPrint($bill->id);
+        return Bill::where('doctor_id', $doctorId)
+            ->where('patient_id', $patientId)
+            ->whereDate('date', $date)
+            ->where('id', '!=', $currentBillId)
+            ->first();
+    }
+
+    private function billPrintingResponse($bill, $excludeDentalRegFee = true): array
+    {
+        $billData = $this->getBillItemsFroPrint($bill->id, $excludeDentalRegFee);
 
         return [
             "bill_reference" => '',
@@ -149,7 +162,7 @@ class BillController extends Controller
             ])
             ->with(['billItems' => function ($query) {
                 $query->with('service:id,name')
-                    ->select('id', 'bill_id', 'service_id', 'system_amount', 'bill_amount'); // Load only necessary fields for bill items
+                    ->select('id', 'bill_id', 'service_id', 'system_amount', 'bill_amount'); // Load only the necessary fields for bill items
             }])
             ->with('patientMedicines', function ($query) {
                 $query->with('medicationFrequency:id,name')
@@ -239,13 +252,23 @@ class BillController extends Controller
         }
 
         $bill->status = $validated['status'];
+
+        if ($bill->status === BillStatus::BOOKED->value && $validated['status'] === BillStatus::DOCTOR->value && $bill->date > Carbon::now()->format('Y-m-d')) {
+            // If the bill is being updated to 'DOCTOR' status, set the date today since future bookings are not allowed to be processed
+            $bill->date = Carbon::now()->format('Y-m-d');
+        }
+
         $bill->save();
 
         if ($validated['status'] === BillStatus::DONE->value) {
             return new JsonResponse($this->billPrintingResponse($bill));
         }
 
-        return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill]);
+        return new JsonResponse([
+            'message' => 'Bill status updated successfully',
+            'bill' => $bill,
+            ...$this->billPrintingResponse($bill, false)
+        ]);
     }
 
     private function insertNewBillItemForMedicineIfNotExists($billId): void
