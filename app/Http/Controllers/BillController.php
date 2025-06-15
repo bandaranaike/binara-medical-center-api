@@ -55,9 +55,9 @@ class BillController extends Controller
         $status = $request->input('is_booking') ? BillStatus::BOOKED : BillStatus::DOCTOR;
         $data = $request->validated();
 
-        $date = isset($data['date']) && $request->input('is_booking') ? Carbon::parse($data['date'])->addDays(1)->format('Y-m-d') : Carbon::now();
+        $date = isset($data['date']) && $request->input('is_booking') ? Carbon::parse($data['date'])->format('Y-m-d') : Carbon::now()->format('Y-m-d');
 
-        // service_type:in(channeling|opd|dental)
+        // service_type:channeling|opd|dental
         $service = $this->getService($request->input('service_type'));
 
         $bill = Bill::firstOrCreate(
@@ -264,9 +264,6 @@ class BillController extends Controller
                 'patient:id,name',
                 'dailyPatientQueue:id,bill_id,queue_number,queue_date'
             ]);
-
-//        dd($now->copy()->startOfDay(),
-//            $now->copy()->endOfDay());
 
         match ($filter) {
             BookingTimeFilter::TODAY => $bookingsQuery->whereBetween('date', [
