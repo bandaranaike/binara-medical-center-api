@@ -97,7 +97,7 @@ class PatientsMedicineHistoryController extends Controller
         } catch (Exception $e) {
             return new JsonResponse([
                 'message' => 'Failed to add medicine',
-                'error' => $e->getMessage(),
+                'error' => $e->getMessage() . " " . $e->getFile() . " " . $e->getLine(),
             ], 500);
         }
     }

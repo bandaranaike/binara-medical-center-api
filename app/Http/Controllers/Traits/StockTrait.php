@@ -27,6 +27,8 @@ trait StockTrait
                 'total_price' => 0,
             ]);
 
+//            dd($sale);
+
             $this->createSaleFromStocks($stocks, $quantity, $sale);
 
             return $sale->id;

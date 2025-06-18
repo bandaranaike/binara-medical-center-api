@@ -15,11 +15,11 @@ class EnsureEmailIsVerified
      *
      * @param Closure(Request): (Response) $next
      */
-    public function handle(Request $request, Closure $next): JsonResponse
+    public function handle(Request $request, Closure $next): JsonResponse|Response
     {
-        if (! $request->user() ||
+        if (!$request->user() ||
             ($request->user() instanceof MustVerifyEmail &&
-            ! $request->user()->hasVerifiedEmail())) {
+                !$request->user()->hasVerifiedEmail())) {
             return new JsonResponse(['message' => 'Your email address is not verified.'], 409);
         }
 

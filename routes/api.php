@@ -90,7 +90,12 @@ Route::middleware(['verify.apikey'])->group(function () {
         Route::put('bills/{billId}/status', [BillController::class, 'updateStatus']);
         Route::put('bills/{billId}/change-temp-status', [BillController::class, 'changeTempBillStatus'])->middleware('role:reception,nurse');
 
-        Route::get('reports', [ReportController::class, 'index'])->middleware(["role:admin"]);
+        Route::prefix('reports')->middleware(['role:admin'])->group(function () {
+            Route::get('', [ReportController::class, 'index']);
+            Route::get('service-costs', [ReportController::class, 'serviceCostReport']);
+            Route::get('services-with-positive-system-amount', [ReportController::class, 'getServicesWithPositiveSystemAmount']);
+        });
+
 
     });
 

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Enums\BillPaymentStatus;
 use App\Enums\BillStatus;
+use App\Enums\BookingTimeFilter;
+use App\Enums\ServiceKey;
 use App\Enums\UserRole;
 use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
@@ -36,8 +38,6 @@ class BillController extends Controller
     use ServiceType;
     use SystemPriceCalculator;
 
-    const OLD_BOOKING_KEYWORD = 'old';
-
     /**
      * Display a listing of the resource.
      */
@@ -55,9 +55,9 @@ class BillController extends Controller
         $status = $request->input('is_booking') ? BillStatus::BOOKED : BillStatus::DOCTOR;
         $data = $request->validated();
 
-        $date = isset($data['date']) && $request->input('is_booking') ? Carbon::parse($data['date'])->addDays(1)->format('Y-m-d') : Carbon::now();
+        $date = isset($data['date']) && $request->input('is_booking') ? Carbon::parse($data['date'])->format('Y-m-d') : Carbon::now()->format('Y-m-d');
 
-        // service_type:in(channeling|opd|dental)
+        // service_type:channeling|opd|dental
         $service = $this->getService($request->input('service_type'));
 
         $bill = Bill::firstOrCreate(
@@ -69,22 +69,37 @@ class BillController extends Controller
 
         $queueNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id'], $date);
 
+        // Check for duplicate booking AFTER creation
+        $duplicate = $this->checkDuplicateBooking($data['doctor_id'], $data['patient_id'], $date, $bill->id);
+
         return new JsonResponse([
             ...$this->billPrintingResponse($bill),
             "queue_id" => $queueNumber,
+            "warning" => $duplicate ? 'Note: This patient already has a booking with the same doctor on this date.' : null,
         ], 201);
     }
 
-    private function billPrintingResponse($bill): array
+    private function checkDuplicateBooking(int $doctorId, int $patientId, string $date, int $currentBillId): ?Bill
     {
+        return Bill::where('doctor_id', $doctorId)
+            ->where('patient_id', $patientId)
+            ->whereDate('date', $date)
+            ->where('id', '!=', $currentBillId)
+            ->first();
+    }
+
+    private function billPrintingResponse($bill, $excludeDentalRegFee = true): array
+    {
+        $billData = $this->getBillItemsFroPrint($bill->id, $excludeDentalRegFee);
+
         return [
             "bill_reference" => '',
             "payment_type" => $bill->payment_type,
             "bill_id" => $bill->id,
-            "bill_items" => $this->getBillItemsFroPrint($bill->id),
+            "bill_items" => $billData['items'],
             'patient_name' => $bill->patient->name,
             'doctor_name' => $bill->doctor?->name,
-            'total' => number_format($bill->bill_amount + $bill->system_amount, 2)
+            'total' => number_format($billData['total'] + $billData['system_total'], 2)
         ];
     }
 
@@ -147,7 +162,7 @@ class BillController extends Controller
             ])
             ->with(['billItems' => function ($query) {
                 $query->with('service:id,name')
-                    ->select('id', 'bill_id', 'service_id', 'system_amount', 'bill_amount'); // Load only necessary fields for bill items
+                    ->select('id', 'bill_id', 'service_id', 'system_amount', 'bill_amount'); // Load only the necessary fields for bill items
             }])
             ->with('patientMedicines', function ($query) {
                 $query->with('medicationFrequency:id,name')
@@ -237,29 +252,50 @@ class BillController extends Controller
         }
 
         $bill->status = $validated['status'];
+
+        if ($bill->status === BillStatus::BOOKED->value && $validated['status'] === BillStatus::DOCTOR->value && $bill->date > Carbon::now()->format('Y-m-d')) {
+            // If the bill is being updated to 'DOCTOR' status, set the date today since future bookings are not allowed to be processed
+            $bill->date = Carbon::now()->format('Y-m-d');
+        }
+
         $bill->save();
 
         if ($validated['status'] === BillStatus::DONE->value) {
             return new JsonResponse($this->billPrintingResponse($bill));
         }
 
-        return new JsonResponse(['message' => 'Bill status updated successfully', 'bill' => $bill]);
+        return new JsonResponse([
+            'message' => 'Bill status updated successfully',
+            'bill' => $bill,
+            ...$this->billPrintingResponse($bill, false)
+        ]);
     }
 
     private function insertNewBillItemForMedicineIfNotExists($billId): void
     {
-        BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', Service::MEDICINE_KEY)->first()->id]);
+        BillItem::firstOrCreate(['bill_id' => $billId, 'service_id' => Service::where('key', ServiceKey::MEDICINE->value)->first()->id]);
     }
 
-    public function bookings($time = null): JsonResponse
+    public function bookings(?string $time = null): JsonResponse
     {
+        $filter = BookingTimeFilter::tryFromOrDefault($time);
+        $now = now(); // This uses app timezone
+
         $bookingsQuery = Bill::where('status', BillStatus::BOOKED)
-            ->with(['doctor:id,name', 'patient:id,name', 'dailyPatientQueue:id,bill_id,queue_number,queue_date']);
-        if ($time === self::OLD_BOOKING_KEYWORD) {
-            $bookingsQuery->where('created_at', '<', now()->subDays());
-        } else {
-            $bookingsQuery->where('created_at', '>=', now()->subDays());
-        }
+            ->with([
+                'doctor:id,name',
+                'patient:id,name',
+                'dailyPatientQueue:id,bill_id,queue_number,queue_date'
+            ]);
+
+        match ($filter) {
+            BookingTimeFilter::TODAY => $bookingsQuery->whereBetween('date', [
+                $now->copy()->startOfDay(),
+                $now->copy()->endOfDay()
+            ]),
+            BookingTimeFilter::FUTURE => $bookingsQuery->where('date', '>', $now->copy()->endOfDay()),
+            BookingTimeFilter::OLD => $bookingsQuery->where('date', '<', $now->copy()->startOfDay()),
+        };
 
         $bookings = $bookingsQuery->get();
 
