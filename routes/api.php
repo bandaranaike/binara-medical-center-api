@@ -142,7 +142,7 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::apiResource('bill-cruds', BillCrudController::class)->middleware(['role:admin,reception']);
     Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin,pharmacy_admin,pharmacy,reception,doctor']);
     Route::apiResource('brands', BrandController::class)->middleware(['role:admin,pharmacy_admin']);
-    Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin    ']);
+    Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin']);
     Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
     Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin,reception']);
     Route::apiResource('doctors-availabilities', DoctorAvailabilityController::class)->middleware(['role:admin,reception']);
