@@ -13,21 +13,21 @@ class MedicationFrequencySeeder extends Seeder
     public function run(): void
     {
         $medicationFrequencies = [
-            ['name' => 'OD', 'description' => 'Once Daily'],
-            ['name' => 'BID', 'description' => 'Twice a Day'],
-            ['name' => 'TID', 'description' => 'Three Times a Day'],
-            ['name' => 'QID', 'description' => 'Four Times a Day'],
-            ['name' => 'QHS', 'description' => 'At Bedtime'],
-            ['name' => 'PRN', 'description' => 'As Needed'],
-            ['name' => 'Q6H', 'description' => 'Every 6 Hours'],
-            ['name' => 'STAT', 'description' => 'Immediately'],
+            ['name' => 'OD', 'description' => 'Once Daily', 'frequency' => 1],
+            ['name' => 'BID', 'description' => 'Twice a Day', 'frequency' => 2],
+            ['name' => 'TID', 'description' => 'Three Times a Day', 'frequency' => 3],
+            ['name' => 'QID', 'description' => 'Four Times a Day', 'frequency' => 4],
+            ['name' => 'QHS', 'description' => 'At Bedtime', 'frequency' => 1],
+            ['name' => 'PRN', 'description' => 'As Needed', 'frequency' => 1],
+            ['name' => 'Q6H', 'description' => 'Every 6 Hours', 'frequency' => 4],
+            ['name' => 'STAT', 'description' => 'Immediately', 'frequency' => 1],
         ];
 
         // Using upsert to ensure name is unique
         DB::table('medication_frequencies')->upsert(
             $medicationFrequencies,
             ['name'], // Unique constraint column
-            ['description'] // Columns to update if a conflict occurs
+            ['description', 'frequency'] // Columns to update if a conflict occurs
         );
     }
 }

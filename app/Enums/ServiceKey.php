@@ -2,6 +2,9 @@
 
 namespace App\Enums;
 
+/**
+ * @method static upsert(array[] $services, string $string)
+ */
 enum ServiceKey: string
 {
     case DEFAULT_SPECIALIST_CHANNELING = 'channeling';

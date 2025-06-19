@@ -73,6 +73,8 @@ Route::middleware(['verify.apikey'])->group(function () {
 
         Route::patch('sales/update-quantity', [SaleController::class, 'changeStockQuantity'])
             ->middleware('role:pharmacy_admin,admin,doctor,pharmacy');
+        Route::put('/sales/update-number-of-days', [SaleController::class, 'updateNumberOfDays']);
+
 
         Route::post('logout', [PatientAuthController::class, 'destroy']);
         Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])

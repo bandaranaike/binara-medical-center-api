@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static where(string $string, $billId)
+ * @method static findOrFail($sale_id)
  */
 class Sale extends Model
 {
