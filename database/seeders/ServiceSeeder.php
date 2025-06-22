@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Service;
+use App\Enums\ServiceKey;
 use Illuminate\Database\Seeder;
 
 class ServiceSeeder extends Seeder
@@ -15,7 +15,7 @@ class ServiceSeeder extends Seeder
         $services = [
             [
                 'name' => "Specialist channeling",
-                'key' => Service::DEFAULT_SPECIALIST_CHANNELING_KEY,
+                'key' => ServiceKey::DEFAULT_SPECIALIST_CHANNELING->value,
                 'bill_price' => 2500,
                 'system_price' => 500,
                 'is_percentage' => false,
@@ -23,7 +23,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => "OPD doctor",
-                'key' => Service::DEFAULT_DOCTOR_KEY,
+                'key' => ServiceKey::DEFAULT_DOCTOR->value,
                 'bill_price' => 350,
                 'system_price' => 100,
                 'is_percentage' => false,
@@ -31,7 +31,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => "Medicines",
-                'key' => Service::MEDICINE_KEY,
+                'key' => ServiceKey::MEDICINE->value,
                 'bill_price' => 0,
                 'system_price' => 100,
                 'is_percentage' => true,
@@ -39,7 +39,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => "Dental registration",
-                'key' => Service::DENTAL_REGISTRATION_KEY,
+                'key' => ServiceKey::DENTAL_REGISTRATION->value,
                 'bill_price' => 200,
                 'system_price' => 100,
                 'is_percentage' => true,
@@ -47,7 +47,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => "Dental treatments",
-                'key' => Service::DENTAL_TREATMENTS_KEY,
+                'key' => ServiceKey::DENTAL_TREATMENTS->value,
                 'bill_price' => 0,
                 'system_price' => 50,
                 'is_percentage' => true,
@@ -55,7 +55,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => "Dental lab",
-                'key' => Service::DENTAL_LAB_KEY,
+                'key' => ServiceKey::DENTAL_LAB->value,
                 'bill_price' => 0,
                 'system_price' => 0,
                 'is_percentage' => true,
@@ -63,7 +63,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => "Wound dressing",
-                'key' => Service::WOUND_DRESSING_KEY,
+                'key' => ServiceKey::WOUND_DRESSING->value,
                 'bill_price' => 0,
                 'system_price' => 100,
                 'is_percentage' => true,
@@ -71,6 +71,6 @@ class ServiceSeeder extends Seeder
             ]
         ];
 
-        Service::upsert($services, 'key');
+        ServiceKey::upsert($services, 'key');
     }
 }

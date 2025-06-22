@@ -1,0 +1,4 @@
+id,name,key,bill_price,system_price,separate_items,is_percentage
+1,Blood Test,blood_test,1500.00,1200.00,0,0
+2,X-Ray,x_ray,2500.00,2000.00,0,0
+3,Consultation,consultation,3000.00,2500.00,1,0

@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Traits\CrudTrait;
 use App\Http\Controllers\Traits\StockTrait;
 use App\Http\Requests\StoreSaleRequest;
+use App\Http\Requests\UpdateSaleNumberOfDaysRequest;
 use App\Http\Requests\UpdateSaleQuantityRequest;
 use App\Http\Requests\UpdateSaleRequest;
 use App\Http\Resources\SaleResource;
 use App\Models\Brand;
+use App\Models\PatientMedicineHistory;
 use App\Models\Sale;
 use App\Models\Stock;
 use Illuminate\Http\JsonResponse;
@@ -45,4 +47,19 @@ class SaleController extends Controller
 
         return new JsonResponse(['message' => 'Stock quantity updated.']);
     }
+
+    public function updateNumberOfDays(UpdateSaleNumberOfDaysRequest $request): JsonResponse
+    {
+        $sale = PatientMedicineHistory::findOrFail($request->get('patient_medicine_history_id'));
+        $sale->number_of_days = $request->get('number_of_days');
+        $sale->save();
+
+        return response()->json(['message' => 'Total quantity updated successfully.']);
+    }
+
+    private function getTotaQuantity($saleId, $quantity)
+    {
+
+    }
+
 }

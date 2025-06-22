@@ -1,0 +1,4 @@
+id,brand_id,supplier_id,unit_price,batch_number,initial_quantity,quantity,expire_date,cost
+1,1,1,10.00,BT12345,500,450,2025-12-31,5000.00
+2,2,2,15.00,BT23456,300,280,2026-06-30,4500.00
+3,3,3,12.00,BT34567,400,390,2025-09-15,4800.00

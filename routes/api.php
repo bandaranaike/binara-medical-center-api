@@ -51,6 +51,9 @@ Route::middleware(['verify.apikey'])->group(function () {
 
         Route::get('bills/{billId}/sales', [SaleController::class, "getDrugSalesForBill"])
             ->middleware('role:reception,pharmacy,pharmacy_admin,admin,doctor');
+
+        Route::get('bills/{billId}/bill-items', [BillItemController::class, "getBillItemsForBill"])
+            ->middleware('role:reception,pharmacy,pharmacy_admin,admin,doctor');
         Route::get('bills/bookings/{time?}', [BillController::class, "bookings"])->middleware('role:reception,admin');
         Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])
             ->middleware(['role:doctor', 'ensure.doctor']);
@@ -73,6 +76,8 @@ Route::middleware(['verify.apikey'])->group(function () {
 
         Route::patch('sales/update-quantity', [SaleController::class, 'changeStockQuantity'])
             ->middleware('role:pharmacy_admin,admin,doctor,pharmacy');
+        Route::put('/sales/update-number-of-days', [SaleController::class, 'updateNumberOfDays']);
+
 
         Route::post('logout', [PatientAuthController::class, 'destroy']);
         Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])
@@ -90,7 +95,12 @@ Route::middleware(['verify.apikey'])->group(function () {
         Route::put('bills/{billId}/status', [BillController::class, 'updateStatus']);
         Route::put('bills/{billId}/change-temp-status', [BillController::class, 'changeTempBillStatus'])->middleware('role:reception,nurse');
 
-        Route::get('reports', [ReportController::class, 'index'])->middleware(["role:admin"]);
+        Route::prefix('reports')->middleware(['role:admin'])->group(function () {
+            Route::get('', [ReportController::class, 'index']);
+            Route::get('service-costs', [ReportController::class, 'serviceCostReport']);
+            Route::get('services-with-positive-system-amount', [ReportController::class, 'getServicesWithPositiveSystemAmount']);
+        });
+
 
     });
 

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @method static create(array $array)
  * @method static where(string $string, $patientId)
+ * @method static findOrFail(mixed $get)
  */
 class PatientMedicineHistory extends Model
 {
