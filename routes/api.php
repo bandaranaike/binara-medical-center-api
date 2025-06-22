@@ -51,6 +51,9 @@ Route::middleware(['verify.apikey'])->group(function () {
 
         Route::get('bills/{billId}/sales', [SaleController::class, "getDrugSalesForBill"])
             ->middleware('role:reception,pharmacy,pharmacy_admin,admin,doctor');
+
+        Route::get('bills/{billId}/bill-items', [BillItemController::class, "getBillItemsForBill"])
+            ->middleware('role:reception,pharmacy,pharmacy_admin,admin,doctor');
         Route::get('bills/bookings/{time?}', [BillController::class, "bookings"])->middleware('role:reception,admin');
         Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])
             ->middleware(['role:doctor', 'ensure.doctor']);

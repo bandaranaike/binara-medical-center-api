@@ -9,6 +9,7 @@ use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Service;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -19,6 +20,11 @@ class BillItemController extends Controller
     use SystemPriceCalculator;
 
     private bool $isNewBill = false;
+
+    public function getBillItemsForBill($billId): Collection
+    {
+        return BillItem::with('service')->where('bill_id', $billId)->get();
+    }
 
     /**
      * Store a new bill item in the database.
@@ -31,12 +37,8 @@ class BillItemController extends Controller
         $validatedData = $request->validated();
 
         $serviceId = $this->createNewServiceIfNotExists($validatedData['service_id'], $validatedData['service_name']);
-        $billId = $this->createTempBillIfNotExists($validatedData['bill_id'], $validatedData['patient_id']);
 
-        [$billAmount, $systemAmount] = $this->getBillPriceAndSystemPrice(
-            Service::where('id', $serviceId)->first(),
-            $validatedData['bill_amount']
-        );
+        $billId = $this->createTempBillIfNotExists($validatedData['bill_id'], $validatedData['patient_id'] ?? null);
 
         try {
             $billItem = BillItem::create([
@@ -52,8 +54,8 @@ class BillItemController extends Controller
 
             return new JsonResponse($billItem->load('service:id,name'), 201);
 
-        } catch (Exception) {
-            return new JsonResponse('An error occurred while adding the bill item.', 500);
+        } catch (Exception $exception) {
+            return new JsonResponse('An error occurred while adding the bill item. ' . $exception->getMessage(), 500);
         }
     }
 

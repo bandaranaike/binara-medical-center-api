@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\BillStatus;
 use App\Events\AddedDrugForBill;
+use App\Events\PatientMedicineListUpdated;
 use App\Events\RemovedDrugFromBill;
 use App\Exceptions\InsufficientStocksException;
 use App\Http\Controllers\Traits\BillItemsTrait;
@@ -30,6 +31,8 @@ class PatientsMedicineHistoryController extends Controller
         $this->removeSaleItem($patientMedicineHistory->sale_id);
 
         $patientMedicineHistory->delete();
+
+        event(new PatientMedicineListUpdated($patientMedicineHistory->bill_id));
 
         return new JsonResponse([
             'message' => 'Patient-Medicine record deleted successfully.',
@@ -78,8 +81,6 @@ class PatientsMedicineHistoryController extends Controller
                 'sale_id' => $saleId,
                 'duration' => $validated['duration'],
             ]);
-
-            // Adjust the stock
 
             $isMedicineItemAdded = $this->createMedicineBillItemIfNotExists($validated['bill_id']);
 

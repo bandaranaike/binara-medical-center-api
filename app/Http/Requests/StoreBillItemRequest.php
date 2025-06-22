@@ -24,7 +24,7 @@ class StoreBillItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'patient_id' => 'required|exists:patients,id',
+            'patient_id' => 'nullable|exists:patients,id',
             'bill_id' => 'required|numeric',
             'service_id' => 'required',
             'bill_amount' => 'required|numeric|min:0',
