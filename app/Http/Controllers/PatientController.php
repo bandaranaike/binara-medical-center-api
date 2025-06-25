@@ -39,10 +39,11 @@ class PatientController extends Controller
     {
         $search = $request->get('query');
 
-        $search = Str::replace(['0'], '+94', $search);
+        $search = Str::replaceMatches('/^0/', '+94', $search);
 
         $patients = User::whereHas('patients', function ($query) use ($search) {
-            $query->where('name', 'LIKE', '%' . $search . '%');
+            $query->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('telephone', 'LIKE', '%' . $search . '%');
         })->with(['patients' => function ($query) {
             $query->select(['id', 'name', 'telephone', 'age', 'gender', 'birthday', 'address', 'email', 'user_id']);
         }])->get(['id', 'name', 'phone']);

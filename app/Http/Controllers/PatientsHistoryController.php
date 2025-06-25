@@ -17,10 +17,10 @@ class PatientsHistoryController extends Controller
      */
     public function store(StorePatientsHistoryRequest $request): JsonResponse|PatientsHistoryResource
     {
-        // To use $request->doctor_id : ensure to add `ensure.doctor` middleware in the route file
+        // To use $request->doctor_id: ensure to add `ensure.doctor` middleware in the route file
         $history = PatientsHistory::create([...$request->validated(), 'doctor_id' => $request->doctor_id]);
 
-        return new JsonResponse(['data' => new PatientsHistoryResource($history)]);
+        return new JsonResponse(['data' => new PatientsHistoryResource($history->load('doctor'))], 201);
     }
 
     /**
@@ -42,9 +42,10 @@ class PatientsHistoryController extends Controller
                     'message' => 'Patient not found'
                 ], 404);
             }
-            // Fetch the patient's history for the given doctor
+            // Fetch the patient's history for doctors
             $history = PatientsHistory::where('patient_id', $patientId)
-                ->select(['id', 'note'])
+                ->with('doctor:id,name')
+                ->select(['id', 'note', 'doctor_id'])
                 ->selectRaw('SUBSTRING(created_at, 1, 10) AS date')
                 ->get();
 

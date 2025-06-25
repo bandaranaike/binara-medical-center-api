@@ -73,7 +73,7 @@ class BillController extends Controller
         $duplicate = $this->checkDuplicateBooking($data['doctor_id'], $data['patient_id'], $date, $bill->id);
 
         return new JsonResponse([
-            ...$this->billPrintingResponse($bill),
+            ...$this->billPrintingResponse($bill, false),
             "queue_id" => $queueNumber,
             "warning" => $duplicate ? 'Note: This patient already has a booking with the same doctor on this date.' : null,
         ], 201);

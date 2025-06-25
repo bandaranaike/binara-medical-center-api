@@ -24,6 +24,7 @@ class PatientsHistoryResource extends JsonResource
             'id' => $this->id,
             'note' => $this->note,
             'date' => $this->created_at->format('Y-m-d'),
+            'doctor' => ["name" => $this->doctor->name, "id" => $this->doctor->id]
         ];
     }
 }
