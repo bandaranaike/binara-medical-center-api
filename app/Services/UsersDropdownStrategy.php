@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class UsersDropdownStrategy implements DropdownStrategyInterface
 {
     /**
-     * Get the results for the allergies dropdown.
+     * Get the results for the user dropdown.
      *
      * @param Request $request
      * @return Builder
@@ -25,7 +25,7 @@ class UsersDropdownStrategy implements DropdownStrategyInterface
         }
 
         // Select id and name (as label) for the dropdown options
-        $query->select(['id', 'name AS label']);
+        $query->select(['id', 'name AS label', ]);
 
         return $query;
     }
