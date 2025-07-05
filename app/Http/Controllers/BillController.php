@@ -73,7 +73,7 @@ class BillController extends Controller
         $duplicate = $this->checkDuplicateBooking($data['doctor_id'], $data['patient_id'], $date, $bill->id);
 
         return new JsonResponse([
-            ...$this->billPrintingResponse($bill),
+            ...$this->billPrintingResponse($bill, false, $request->input('bill_reference')),
             "queue_id" => $queueNumber,
             "warning" => $duplicate ? 'Note: This patient already has a booking with the same doctor on this date.' : null,
         ], 201);
@@ -88,12 +88,12 @@ class BillController extends Controller
             ->first();
     }
 
-    private function billPrintingResponse($bill, $excludeDentalRegFee = true): array
+    private function billPrintingResponse($bill, $excludeDentalRegFee = true, $billReference = ''): array
     {
         $billData = $this->getBillItemsFroPrint($bill->id, $excludeDentalRegFee);
 
         return [
-            "bill_reference" => '',
+            "bill_reference" => "$billReference",
             "payment_type" => $bill->payment_type,
             "bill_id" => $bill->id,
             "bill_items" => $billData['items'],
