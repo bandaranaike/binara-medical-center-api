@@ -50,10 +50,12 @@ class DoctorAvailabilityController extends Controller
     {
         $searchQuery = $request->query('query');
 
+
         $doctors = Doctor::select(['doctors.id', 'doctors.name'])
             ->join('doctor_availabilities', function ($join) use ($request) {
+                $date = $request->query('date', date('Y-m-d'));
                 $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')
-                    ->where('doctor_availabilities.date', ">=", date('Y-m-d'));
+                    ->where('doctor_availabilities.date', ">=", $date);
             })
             ->where('doctors.name', 'LIKE', "%$searchQuery%")
             ->where('doctors.doctor_type', $request->get('type'))

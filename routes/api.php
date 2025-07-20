@@ -35,9 +35,16 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TrustedSiteController;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware(['auth:sanctum'])->get('/check-user', function (Request $request) {
+    return $request->user();
+});
+
 Route::middleware(['verify.apikey'])->group(function () {
+
+
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
@@ -152,7 +159,7 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::apiResource('bill-cruds', BillCrudController::class)->middleware(['role:admin,reception']);
     Route::apiResource('bill-items', BillItemController::class)->middleware(['role:admin,pharmacy_admin,pharmacy,reception,doctor']);
     Route::apiResource('brands', BrandController::class)->middleware(['role:admin,pharmacy_admin']);
-    Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin    ']);
+    Route::apiResource('categories', CategoryController::class)->middleware(['role:admin,pharmacy_admin']);
     Route::apiResource('diseases', DiseaseController::class)->middleware(['role:admin']);
     Route::apiResource('doctors', DoctorController::class)->middleware(['role:admin,reception']);
     Route::apiResource('doctors-availabilities', DoctorAvailabilityController::class)->middleware(['role:admin,reception']);
