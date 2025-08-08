@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @method static findOrFail(mixed $request)
+ * @method static whereIn(string $string, string[] $ids)
  */
 class Doctor extends Model
 {
