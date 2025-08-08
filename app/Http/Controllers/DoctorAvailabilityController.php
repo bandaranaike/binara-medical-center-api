@@ -10,6 +10,7 @@ use App\Http\Resources\DoctorAvailabilityResource;
 use App\Http\Resources\TodayAvailableDoctorsResource;
 use App\Models\Doctor;
 use App\Models\DoctorAvailability;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -49,13 +50,14 @@ class DoctorAvailabilityController extends Controller
     public function searchDoctorsForWebBooking(Request $request): JsonResponse
     {
         $searchQuery = $request->query('query');
+        $operator = $searchQuery ? '>=' : '=';
+        $date = Carbon::parse($request->query('date', date('Y-m-d')))->format('Y-m-d');
 
 
         $doctors = Doctor::select(['doctors.id', 'doctors.name'])
-            ->join('doctor_availabilities', function ($join) use ($request) {
-                $date = $request->query('date', date('Y-m-d'));
+            ->join('doctor_availabilities', function ($join) use ($request, $date, $operator) {
                 $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')
-                    ->where('doctor_availabilities.date', ">=", $date);
+                    ->where('doctor_availabilities.date', $operator, $date);
             })
             ->where('doctors.name', 'LIKE', "%$searchQuery%")
             ->where('doctors.doctor_type', $request->get('type'))
