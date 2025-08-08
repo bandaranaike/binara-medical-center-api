@@ -53,6 +53,7 @@ class DoctorAvailabilityController extends Controller
         $operator = $searchQuery ? '>=' : '=';
         $date = Carbon::parse($request->query('date', date('Y-m-d')))->format('Y-m-d');
 
+
         $doctors = Doctor::select(['doctors.id', 'doctors.name'])
             ->join('doctor_availabilities', function ($join) use ($request, $date, $operator) {
                 $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')

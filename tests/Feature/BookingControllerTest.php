@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Feature;
+
 use App\Enums\BillStatus;
 use App\Http\Controllers\BookingController;
 use App\Http\Requests\Website\StoreBookingRequest;
