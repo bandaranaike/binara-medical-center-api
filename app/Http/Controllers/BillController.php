@@ -190,6 +190,8 @@ class BillController extends Controller
             'doctor:id,name',
             'dailyPatientQueue:id,bill_id,queue_number,queue_date',
         ])
+            ->withSum('billItems as system_amount','system_amount')
+            ->withSum('billItems as bill_amount','bill_amount')
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
             ->orderByDesc('id')
             ->get();
