@@ -92,12 +92,12 @@ class PatientsMedicineHistoryController extends Controller
 
         } catch (InsufficientStocksException $e) {
             return new JsonResponse([
-                'message' => "Failed to add medicine",
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 409);
         } catch (Exception $e) {
             return new JsonResponse([
-                'message' => 'Failed to add medicine',
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage() . " " . $e->getFile() . " " . $e->getLine(),
             ], 500);
         }

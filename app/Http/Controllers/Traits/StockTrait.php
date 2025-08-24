@@ -12,13 +12,20 @@ use Illuminate\Support\Facades\DB;
 
 trait StockTrait
 {
+    /**
+     * @param $brandId
+     * @param $quantity
+     * @param $billId
+     * @return mixed
+     * @throws InsufficientStocksException
+     */
     public function addSaleItem($brandId, $quantity, $billId): mixed
     {
         return DB::transaction(function () use ($brandId, $quantity, $billId) {
             $stocks = $this->getStocksForBrand($brandId);
 
             if ($stocks->sum('quantity') < $quantity) {
-                throw new InsufficientStocksException('Stock quantity exceeded.');
+                throw new InsufficientStocksException('Stock quantity exceeded. Max ' . $stocks->sum('quantity'));
             }
 
             // Since temp records required sale id, we need to create sale first
@@ -82,7 +89,7 @@ trait StockTrait
         TemporarySale::insert($stockTempRecords);
 
         // Update total price
-        $sale->quantity = $quantity;
+        $sale->quantity = $quantity - $quantityToDeduct;
         $sale->total_price = $totalPrice;
         $sale->save();
 
