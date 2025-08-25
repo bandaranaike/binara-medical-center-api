@@ -41,6 +41,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->get('/check-user', function (Request $request) {
     return $request->user();
 });
+Route::middleware(['auth:sanctum'])->get('/check-user-session', [AuthController::class, 'checkUserSession']);;
 
 Route::middleware(['verify.apikey'])->group(function () {
 

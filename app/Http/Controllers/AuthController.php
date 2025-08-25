@@ -64,4 +64,18 @@ class AuthController extends Controller
         return new JsonResponse(['message' => 'Unauthorized'], 401);
     }
 
+    public function checkUserSession()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            return new JsonResponse([
+                'message' => 'Logged in successfully',
+                'token' => $user->currentAccessToken(),
+                'role' => $user->role?->key,
+                'name' => $user->name
+            ], 200);
+        }
+        return false;
+    }
+
 }
