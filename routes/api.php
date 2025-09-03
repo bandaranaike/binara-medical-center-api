@@ -41,7 +41,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->get('/check-user', function (Request $request) {
     return $request->user();
 });
-Route::middleware(['auth:sanctum'])->get('/check-user-session', [AuthController::class, 'checkUserSession']);;
+Route::middleware(['auth:sanctum'])->get('/check-user-session', [AuthController::class, 'checkUserSession']);
 
 Route::middleware(['verify.apikey'])->group(function () {
 
@@ -69,6 +69,9 @@ Route::middleware(['verify.apikey'])->group(function () {
             ->middleware(['role:pharmacy,pharmacy_admin,doctor']);
         Route::get('bills/pending/reception', [BillController::class, 'getPendingBillsForReception'])
             ->middleware('role:reception,admin');
+
+        Route::post('doctor-availabilities/generate-for-doctor', [DoctorAvailabilityController::class, 'generateForDoctorForMonth']);
+
         Route::get('doctors/patient/{patientId}/histories', [PatientsHistoryController::class, 'getPatientHistory'])
             ->middleware(['role:doctor', 'ensure.doctor']);
         Route::get('doctors/patient/{patientId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getMedicineHistories'])
@@ -110,6 +113,8 @@ Route::middleware(['verify.apikey'])->group(function () {
         });
 
 
+        Route::get('doctors/{doctor}/availabilities', [DoctorController::class, 'getDoctorAvailability'])
+            ->middleware(['role:admin']);
     });
 
     /**
