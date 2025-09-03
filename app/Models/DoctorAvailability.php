@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static whereIn(string $string, string[] $ids)
+ * @method static where(string $string, $id)
  */
 class DoctorAvailability extends Model
 {

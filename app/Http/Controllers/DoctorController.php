@@ -32,4 +32,10 @@ class DoctorController extends Controller
         $this->model::whereIn('id', $ids)->delete();
         return new JsonResponse(['message' => 'Record deleted successfully']);
     }
+
+    public function getDoctorAvailability($id): JsonResponse
+    {
+        $doctor = DoctorAvailability::where('doctor_id', $id)->get();
+        return new JsonResponse($doctor);
+    }
 }
