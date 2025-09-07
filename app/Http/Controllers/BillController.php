@@ -7,6 +7,7 @@ use App\Enums\BillStatus;
 use App\Enums\BookingTimeFilter;
 use App\Enums\ServiceKey;
 use App\Enums\UserRole;
+use App\Events\NewBillCreated;
 use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
 use App\Http\Controllers\Traits\PrintingDataProcess;
@@ -71,6 +72,8 @@ class BillController extends Controller
 
         // Check for duplicate booking AFTER creation
         $duplicate = $this->checkDuplicateBooking($data['doctor_id'], $data['patient_id'], $date, $bill->id);
+
+        event(new NewBillCreated($bill));
 
         return new JsonResponse([
             ...$this->billPrintingResponse($bill, false, $request->input('bill_reference')),
