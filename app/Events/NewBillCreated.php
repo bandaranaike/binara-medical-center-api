@@ -5,13 +5,11 @@ namespace App\Events;
 use App\Models\Bill;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
-class NewBillCreated implements ShouldBroadcast
+class NewBillCreated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -20,7 +18,6 @@ class NewBillCreated implements ShouldBroadcast
      */
     public function __construct(public Bill $bill)
     {
-        Log::info('New bill created - ' . $bill->id);
     }
 
     /**
@@ -30,15 +27,16 @@ class NewBillCreated implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        Log::info('Called broadcastOn for bill - ' . $this->bill->id);
-        return [
-            'bills-channel'
-        ];
+        return [ new Channel('bills-channel') ];
     }
 
     public function broadcastAs(): string
     {
-        Log::info('Called broadcastAs for bill - ' . $this->bill->id);
         return 'bill-created';
+    }
+
+    public function broadcastWith(): array
+    {
+        return ['id' => $this->bill->id];
     }
 }
