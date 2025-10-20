@@ -55,6 +55,7 @@ class GenerateDoctorsAvailabilityCalendar extends Command
                     'time' => $time,
                     'seats' => $maxSeats,
                     'available_seats' => $maxSeats,
+                    'doctor_schedule_id' => $schedule->id,
                     'status' => 'Active',
                     'created_at' => now(),
                     'updated_at' => now(),
