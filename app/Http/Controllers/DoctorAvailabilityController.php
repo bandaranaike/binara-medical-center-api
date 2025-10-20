@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DoctorAvailabilityStatus;
-use App\Enums\DoctorScheduleStatus;
 use App\Http\Controllers\Traits\CrudTrait;
 use App\Http\Requests\StoreDoctorAvailabilityRequest;
 use App\Http\Requests\UpdateDoctorAvailabilityRequest;
@@ -11,18 +10,17 @@ use App\Http\Resources\DoctorAvailabilityResource;
 use App\Http\Resources\TodayAvailableDoctorsResource;
 use App\Models\Doctor;
 use App\Models\DoctorAvailability;
-use App\Models\DoctorSchedule;
+use App\Services\DoctorScheduleService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class DoctorAvailabilityController extends Controller
 {
 
     use CrudTrait;
 
-    public function __construct()
+    public function __construct(protected DoctorScheduleService $doctorScheduleService)
     {
         $this->model = new DoctorAvailability();
         $this->updateRequest = new UpdateDoctorAvailabilityRequest();
@@ -146,148 +144,13 @@ class DoctorAvailabilityController extends Controller
         $data = $request->validate([
             'override' => ['sometimes', 'boolean'],
             'doctor_id' => ['required', 'integer', 'exists:doctors,id'],
-            'id' => ['required', 'integer', 'exists:doctor_schedules,id'],
         ]);
 
         $doctorId = $data['doctor_id'];
-        $id = $data['id'];
         $override = (bool)($data['override'] ?? false);
 
-        // Calculate month range
-        $start = Carbon::today();
-        $end = $start->copy()->addMonthNoOverflow()->endOfDay();
+        $response = $this->doctorScheduleService->generateAvailabilityForDoctorForMonth($doctorId, $override);
 
-        // Pull schedule
-        $schedule = DoctorSchedule::where('id', $id)
-            ->where('doctor_id', $doctorId)
-            ->select(['id', 'doctor_id', 'weekday', 'time', 'seats', 'status'])
-            ->firstOrFail();
-
-        // === RULE 3 ===
-        if ($schedule->status === DoctorScheduleStatus::INACTIVE->value) {
-            if ($override) {
-                // Delete all availabilities linked to this schedule
-                // Find related availabilities first
-                $toDelete = DB::table('doctor_availabilities')
-                    ->where('doctor_id', $doctorId)
-                    ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
-                    ->where('time', $schedule->time)
-                    ->pluck('id');  // safer if you have a primary key
-
-                if ($toDelete->isNotEmpty()) {
-                    DB::table('doctor_availabilities')
-                        ->whereIn('id', $toDelete)
-                        ->delete();
-                }
-
-
-                return response()->json([
-                    'ok' => true,
-                    'message' => 'Inactive schedule: All related availabilities removed.',
-                    'inserted' => 0,
-                    'updated' => 0,
-                    'skipped' => 0,
-                ]);
-            }
-
-            return response()->json([
-                'ok' => false,
-                'message' => 'Inactive schedule: No changes made.',
-                'inserted' => 0,
-                'updated' => 0,
-                'skipped' => 0,
-            ], 400);
-        }
-
-        // === Build recurring slots for this month ===
-        $rows = [];
-        $date = $start->copy()->next($schedule->weekday);
-
-        if ($start->dayOfWeek === (int)$schedule->weekday) {
-            $date = $start->copy();
-        }
-
-        while ($date->lte($end)) {
-            $rows[] = [
-                'doctor_id' => $doctorId,
-                'date' => $date->toDateString(),
-                'time' => $schedule->time,
-                'seats' => (int)$schedule->seats,
-                'available_seats' => (int)$schedule->seats,
-                'status' => 'Active',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-            $date->addWeek();
-        }
-
-        if (empty($rows)) {
-            return response()->json([
-                'ok' => true,
-                'message' => 'No slots generated for this month.',
-                'inserted' => 0,
-                'updated' => 0,
-                'skipped' => 0,
-            ]);
-        }
-
-        $inserted = 0;
-        $updated = 0;
-        $skipped = 0;
-
-        DB::transaction(function () use ($rows, $override, $doctorId, &$inserted, &$updated, &$skipped) {
-            if ($override) {
-                // === RULE 1 === Delete and regenerate ===
-                DB::table('doctor_availabilities')
-                    ->where('doctor_id', $doctorId)
-                    ->whereIn('date', array_column($rows, 'date'))
-                    ->whereIn('time', array_column($rows, 'time'))
-                    ->delete();
-
-                foreach (array_chunk($rows, 1000) as $chunk) {
-                    DB::table('doctor_availabilities')->insert($chunk);
-                    $inserted += count($chunk);
-                }
-            } else {
-                // === RULE 2 === Insert missing only ===
-                $keys = collect($rows)->map(fn($r) => [
-                    'doctor_id' => $r['doctor_id'],
-                    'date' => $r['date'],
-                    'time' => $r['time'],
-                ]);
-
-                $existing = DB::table('doctor_availabilities')
-                    ->where('doctor_id', $doctorId)
-                    ->whereIn(DB::raw('(doctor_id, date, time)'), $keys->map(
-                        fn($p) => DB::raw("({$p['doctor_id']}, '{$p['date']}', '{$p['time']}')")
-                    )->toArray())
-                    ->get(['doctor_id', 'date', 'time'])
-                    ->map(fn($e) => "$e->doctor_id|$e->date|$e->time")
-                    ->toArray();
-
-                $existingSet = array_flip($existing);
-
-                $newRows = array_filter($rows, fn($r) => !isset($existingSet["{$r['doctor_id']}|{$r['date']}|{$r['time']}"])
-                );
-
-                $skipped = count($rows) - count($newRows);
-
-                foreach (array_chunk($newRows, 1000) as $chunk) {
-                    DB::table('doctor_availabilities')->insert($chunk);
-                    $inserted += count($chunk);
-                }
-            }
-        });
-
-        return response()->json([
-            'ok' => true,
-            'message' => $override
-                ? 'Availability regenerated with override.'
-                : 'Availability generated, missing ones only.',
-            'inserted' => $inserted,
-            'updated' => $updated,
-            'skipped' => $skipped,
-        ]);
+        return response()->json($response);
     }
-
 }

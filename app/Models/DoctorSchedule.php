@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @method static where(string $string, mixed $id)
+ * @method static where(string $string, string $string1)
  */
 class DoctorSchedule extends Model
 {
     /** @use HasFactory<DoctorScheduleFactory> */
     use HasFactory;
 
-    protected $fillable = ['doctor_id', 'seats', 'seats', 'weekday', 'time', 'status'];
+    protected $fillable = ['doctor_id', 'seats', 'seats', 'recurring', 'weekday', 'time', 'status'];
 
     public function doctor(): BelongsTo
     {
