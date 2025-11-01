@@ -3,7 +3,6 @@
 namespace App\Enums;
 
 /**
- * @method static upsert(array[] $services, string $string)
  */
 enum ServiceKey: string
 {
