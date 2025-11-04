@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /**
@@ -34,6 +35,7 @@ trait CrudTrait
             $searchValue = $request->get('searchValue');
             $searchField = $request->get('searchField');
 
+
             if (count($this->relationships) > 0 && Str::contains($searchField, ':')) {
                 [$relationShip, $field] = explode(':', $request->get('searchField'));
                 $query->whereHas($relationShip, function ($query) use ($searchValue, $field) {
@@ -44,6 +46,9 @@ trait CrudTrait
             }
         }
 
+        if ($request->has('sort'))
+            $this->getSortQuery($request->query('sort', []), $query);
+
         $records = $query->with($this->relationships)->paginate(self::DEFAULT_PAGE_SIZE);
 
         if (isset($this->resource)) {
@@ -52,6 +57,22 @@ trait CrudTrait
             $data = $records->items();
         }
         return new JsonResponse(["data" => $data, "last_page" => $records->lastPage()]);
+    }
+
+    private function getSortQuery(array $sorts, $query): void
+    {
+        $segments = Arr::wrap($sorts);
+
+        foreach ($segments as $seg) {
+            [$field, $dir] = array_pad(explode(':', (string)$seg, 2), 2, 'asc');
+
+            $field = trim($field);
+            $dir = strtolower($dir) === 'desc' ? 'desc' : 'asc'; // default to asc
+
+            if ($field) {
+                $query->orderBy($field, $dir);
+            }
+        }
     }
 
     public function store(Request $request): JsonResponse

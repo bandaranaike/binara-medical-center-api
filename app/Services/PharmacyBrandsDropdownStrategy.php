@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class PharmacyBrandsDropdownStrategy implements DropdownStrategyInterface
 {
     /**
-     * Get the results for the allergies dropdown.
+     * Get the results for the brand dropdown.
      *
      * @param Request $request
      * @return Builder

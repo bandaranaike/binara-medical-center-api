@@ -29,4 +29,9 @@ class Brand extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    public function latestStock()
+    {
+        return $this->hasOne(Stock::class)->latestOfMany();
+    }
 }

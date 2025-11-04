@@ -7,6 +7,8 @@ use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Models\Doctor;
 use App\Http\Resources\DoctorResource;
+use App\Models\DoctorAvailability;
+use Illuminate\Http\JsonResponse;
 
 
 class DoctorController extends Controller
@@ -21,5 +23,19 @@ class DoctorController extends Controller
         $this->storeRequest = new StoreDoctorRequest();
         $this->resource = DoctorResource::class;
         $this->relationships = ['hospital:id,name', 'specialty:id,name', 'user:id,name'];
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        $ids = explode(',', $id);
+        DoctorAvailability::whereIn('doctor_id', $ids)->delete();
+        $this->model::whereIn('id', $ids)->delete();
+        return new JsonResponse(['message' => 'Record deleted successfully']);
+    }
+
+    public function getDoctorAvailability($id): JsonResponse
+    {
+        $doctor = DoctorAvailability::where('doctor_id', $id)->get();
+        return new JsonResponse($doctor);
     }
 }

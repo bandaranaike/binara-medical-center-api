@@ -7,6 +7,7 @@ use App\Enums\BillStatus;
 use App\Enums\BookingTimeFilter;
 use App\Enums\ServiceKey;
 use App\Enums\UserRole;
+use App\Events\NewBillCreated;
 use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
 use App\Http\Controllers\Traits\PrintingDataProcess;
@@ -72,8 +73,10 @@ class BillController extends Controller
         // Check for duplicate booking AFTER creation
         $duplicate = $this->checkDuplicateBooking($data['doctor_id'], $data['patient_id'], $date, $bill->id);
 
+        event(new NewBillCreated($bill));
+
         return new JsonResponse([
-            ...$this->billPrintingResponse($bill),
+            ...$this->billPrintingResponse($bill, false, $request->input('bill_reference')),
             "queue_id" => $queueNumber,
             "warning" => $duplicate ? 'Note: This patient already has a booking with the same doctor on this date.' : null,
         ], 201);
@@ -88,12 +91,12 @@ class BillController extends Controller
             ->first();
     }
 
-    private function billPrintingResponse($bill, $excludeDentalRegFee = true): array
+    private function billPrintingResponse($bill, $excludeDentalRegFee = true, $billReference = ''): array
     {
         $billData = $this->getBillItemsFroPrint($bill->id, $excludeDentalRegFee);
 
         return [
-            "bill_reference" => '',
+            "bill_reference" => "$billReference",
             "payment_type" => $bill->payment_type,
             "bill_id" => $bill->id,
             "bill_items" => $billData['items'],
@@ -190,6 +193,8 @@ class BillController extends Controller
             'doctor:id,name',
             'dailyPatientQueue:id,bill_id,queue_number,queue_date',
         ])
+            ->withSum('billItems as system_amount','system_amount')
+            ->withSum('billItems as bill_amount','bill_amount')
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
             ->orderByDesc('id')
             ->get();

@@ -10,6 +10,8 @@ use App\Http\Resources\DoctorAvailabilityResource;
 use App\Http\Resources\TodayAvailableDoctorsResource;
 use App\Models\Doctor;
 use App\Models\DoctorAvailability;
+use App\Services\DoctorScheduleService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,7 +20,7 @@ class DoctorAvailabilityController extends Controller
 
     use CrudTrait;
 
-    public function __construct()
+    public function __construct(protected DoctorScheduleService $doctorScheduleService)
     {
         $this->model = new DoctorAvailability();
         $this->updateRequest = new UpdateDoctorAvailabilityRequest();
@@ -49,11 +51,14 @@ class DoctorAvailabilityController extends Controller
     public function searchDoctorsForWebBooking(Request $request): JsonResponse
     {
         $searchQuery = $request->query('query');
+        $operator = $searchQuery ? '>=' : '=';
+        $date = Carbon::parse($request->query('date', date('Y-m-d')))->format('Y-m-d');
+
 
         $doctors = Doctor::select(['doctors.id', 'doctors.name'])
-            ->join('doctor_availabilities', function ($join) use ($request) {
+            ->join('doctor_availabilities', function ($join) use ($request, $date, $operator) {
                 $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')
-                    ->where('doctor_availabilities.date', ">=", date('Y-m-d'));
+                    ->where('doctor_availabilities.date', $operator, $date);
             })
             ->where('doctors.name', 'LIKE', "%$searchQuery%")
             ->where('doctors.doctor_type', $request->get('type'))
@@ -98,7 +103,7 @@ class DoctorAvailabilityController extends Controller
 
         // Filter by selected doctors (if provided)
         if ($request->has('doctor_ids')) {
-            $query->whereIn('doctor_id', $request->doctor_ids);
+            $query->whereIn('doctor_id', $request->get('doctor_ids'));
         }
 
         $availabilities = $query->orderBy('date')->orderBy('time')->get();
@@ -120,17 +125,32 @@ class DoctorAvailabilityController extends Controller
     private function getDateRange(Request $request): array
     {
         if ($request->has('start_date') && $request->has('end_date')) {
-            $startDate = $request->start_date;
-            $endDate = $request->end_date;
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
         } elseif ($request->has('year') && $request->has('month')) {
-            $year = $request->year;
-            $month = $request->month;
+            $year = $request->get('year');
+            $month = $request->get('month');
             $startDate = date("$year-$month-01");
-            $endDate = date("Y-m-t", strtotime($startDate)); // Get last day of the month
+            $endDate = date("Y-m-t", strtotime($startDate)); // Get the last day of the month
         } else {
             return [];
         }
 
         return [$startDate, $endDate];
+    }
+
+    public function generateForDoctorForMonth(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'override' => ['sometimes', 'boolean'],
+            'doctor_id' => ['required', 'integer', 'exists:doctors,id'],
+        ]);
+
+        $doctorId = $data['doctor_id'];
+        $override = (bool)($data['override'] ?? false);
+
+        $response = $this->doctorScheduleService->generateAvailabilityForDoctorForMonth($doctorId, $override);
+
+        return response()->json($response);
     }
 }
