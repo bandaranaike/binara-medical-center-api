@@ -1,0 +1,61 @@
+name: Deploy medical-app to VPS
+
+on:
+  push:
+    branches:
+      - medical-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, bcmath, xml, ctype, json, tokenizer
+          ini-values: post_max_size=256M, upload_max_filesize=256M
+
+      - name: Install Composer dependencies (for caching vendor on CI)
+        run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
+
+      - name: Deploy to medical VPS
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.MEDICAL_SSH_PRIVATE_KEY }}
+        run: |
+          echo "🔑 Setting up SSH"
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan 31.97.51.24 >> ~/.ssh/known_hosts
+
+          echo "🚀 Syncing files to VPS..."
+          rsync -avz --delete --exclude=vendor --exclude=node_modules --exclude=.git ./ root@31.97.51.24:/var/www/app.medical.erbitron.com
+
+          echo "⚙️ Running post-deploy commands..."
+          ssh root@31.97.51.24 << 'EOF'
+            set -e
+            cd /var/www/app.medical.erbitron.com
+
+            echo "📦 Installing dependencies..."
+            composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
+
+            echo "🧹 Clearing and caching Laravel config..."
+            php artisan config:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            echo "🗃️ Running database migrations..."
+            php artisan migrate --force
+
+            echo "🔁 Restarting PHP and Nginx..."
+            systemctl restart php8.3-fpm
+            systemctl reload nginx
+
+            echo "✅ Deployment complete for medical-app branch!"
+          EOF
