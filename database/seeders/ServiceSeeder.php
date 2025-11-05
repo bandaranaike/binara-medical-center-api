@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\ServiceKey;
+use App\Models\Service;
 use Illuminate\Database\Seeder;
 
 class ServiceSeeder extends Seeder
@@ -71,6 +72,6 @@ class ServiceSeeder extends Seeder
             ]
         ];
 
-        ServiceKey::upsert($services, 'key');
+        Service::upsert($services, 'key');
     }
 }
