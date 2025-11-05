@@ -601,7 +601,7 @@ class DoctorScheduleSeeder extends Seeder
         ];
 
         // Insert the schedules into the database
-        DB::table('doctor_schedules')->truncate();
+//        DB::table('doctor_schedules')->truncate();
         DB::table('doctor_schedules')->insert($schedules);
     }
 }
