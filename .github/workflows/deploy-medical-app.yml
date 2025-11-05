@@ -34,12 +34,12 @@ jobs:
           ssh-keyscan 31.97.51.24 >> ~/.ssh/known_hosts
 
           echo "🚀 Syncing files to VPS..."
-          rsync -avz --delete --exclude=vendor --exclude=node_modules --exclude=.git ./ root@31.97.51.24:/var/www/app.medical.erbitron.com
+          rsync -avz --delete --exclude=vendor --exclude=node_modules --exclude=.git ./ root@31.97.51.24:/var/www/api.medical.erbitron.com
 
           echo "⚙️ Running post-deploy commands..."
           ssh root@31.97.51.24 << 'EOF'
             set -e
-            cd /var/www/app.medical.erbitron.com
+            cd /var/www/api.medical.erbitron.com
 
             echo "📦 Installing dependencies..."
             composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
