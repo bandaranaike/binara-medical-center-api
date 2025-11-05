@@ -34,12 +34,20 @@ jobs:
           ssh-keyscan 31.97.51.24 >> ~/.ssh/known_hosts
 
           echo "🚀 Syncing files to VPS..."
-          rsync -avz --delete --exclude=vendor --exclude=node_modules --exclude=.git ./ root@31.97.51.24:/var/www/api.medical.erbitron.com
+          # IMPORTANT: exclude .env and any env.* files so production .env on server is not removed or overwritten
+          rsync -avz --delete --exclude='.env' --exclude='.env.*' --exclude=vendor --exclude=node_modules --exclude=.git ./ root@31.97.51.24:/var/www/api.medical.erbitron.com
 
           echo "⚙️ Running post-deploy commands..."
           ssh root@31.97.51.24 << 'EOF'
             set -e
             cd /var/www/api.medical.erbitron.com
+
+            # Safety: abort if .env is missing after sync (helps catch accidental deletion)
+            if [ ! -f .env ]; then
+              echo "❗ .env not found in deployment directory. Aborting deployment."
+              echo "Ensure the production .env is present on the server and that rsync excludes it."
+              exit 1
+            fi
 
             echo "📦 Installing dependencies..."
             composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
@@ -54,8 +62,8 @@ jobs:
             php artisan migrate --force
 
             echo "🔁 Restarting PHP and Nginx..."
-            systemctl restart php8.3-fpm
-            systemctl reload nginx
+            systemctl restart php8.3-fpm || true
+            systemctl reload nginx || true
 
             echo "✅ Deployment complete for medical-app branch!"
           EOF
