@@ -10,20 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up PHP
+      - name: ⚙️ Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: mbstring, intl, bcmath, xml, ctype, json, tokenizer
           ini-values: post_max_size=256M, upload_max_filesize=256M
 
-      - name: Install Composer dependencies (for caching vendor on CI)
+      - name: 📦 Install Composer dependencies (for caching vendor on CI)
         run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
 
-      - name: Deploy to medical VPS
+      - name: 🚀 Deploy to medical VPS
         env:
           SSH_PRIVATE_KEY: ${{ secrets.MEDICAL_SSH_PRIVATE_KEY }}
         run: |
@@ -34,23 +34,35 @@ jobs:
           ssh-keyscan 31.97.51.24 >> ~/.ssh/known_hosts
 
           echo "🚀 Syncing files to VPS..."
-          # IMPORTANT: exclude .env and any env.* files so production .env on server is not removed or overwritten
-          rsync -avz --delete --exclude='.env' --exclude='.env.*' --exclude=vendor --exclude=node_modules --exclude=.git ./ root@31.97.51.24:/var/www/api.medical.erbitron.com
+          # Exclude sensitive and unnecessary files
+          rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='vendor' \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            ./ root@31.97.51.24:/var/www/api.medical.erbitron.com
 
           echo "⚙️ Running post-deploy commands..."
           ssh root@31.97.51.24 << 'EOF'
             set -e
             cd /var/www/api.medical.erbitron.com
 
-            # Safety: abort if .env is missing after sync (helps catch accidental deletion)
+            echo "🛡️ Checking .env file..."
             if [ ! -f .env ]; then
-              echo "❗ .env not found in deployment directory. Aborting deployment."
-              echo "Ensure the production .env is present on the server and that rsync excludes it."
+              echo "❗ .env not found. Aborting deployment!"
+              echo "Ensure the production .env is present on the server and excluded from rsync."
               exit 1
             fi
 
             echo "📦 Installing dependencies..."
             composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader --no-dev
+
+            echo "🔧 Fixing permissions..."
+            mkdir -p storage/framework/{sessions,cache,views}
+            mkdir -p bootstrap/cache
+            chown -R www-data:www-data storage bootstrap/cache
+            chmod -R 775 storage bootstrap/cache
 
             echo "🧹 Clearing and caching Laravel config..."
             php artisan config:clear
