@@ -50,7 +50,7 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
         Log::info('Login failed for', $credentials);
-        if (Auth::attempt($credentials, $request->get('remember'))) {
+        if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $token = $user->createToken('API Token')->plainTextToken;
 
@@ -61,7 +61,7 @@ class AuthController extends Controller
                 'name' => $user->name
             ], 200);
         }
-        return new JsonResponse(['message' => 'Unauthorized'], 401);
+        return new JsonResponse(['message' => 'Provided credentials invalid'], 401);
     }
 
     public function checkUserSession()

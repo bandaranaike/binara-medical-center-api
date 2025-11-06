@@ -57,6 +57,7 @@ class PatientAuthController extends Controller
     {
         // Revoke all tokens...
         $request->user()->tokens()->delete();
+        $request->session()->invalidate();
 
         return new JsonResponse(['message' => 'Logged out successfully']);
     }

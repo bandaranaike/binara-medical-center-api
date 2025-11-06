@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\DoctorAvailability;
 use App\Models\DoctorSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class DoctorScheduleService
         $schedules = DoctorSchedule::query()
             ->where('doctor_id', $doctorId)
             ->where('status', 'active')
-            ->get(['id','doctor_id', 'weekday', 'time', 'seats', 'recurring']);
+            ->get(['id', 'doctor_id', 'weekday', 'time', 'seats', 'recurring']);
 
         if ($schedules->isEmpty()) {
             return [
@@ -34,7 +35,7 @@ class DoctorScheduleService
         if ($override) {
             $doctorScheduleIds = $schedules->pluck('id');
             if (!$doctorScheduleIds->isEmpty()) {
-                DB::table('doctor_availabilities')->where('doctor_schedule_id', $doctorScheduleIds)->delete();
+                DoctorAvailability::whereIn('doctor_schedule_id', $doctorScheduleIds->toArray())->delete();
             }
         }
 
@@ -107,7 +108,7 @@ class DoctorScheduleService
             if ($override) {
                 // Upsert and update seats/available_seats/status on conflict
                 foreach (array_chunk($rows, 1000) as $chunk) {
-                    DB::table('doctor_availabilities')->upsert(
+                    DoctorAvailability::upsert(
                         $chunk,
                         ['doctor_id', 'date', 'time'],
                         ['seats', 'available_seats', 'status', 'updated_at']
@@ -154,7 +155,11 @@ class DoctorScheduleService
                 $skipped = count($rows) - count($newRows);
 
                 foreach (array_chunk($newRows, 1000) as $chunk) {
-                    DB::table('doctor_availabilities')->insert($chunk);
+                    DoctorAvailability::upsert(
+                        $chunk,
+                        ['doctor_id', 'date', 'time'],
+                        ['seats', 'available_seats', 'status', 'updated_at']
+                    );
                     $inserted += count($chunk);
                 }
             }
