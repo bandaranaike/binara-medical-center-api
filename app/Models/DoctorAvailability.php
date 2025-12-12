@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @method static whereIn(string $string, string[] $ids)
  * @method static where(string $string, $operator, string $id = null)
+ * @method static upsert(mixed $chunk, string[] $array, string[] $array1)
  */
 class DoctorAvailability extends Model
 {
