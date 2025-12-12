@@ -46,9 +46,9 @@ jobs:
             php artisan view:cache
 
             echo "🔄 Restarting PHP-FPM"
-            sudo systemctl restart php8.2-fpm
+            sudo /usr/bin/systemctl restart php8.3-fpm
 
             echo "🔄 Reloading Nginx"
-            sudo systemctl reload nginx
+            sudo /usr/bin/systemctl reload nginx
 
             echo "✅ Laravel deployment completed"
