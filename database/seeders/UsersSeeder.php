@@ -18,18 +18,20 @@ class UsersSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('users')->upsert(
-            [
-                'email' => 'admin@binara.live',
-                'uuid' => Str::uuid(),
-                'name' => 'Administrator',
-                'password' => Hash::make('9,$wCD:Kf,3YwEu'),
-                'role_id' => Role::where('key', UserRole::ADMIN->value)->first()?->id ?? 1, // Make sure RolesSeeder has already been run
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            ['email'],
-            ['name', 'password', 'role_id', 'created_at', 'updated_at']
-        );
+        if (config('app.super_admin.email') && config('app.super_admin.password')) {
+            DB::table('users')->upsert(
+                [
+                    'email' => config('app.super_admin.email'),
+                    'uuid' => Str::uuid(),
+                    'name' => 'Administrator',
+                    'password' => Hash::make(config('app.super_admin.password')),
+                    'role_id' => Role::where('key', UserRole::ADMIN->value)->first()?->id ?? 1, // Make sure RolesSeeder has already been run
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                ['email'],
+                ['name', 'password', 'role_id', 'created_at', 'updated_at']
+            );
+        }
     }
 }
