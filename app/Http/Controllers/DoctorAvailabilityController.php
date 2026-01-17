@@ -62,7 +62,7 @@ class DoctorAvailabilityController extends Controller
             })
             ->where('doctors.name', 'LIKE', "%$searchQuery%")
             ->where('doctors.doctor_type', $request->get('type'))
-            ->groupBy('doctors.id') // Group by doctor and specialty
+            ->groupBy('doctors.id', 'doctors.name') // Group by doctor and specialty
             ->limit(10)
             ->get();
 
