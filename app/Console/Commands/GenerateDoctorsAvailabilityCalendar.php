@@ -85,6 +85,6 @@ class GenerateDoctorsAvailabilityCalendar extends Command
 
     private function removeOldData(): void
     {
-        DoctorAvailability::where('date', '<', Carbon::now()->subDay())->delete();
+        DoctorAvailability::where('date', '<', Carbon::now()->subDays(2))->delete();
     }
 }

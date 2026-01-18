@@ -24,14 +24,24 @@ class StoreContactRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'email' => ['email', Rule::requiredIf(function () {
-                return !$this->request->has('phone');
-            })],
-            'phone' => ['string', Rule::requiredIf(function () {
-                return !$this->request->has('email');
-            })],
-            'message' => 'required',
+            'name' => ['required'],
+
+            'email' => [
+                'nullable',
+                'email',
+                'required_without:phone',
+            ],
+
+            'phone' => [
+                'nullable',
+                'string',
+                'regex:/^([0-9\s\-\+\(\)]*)$/',
+                'min:7',
+                'required_without:email',
+            ],
+
+            'message' => ['required'],
         ];
     }
+
 }
