@@ -12,7 +12,7 @@ class SendPhoneVerificationListener
      */
     public function handle(SendPhoneVerification $event): void
     {
-        $esmsService = new DialogESMSService(env('DIALOG_URL_MESSAGE_KEY'));
+        $esmsService = new DialogESMSService(config('services.dialog.api_key'));
         $esmsService->sendMessage($event->phone, "Your OTP is : $event->otp", $event->fromName);
     }
 }

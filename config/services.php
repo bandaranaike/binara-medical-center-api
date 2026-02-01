@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'dialog' => [
+        'api_key' => env('DIALOG_URL_MESSAGE_KEY')
+    ]
+
 ];

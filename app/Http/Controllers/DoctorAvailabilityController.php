@@ -41,7 +41,7 @@ class DoctorAvailabilityController extends Controller
             ->join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
             ->where('doctors.name', 'LIKE', "%$searchQuery%")
             ->orWhere('specialties.name', 'LIKE', "%$searchQuery%")
-            ->groupBy('doctors.id') // Group by doctor and specialty
+            ->groupBy('doctors.id', 'doctors.name', 'specialty_name') // Group by doctor and specialty
             ->limit(10)
             ->get();
 
