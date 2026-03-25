@@ -2,20 +2,48 @@
 
 namespace Database\Seeders;
 
+use App\Models\Hospital;
+use App\Models\Specialty;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 
 class DoctorsTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
+        $hospitalNamesByLegacyId = [
+            1 => 'No hospital',
+            2 => 'Kandy',
+            3 => 'Peradeniya',
+        ];
+
+        $specialtyNamesByLegacyId = [
+            1 => 'Obstetrician-Gynecologist',
+            2 => 'Pediatrician',
+            3 => 'Physician',
+            4 => 'ENT',
+            5 => 'Eye Surgeon',
+            6 => 'General Surgeon',
+            7 => 'Dermatologist',
+            8 => 'Rheumatologist',
+            9 => 'Radiologist',
+            10 => 'Orthopedic Surgeon',
+            11 => 'Venereologist',
+            12 => 'Psychiatric',
+            13 => 'Neuro Physician',
+            14 => 'Chest Physician',
+            15 => 'Dental Surgeon',
+            16 => 'OPD',
+        ];
+
+        $hospitalIdsByName = Hospital::query()->pluck('id', 'name');
+        $specialtyIdsByName = Specialty::query()->pluck('id', 'name');
+
         $doctors = [
             [
                 'name' => 'Prof.Chathura Rathnayake',
@@ -368,7 +396,7 @@ class DoctorsTableSeeder extends Seeder
                 'email' => '',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
-            ],// Count 32
+            ], // Count 32
 
             ['name' => 'Dr W Kularathne', 'hospital_id' => 1, 'specialty_id' => 16, 'user_id' => null, 'telephone' => 0, 'doctor_type' => 'opd', 'email' => '', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
             ['name' => 'Dr Sampath Athapaththu', 'hospital_id' => 1, 'specialty_id' => 16, 'user_id' => null, 'telephone' => 0, 'doctor_type' => 'opd', 'email' => '', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
@@ -377,6 +405,34 @@ class DoctorsTableSeeder extends Seeder
             ['name' => 'Dr (Mrs) S.S.V Vidanapathirana', 'hospital_id' => 1, 'specialty_id' => 16, 'user_id' => null, 'telephone' => 0, 'doctor_type' => 'opd', 'email' => '', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
 
         ];
+
+        $doctors = array_map(function (array $doctor) use (
+            $hospitalIdsByName,
+            $hospitalNamesByLegacyId,
+            $specialtyIdsByName,
+            $specialtyNamesByLegacyId
+        ): array {
+            $hospitalName = $hospitalNamesByLegacyId[$doctor['hospital_id']] ?? null;
+
+            if ($hospitalName === null || ! isset($hospitalIdsByName[$hospitalName])) {
+                throw new \RuntimeException('Unable to resolve hospital for doctor seed: '.$doctor['name']);
+            }
+
+            $doctor['hospital_id'] = $hospitalIdsByName[$hospitalName];
+
+            if ($doctor['specialty_id'] !== null) {
+                $specialtyName = $specialtyNamesByLegacyId[$doctor['specialty_id']] ?? null;
+
+                if ($specialtyName === null || ! isset($specialtyIdsByName[$specialtyName])) {
+                    throw new \RuntimeException('Unable to resolve specialty for doctor seed: '.$doctor['name']);
+                }
+
+                $doctor['specialty_id'] = $specialtyIdsByName[$specialtyName];
+            }
+
+            return $doctor;
+        }, $doctors);
+
         Schema::disableForeignKeyConstraints();
         DB::table('doctors')->truncate();
         Schema::enableForeignKeyConstraints();

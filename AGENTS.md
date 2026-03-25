@@ -47,6 +47,8 @@ This project has domain-specific skills available. You MUST activate the relevan
   - `.ai/database-schema.md`
   - `.ai/functionality.md`
   - `.ai/architecture.md`
+- When the task involves the Electron desktop integration or the public bearer-token API, also read:
+  - `.ai/tasks/electron-public-bearer-token.md`
 - After reading the `.ai` files, inspect only the code files relevant to the specific task.
 - If a task changes architecture, core functionality, or schema meaningfully, update the affected `.ai` files as part of the task.
 

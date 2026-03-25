@@ -61,6 +61,7 @@ Why it matters here:
 
 - Treat this repository as a Laravel 11 API with a small Inertia/Breeze surface, not as a frontend-first app.
 - Check `routes/api.php` before assuming endpoint behavior. The route file is the clearest product map.
+- Check `routes/public.php` as well when the task mentions Electron, desktop billing, or public bearer-token access.
 - Check middleware in `bootstrap/app.php` before changing auth behavior.
 - Reuse shared controller infrastructure where possible:
   - `CrudTrait`
@@ -82,7 +83,9 @@ Why it matters here:
 - `routes/api.php`
 - `app/Http/Middleware/*`
 - `app/Http/Controllers/*`
+- `app/Http/Controllers/PublicApi/*`
 - `app/Http/Controllers/Traits/*`
+- `app/Http/Middleware/AuthenticatePublicAppToken.php`
 - `app/Services/DoctorScheduleService.php`
 - `app/Models/*`
 - `database/migrations/*`

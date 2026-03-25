@@ -3,10 +3,12 @@
 namespace Tests\Feature\Public;
 
 use App\Enums\AppointmentType;
+use App\Enums\DoctorAvailabilityStatus;
 use App\Enums\PaymentType;
 use App\Events\NewBillCreated;
 use App\Models\Bill;
 use App\Models\Doctor;
+use App\Models\DoctorAvailability;
 use App\Models\Hospital;
 use App\Models\Patient;
 use App\Models\PublicAppToken;
@@ -142,7 +144,7 @@ class PublicApiTest extends TestCase
         $zUser = User::factory()->create(['role_id' => $doctorRole->id]);
         $aUser = User::factory()->create(['role_id' => $doctorRole->id]);
 
-        Doctor::query()->create([
+        $zebra = Doctor::query()->create([
             'name' => 'Dr. Zebra',
             'hospital_id' => $hospital->id,
             'specialty_id' => $specialty->id,
@@ -152,7 +154,7 @@ class PublicApiTest extends TestCase
             'doctor_type' => AppointmentType::OPD->value,
         ]);
 
-        Doctor::query()->create([
+        $alpha = Doctor::query()->create([
             'name' => 'Dr. Alpha',
             'hospital_id' => $hospital->id,
             'specialty_id' => $specialty->id,
@@ -160,6 +162,24 @@ class PublicApiTest extends TestCase
             'telephone' => '+94770000001',
             'email' => 'alpha@example.com',
             'doctor_type' => AppointmentType::OPD->value,
+        ]);
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $zebra->id,
+            'date' => now()->toDateString(),
+            'time' => '10:00:00',
+            'seats' => 10,
+            'available_seats' => 5,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
+        ]);
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $alpha->id,
+            'date' => now()->toDateString(),
+            'time' => '09:00:00',
+            'seats' => 10,
+            'available_seats' => 3,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
         ]);
 
         [$status, $payload] = $this->dispatchJsonRequest(
@@ -172,6 +192,98 @@ class PublicApiTest extends TestCase
         $this->assertSame(200, $status);
         $this->assertSame('Dr. Alpha', $payload['data'][0]['name']);
         $this->assertSame('Dr. Zebra', $payload['data'][1]['name']);
+    }
+
+    public function test_public_doctor_list_only_returns_doctors_available_for_the_requested_date(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        $specialty = Specialty::query()->create(['name' => 'Neurology']);
+        $hospital = Hospital::query()->create(['name' => 'City Hospital', 'location' => 'Colombo']);
+        $doctorRole = Role::query()->create([
+            'name' => 'Doctor',
+            'key' => 'doctor',
+            'description' => 'Doctor role',
+        ]);
+
+        $todayDoctor = Doctor::query()->create([
+            'name' => 'Dr. Today',
+            'hospital_id' => $hospital->id,
+            'specialty_id' => $specialty->id,
+            'user_id' => User::factory()->create(['role_id' => $doctorRole->id])->id,
+            'telephone' => '+94770000003',
+            'email' => 'today@example.com',
+            'doctor_type' => AppointmentType::SPECIALIST->value,
+        ]);
+
+        $futureDoctor = Doctor::query()->create([
+            'name' => 'Dr. Future',
+            'hospital_id' => $hospital->id,
+            'specialty_id' => $specialty->id,
+            'user_id' => User::factory()->create(['role_id' => $doctorRole->id])->id,
+            'telephone' => '+94770000004',
+            'email' => 'future@example.com',
+            'doctor_type' => AppointmentType::SPECIALIST->value,
+        ]);
+
+        $unavailableDoctor = Doctor::query()->create([
+            'name' => 'Dr. Full',
+            'hospital_id' => $hospital->id,
+            'specialty_id' => $specialty->id,
+            'user_id' => User::factory()->create(['role_id' => $doctorRole->id])->id,
+            'telephone' => '+94770000005',
+            'email' => 'full@example.com',
+            'doctor_type' => AppointmentType::SPECIALIST->value,
+        ]);
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $todayDoctor->id,
+            'date' => now()->toDateString(),
+            'time' => '09:00:00',
+            'seats' => 10,
+            'available_seats' => 2,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
+        ]);
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $futureDoctor->id,
+            'date' => now()->addDay()->toDateString(),
+            'time' => '09:00:00',
+            'seats' => 10,
+            'available_seats' => 2,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
+        ]);
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $unavailableDoctor->id,
+            'date' => now()->toDateString(),
+            'time' => '09:00:00',
+            'seats' => 10,
+            'available_seats' => 0,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
+        ]);
+
+        [$todayStatus, $todayPayload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/doctors?doctor_type=specialist',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $todayStatus);
+        $this->assertCount(1, $todayPayload['data']);
+        $this->assertSame('Dr. Today', $todayPayload['data'][0]['name']);
+
+        [$futureStatus, $futurePayload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/doctors?doctor_type=specialist&date='.now()->addDay()->toDateString(),
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $futureStatus);
+        $this->assertCount(1, $futurePayload['data']);
+        $this->assertSame('Dr. Future', $futurePayload['data'][0]['name']);
     }
 
     public function test_public_bill_create_creates_bill_bill_item_and_queue(): void

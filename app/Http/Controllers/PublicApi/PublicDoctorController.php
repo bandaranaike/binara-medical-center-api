@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\PublicApi;
 
+use App\Enums\DoctorAvailabilityStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -14,9 +16,12 @@ class PublicDoctorController extends Controller
         $validated = $request->validate([
             'doctor_type' => ['nullable', 'string', 'in:opd,specialist,dental,treatment'],
             'search' => ['nullable', 'string'],
+            'date' => ['nullable', 'date'],
             'sort' => ['nullable', 'array'],
             'sort.*' => ['string'],
         ]);
+
+        $date = Carbon::parse($validated['date'] ?? now()->toDateString())->toDateString();
 
         $query = Doctor::query()
             ->select([
@@ -27,7 +32,21 @@ class PublicDoctorController extends Controller
                 'doctors.doctor_type',
                 'specialties.name as specialty_name',
             ])
-            ->leftJoin('specialties', 'doctors.specialty_id', '=', 'specialties.id');
+            ->join('doctor_availabilities', function ($join) use ($date) {
+                $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')
+                    ->where('doctor_availabilities.date', '=', $date)
+                    ->where('doctor_availabilities.status', '=', DoctorAvailabilityStatus::ACTIVE->value)
+                    ->where('doctor_availabilities.available_seats', '>', 0);
+            })
+            ->leftJoin('specialties', 'doctors.specialty_id', '=', 'specialties.id')
+            ->groupBy(
+                'doctors.id',
+                'doctors.name',
+                'doctors.telephone',
+                'doctors.email',
+                'doctors.doctor_type',
+                'specialties.name',
+            );
 
         if (! empty($validated['doctor_type'])) {
             $query->where('doctors.doctor_type', $validated['doctor_type']);
