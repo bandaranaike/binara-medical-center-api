@@ -1,0 +1,2483 @@
+[
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "\/",
+        "name": null,
+        "action": "Closure",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/admin\/services",
+        "name": "admin.services.index",
+        "action": "App\\Http\\Controllers\\Admin\\ServiceAdminController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/admin\/services",
+        "name": "admin.services.store",
+        "action": "App\\Http\\Controllers\\Admin\\ServiceAdminController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/admin\/services\/create",
+        "name": "admin.services.create",
+        "action": "App\\Http\\Controllers\\Admin\\ServiceAdminController@create",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/admin\/services\/{service}",
+        "name": "admin.services.show",
+        "action": "App\\Http\\Controllers\\Admin\\ServiceAdminController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/admin\/services\/{service}",
+        "name": "admin.services.update",
+        "action": "App\\Http\\Controllers\\Admin\\ServiceAdminController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/admin\/services\/{service}",
+        "name": "admin.services.destroy",
+        "action": "App\\Http\\Controllers\\Admin\\ServiceAdminController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/admin\/services\/{service}\/edit",
+        "name": "admin.services.edit",
+        "action": "App\\Http\\Controllers\\Admin\\ServiceAdminController@edit",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/allergies",
+        "name": "allergies.index",
+        "action": "App\\Http\\Controllers\\AllergyController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/allergies",
+        "name": "allergies.store",
+        "action": "App\\Http\\Controllers\\AllergyController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/allergies\/{allergy}",
+        "name": "allergies.show",
+        "action": "App\\Http\\Controllers\\AllergyController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/allergies\/{allergy}",
+        "name": "allergies.update",
+        "action": "App\\Http\\Controllers\\AllergyController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/allergies\/{allergy}",
+        "name": "allergies.destroy",
+        "action": "App\\Http\\Controllers\\AllergyController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bill-cruds",
+        "name": "bill-cruds.index",
+        "action": "App\\Http\\Controllers\\BillCrudController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/bill-cruds",
+        "name": "bill-cruds.store",
+        "action": "App\\Http\\Controllers\\BillCrudController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bill-cruds\/{bill_crud}",
+        "name": "bill-cruds.show",
+        "action": "App\\Http\\Controllers\\BillCrudController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/bill-cruds\/{bill_crud}",
+        "name": "bill-cruds.update",
+        "action": "App\\Http\\Controllers\\BillCrudController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/bill-cruds\/{bill_crud}",
+        "name": "bill-cruds.destroy",
+        "action": "App\\Http\\Controllers\\BillCrudController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bill-items",
+        "name": "bill-items.index",
+        "action": "App\\Http\\Controllers\\BillItemController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,pharmacy,reception,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/bill-items",
+        "name": "bill-items.store",
+        "action": "App\\Http\\Controllers\\BillItemController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,pharmacy,reception,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bill-items\/{bill_item}",
+        "name": "bill-items.show",
+        "action": "App\\Http\\Controllers\\BillItemController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,pharmacy,reception,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/bill-items\/{bill_item}",
+        "name": "bill-items.update",
+        "action": "App\\Http\\Controllers\\BillItemController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,pharmacy,reception,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/bill-items\/{bill_item}",
+        "name": "bill-items.destroy",
+        "action": "App\\Http\\Controllers\\BillItemController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,pharmacy,reception,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bills",
+        "name": "bills.index",
+        "action": "App\\Http\\Controllers\\BillController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/bills",
+        "name": "bills.store",
+        "action": "App\\Http\\Controllers\\BillController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bills\/bookings\/{time?}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BillController@bookings",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:reception,admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bills\/pending\/doctor",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BillController@getPendingBillsForDoctor",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor",
+            "App\\Http\\Middleware\\EnsureDoctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bills\/pending\/pharmacy",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BillController@getPendingBillsForPharmacy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:pharmacy,pharmacy_admin,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bills\/pending\/reception",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BillController@getPendingBillsForReception",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:reception,admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bills\/{billId}\/bill-items",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BillItemController@getBillItemsForBill",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:reception,pharmacy,pharmacy_admin,admin,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT",
+        "uri": "api\/bills\/{billId}\/change-temp-status",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BillController@changeTempBillStatus",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:reception,nurse"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bills\/{billId}\/sales",
+        "name": null,
+        "action": "App\\Http\\Controllers\\SaleController@getDrugSalesForBill",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:reception,pharmacy,pharmacy_admin,admin,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT",
+        "uri": "api\/bills\/{billId}\/send-to-reception",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BillController@sendBillToReception",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT",
+        "uri": "api\/bills\/{billId}\/status",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BillController@updateStatus",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bills\/{bill}",
+        "name": "bills.show",
+        "action": "App\\Http\\Controllers\\BillController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/bills\/{bill}",
+        "name": "bills.update",
+        "action": "App\\Http\\Controllers\\BillController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/bills\/{bill}",
+        "name": "bills.destroy",
+        "action": "App\\Http\\Controllers\\BillController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bookings\/doctors\/list",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BookingController@getDoctorsList",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/bookings\/make-appointment",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BookingController@makeAppointment",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/bookings\/patients\/history",
+        "name": null,
+        "action": "App\\Http\\Controllers\\BookingController@getPatientsHistoryForWeb",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\EnsurePatient",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/brands",
+        "name": "brands.index",
+        "action": "App\\Http\\Controllers\\BrandController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/brands",
+        "name": "brands.store",
+        "action": "App\\Http\\Controllers\\BrandController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/brands\/{brand}",
+        "name": "brands.show",
+        "action": "App\\Http\\Controllers\\BrandController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/brands\/{brand}",
+        "name": "brands.update",
+        "action": "App\\Http\\Controllers\\BrandController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/brands\/{brand}",
+        "name": "brands.destroy",
+        "action": "App\\Http\\Controllers\\BrandController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/categories",
+        "name": "categories.index",
+        "action": "App\\Http\\Controllers\\CategoryController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/categories",
+        "name": "categories.store",
+        "action": "App\\Http\\Controllers\\CategoryController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/categories\/{category}",
+        "name": "categories.show",
+        "action": "App\\Http\\Controllers\\CategoryController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/categories\/{category}",
+        "name": "categories.update",
+        "action": "App\\Http\\Controllers\\CategoryController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/categories\/{category}",
+        "name": "categories.destroy",
+        "action": "App\\Http\\Controllers\\CategoryController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/check-user",
+        "name": null,
+        "action": "Closure",
+        "middleware": [
+            "api",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/check-user-session",
+        "name": null,
+        "action": "App\\Http\\Controllers\\AuthController@checkUserSession",
+        "middleware": [
+            "api",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/contacts",
+        "name": null,
+        "action": "App\\Http\\Controllers\\ContactController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/diseases",
+        "name": "diseases.index",
+        "action": "App\\Http\\Controllers\\DiseaseController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/diseases",
+        "name": "diseases.store",
+        "action": "App\\Http\\Controllers\\DiseaseController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/diseases\/{disease}",
+        "name": "diseases.show",
+        "action": "App\\Http\\Controllers\\DiseaseController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/diseases\/{disease}",
+        "name": "diseases.update",
+        "action": "App\\Http\\Controllers\\DiseaseController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/diseases\/{disease}",
+        "name": "diseases.destroy",
+        "action": "App\\Http\\Controllers\\DiseaseController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctor-availabilities",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@getAvailability",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctor-availabilities\/doctor\/{doctorId}\/get-dates",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@getDatesForDoctor",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/doctor-availabilities\/generate-for-doctor",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@generateForDoctorForMonth",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctor-availabilities\/get-today-doctors",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@getTodayAvailableDoctorsForWeb",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctor-availabilities\/search-booking-doctors",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@searchDoctorsForWebBooking",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctor-availabilities\/search-doctor",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@searchDoctor",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctor-channeling-fees",
+        "name": "doctor-channeling-fees.index",
+        "action": "App\\Http\\Controllers\\DoctorsChannelingFeeController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/doctor-channeling-fees",
+        "name": "doctor-channeling-fees.store",
+        "action": "App\\Http\\Controllers\\DoctorsChannelingFeeController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctor-channeling-fees\/get-fee\/{id}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DoctorsChannelingFeeController@getFee",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctor-channeling-fees\/{doctor_channeling_fee}",
+        "name": "doctor-channeling-fees.show",
+        "action": "App\\Http\\Controllers\\DoctorsChannelingFeeController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/doctor-channeling-fees\/{doctor_channeling_fee}",
+        "name": "doctor-channeling-fees.update",
+        "action": "App\\Http\\Controllers\\DoctorsChannelingFeeController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/doctor-channeling-fees\/{doctor_channeling_fee}",
+        "name": "doctor-channeling-fees.destroy",
+        "action": "App\\Http\\Controllers\\DoctorsChannelingFeeController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors",
+        "name": "doctors.index",
+        "action": "App\\Http\\Controllers\\DoctorController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/doctors",
+        "name": "doctors.store",
+        "action": "App\\Http\\Controllers\\DoctorController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors-availabilities",
+        "name": "doctors-availabilities.index",
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/doctors-availabilities",
+        "name": "doctors-availabilities.store",
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors-availabilities\/{doctors_availability}",
+        "name": "doctors-availabilities.show",
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/doctors-availabilities\/{doctors_availability}",
+        "name": "doctors-availabilities.update",
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/doctors-availabilities\/{doctors_availability}",
+        "name": "doctors-availabilities.destroy",
+        "action": "App\\Http\\Controllers\\DoctorAvailabilityController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors-schedules",
+        "name": "doctors-schedules.index",
+        "action": "App\\Http\\Controllers\\DoctorScheduleController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/doctors-schedules",
+        "name": "doctors-schedules.store",
+        "action": "App\\Http\\Controllers\\DoctorScheduleController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors-schedules\/{doctors_schedule}",
+        "name": "doctors-schedules.show",
+        "action": "App\\Http\\Controllers\\DoctorScheduleController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/doctors-schedules\/{doctors_schedule}",
+        "name": "doctors-schedules.update",
+        "action": "App\\Http\\Controllers\\DoctorScheduleController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/doctors-schedules\/{doctors_schedule}",
+        "name": "doctors-schedules.destroy",
+        "action": "App\\Http\\Controllers\\DoctorScheduleController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors\/patient\/bill\/{billId}\/medicine-histories",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsMedicineHistoryController@getHistoryForABill",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor,pharmacy"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors\/patient\/{patientId}\/histories",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsHistoryController@getPatientHistory",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor",
+            "App\\Http\\Middleware\\EnsureDoctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors\/patient\/{patientId}\/medicine-histories",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsMedicineHistoryController@getMedicineHistories",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:pharmacy,doctor,admin",
+            "App\\Http\\Middleware\\EnsureDoctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors\/{doctor}",
+        "name": "doctors.show",
+        "action": "App\\Http\\Controllers\\DoctorController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/doctors\/{doctor}",
+        "name": "doctors.update",
+        "action": "App\\Http\\Controllers\\DoctorController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/doctors\/{doctor}",
+        "name": "doctors.destroy",
+        "action": "App\\Http\\Controllers\\DoctorController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/doctors\/{doctor}\/availabilities",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DoctorController@getDoctorAvailability",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/dropdown\/{table}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DropdownController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/drugs",
+        "name": "drugs.index",
+        "action": "App\\Http\\Controllers\\DrugController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/drugs",
+        "name": "drugs.store",
+        "action": "App\\Http\\Controllers\\DrugController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/drugs\/stock-sale-data",
+        "name": null,
+        "action": "App\\Http\\Controllers\\DrugController@getDrugStockSaleData",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:pharmacy_admin,admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/drugs\/{drug}",
+        "name": "drugs.show",
+        "action": "App\\Http\\Controllers\\DrugController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/drugs\/{drug}",
+        "name": "drugs.update",
+        "action": "App\\Http\\Controllers\\DrugController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/drugs\/{drug}",
+        "name": "drugs.destroy",
+        "action": "App\\Http\\Controllers\\DrugController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/forgot-password",
+        "name": null,
+        "action": "App\\Http\\Controllers\\Auth\\PasswordResetLinkController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/hospitals",
+        "name": "hospitals.index",
+        "action": "App\\Http\\Controllers\\HospitalController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/hospitals",
+        "name": "hospitals.store",
+        "action": "App\\Http\\Controllers\\HospitalController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/hospitals\/{hospital}",
+        "name": "hospitals.show",
+        "action": "App\\Http\\Controllers\\HospitalController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/hospitals\/{hospital}",
+        "name": "hospitals.update",
+        "action": "App\\Http\\Controllers\\HospitalController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/hospitals\/{hospital}",
+        "name": "hospitals.destroy",
+        "action": "App\\Http\\Controllers\\HospitalController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/login",
+        "name": null,
+        "action": "App\\Http\\Controllers\\AuthController@login",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/logout",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientAuthController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/otp\/request",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PhoneVerificationController@request",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/otp\/resend\/{token}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PhoneVerificationController@resend",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/otp\/validate\/{token}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PhoneVerificationController@validate",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/patient-medicine-histories",
+        "name": "patient-medicine-histories.index",
+        "action": "App\\Http\\Controllers\\PatientsMedicineHistoryController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception,pharmacy,pharmacy_admin,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patient-medicine-histories",
+        "name": "patient-medicine-histories.store",
+        "action": "App\\Http\\Controllers\\PatientsMedicineHistoryController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception,pharmacy,pharmacy_admin,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/patient-medicine-histories\/{patient_medicine_history}",
+        "name": "patient-medicine-histories.show",
+        "action": "App\\Http\\Controllers\\PatientsMedicineHistoryController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception,pharmacy,pharmacy_admin,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/patient-medicine-histories\/{patient_medicine_history}",
+        "name": "patient-medicine-histories.update",
+        "action": "App\\Http\\Controllers\\PatientsMedicineHistoryController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception,pharmacy,pharmacy_admin,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/patient-medicine-histories\/{patient_medicine_history}",
+        "name": "patient-medicine-histories.destroy",
+        "action": "App\\Http\\Controllers\\PatientsMedicineHistoryController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception,pharmacy,pharmacy_admin,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patient\/change-password",
+        "name": null,
+        "action": "App\\Http\\Controllers\\Auth\\PasswordController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patient\/create-patient",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/patient\/delete-patient\/{patient}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patient\/forgot-password",
+        "name": null,
+        "action": "App\\Http\\Controllers\\Auth\\PasswordResetLinkController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patient\/login",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientAuthController@login",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patient\/logout",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientAuthController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patient\/register",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientAuthController@register",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patient\/reset-password",
+        "name": null,
+        "action": "App\\Http\\Controllers\\Auth\\NewPasswordController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT",
+        "uri": "api\/patient\/update-patient\/{patient}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT",
+        "uri": "api\/patient\/update-profile",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientAuthController@updateProfile",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/patient\/user",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientController@loggedUserDetailsForWeb",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\EnsurePatient",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/patient\/user-patients",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientController@usersPatientsListForWeb",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\EnsurePatient",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/patients",
+        "name": "patients.index",
+        "action": "App\\Http\\Controllers\\PatientController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patients",
+        "name": "patients.store",
+        "action": "App\\Http\\Controllers\\PatientController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patients\/add-allergy",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsAllergyController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patients\/add-disease",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsDiseaseController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patients\/add-history",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsHistoryController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor",
+            "App\\Http\\Middleware\\EnsureDoctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/patients\/add-medicine",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsMedicineHistoryController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor",
+            "App\\Http\\Middleware\\EnsureDoctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/patients\/remove-allergy\/{allergyId}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsAllergyController@removeAllergy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/patients\/remove-disease\/{diseaseId}",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientsDiseaseController@removeDisease",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/patients\/search",
+        "name": null,
+        "action": "App\\Http\\Controllers\\PatientController@search",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/patients\/{patient}",
+        "name": "patients.show",
+        "action": "App\\Http\\Controllers\\PatientController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/patients\/{patient}",
+        "name": "patients.update",
+        "action": "App\\Http\\Controllers\\PatientController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/patients\/{patient}",
+        "name": "patients.destroy",
+        "action": "App\\Http\\Controllers\\PatientController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,reception"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/register",
+        "name": null,
+        "action": "App\\Http\\Controllers\\AuthController@register",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/reports",
+        "name": null,
+        "action": "App\\Http\\Controllers\\ReportController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/reports\/service-costs",
+        "name": null,
+        "action": "App\\Http\\Controllers\\ReportController@serviceCostReport",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/reports\/services-with-positive-system-amount",
+        "name": null,
+        "action": "App\\Http\\Controllers\\ReportController@getServicesWithPositiveSystemAmount",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/reset-password",
+        "name": null,
+        "action": "App\\Http\\Controllers\\Auth\\NewPasswordController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/roles",
+        "name": "roles.index",
+        "action": "App\\Http\\Controllers\\RoleController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/roles",
+        "name": "roles.store",
+        "action": "App\\Http\\Controllers\\RoleController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/roles\/{role}",
+        "name": "roles.show",
+        "action": "App\\Http\\Controllers\\RoleController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/roles\/{role}",
+        "name": "roles.update",
+        "action": "App\\Http\\Controllers\\RoleController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/roles\/{role}",
+        "name": "roles.destroy",
+        "action": "App\\Http\\Controllers\\RoleController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/sales",
+        "name": "sales.index",
+        "action": "App\\Http\\Controllers\\SaleController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,reception,pharmacy,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/sales",
+        "name": "sales.store",
+        "action": "App\\Http\\Controllers\\SaleController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,reception,pharmacy,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT",
+        "uri": "api\/sales\/update-number-of-days",
+        "name": null,
+        "action": "App\\Http\\Controllers\\SaleController@updateNumberOfDays",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PATCH",
+        "uri": "api\/sales\/update-quantity",
+        "name": null,
+        "action": "App\\Http\\Controllers\\SaleController@changeStockQuantity",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:pharmacy_admin,admin,doctor,pharmacy"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/sales\/{sale}",
+        "name": "sales.show",
+        "action": "App\\Http\\Controllers\\SaleController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,reception,pharmacy,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/sales\/{sale}",
+        "name": "sales.update",
+        "action": "App\\Http\\Controllers\\SaleController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,reception,pharmacy,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/sales\/{sale}",
+        "name": "sales.destroy",
+        "action": "App\\Http\\Controllers\\SaleController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin,reception,pharmacy,doctor"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/services",
+        "name": "services.index",
+        "action": "App\\Http\\Controllers\\ServiceController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/services",
+        "name": "services.store",
+        "action": "App\\Http\\Controllers\\ServiceController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/services\/{service}",
+        "name": "services.show",
+        "action": "App\\Http\\Controllers\\ServiceController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/services\/{service}",
+        "name": "services.update",
+        "action": "App\\Http\\Controllers\\ServiceController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/services\/{service}",
+        "name": "services.destroy",
+        "action": "App\\Http\\Controllers\\ServiceController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/specialties",
+        "name": "specialties.index",
+        "action": "App\\Http\\Controllers\\SpecialtyController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/specialties",
+        "name": "specialties.store",
+        "action": "App\\Http\\Controllers\\SpecialtyController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/specialties\/{specialty}",
+        "name": "specialties.show",
+        "action": "App\\Http\\Controllers\\SpecialtyController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/specialties\/{specialty}",
+        "name": "specialties.update",
+        "action": "App\\Http\\Controllers\\SpecialtyController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/specialties\/{specialty}",
+        "name": "specialties.destroy",
+        "action": "App\\Http\\Controllers\\SpecialtyController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/stocks",
+        "name": "stocks.index",
+        "action": "App\\Http\\Controllers\\StockController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/stocks",
+        "name": "stocks.store",
+        "action": "App\\Http\\Controllers\\StockController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/stocks\/{stock}",
+        "name": "stocks.show",
+        "action": "App\\Http\\Controllers\\StockController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/stocks\/{stock}",
+        "name": "stocks.update",
+        "action": "App\\Http\\Controllers\\StockController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/stocks\/{stock}",
+        "name": "stocks.destroy",
+        "action": "App\\Http\\Controllers\\StockController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/suppliers",
+        "name": "suppliers.index",
+        "action": "App\\Http\\Controllers\\SupplierController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/suppliers",
+        "name": "suppliers.store",
+        "action": "App\\Http\\Controllers\\SupplierController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/suppliers\/{supplier}",
+        "name": "suppliers.show",
+        "action": "App\\Http\\Controllers\\SupplierController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/suppliers\/{supplier}",
+        "name": "suppliers.update",
+        "action": "App\\Http\\Controllers\\SupplierController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/suppliers\/{supplier}",
+        "name": "suppliers.destroy",
+        "action": "App\\Http\\Controllers\\SupplierController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin,pharmacy_admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/trusted-sites",
+        "name": "trusted-sites.index",
+        "action": "App\\Http\\Controllers\\TrustedSiteController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/trusted-sites",
+        "name": "trusted-sites.store",
+        "action": "App\\Http\\Controllers\\TrustedSiteController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/trusted-sites\/{trusted_site}",
+        "name": "trusted-sites.show",
+        "action": "App\\Http\\Controllers\\TrustedSiteController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/trusted-sites\/{trusted_site}",
+        "name": "trusted-sites.update",
+        "action": "App\\Http\\Controllers\\TrustedSiteController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/trusted-sites\/{trusted_site}",
+        "name": "trusted-sites.destroy",
+        "action": "App\\Http\\Controllers\\TrustedSiteController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/users",
+        "name": "users.index",
+        "action": "App\\Http\\Controllers\\UserController@index",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/users",
+        "name": "users.store",
+        "action": "App\\Http\\Controllers\\UserController@store",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "api\/users\/create-from-doctor",
+        "name": null,
+        "action": "App\\Http\\Controllers\\UserController@createUserForDoctor",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "Illuminate\\Auth\\Middleware\\Authenticate:sanctum",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "api\/users\/{user}",
+        "name": "users.show",
+        "action": "App\\Http\\Controllers\\UserController@show",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT|PATCH",
+        "uri": "api\/users\/{user}",
+        "name": "users.update",
+        "action": "App\\Http\\Controllers\\UserController@update",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "api\/users\/{user}",
+        "name": "users.destroy",
+        "action": "App\\Http\\Controllers\\UserController@destroy",
+        "middleware": [
+            "api",
+            "App\\Http\\Middleware\\VerifyApiKey",
+            "App\\Http\\Middleware\\RoleMiddleware:admin"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "confirm-password",
+        "name": "password.confirm",
+        "action": "App\\Http\\Controllers\\Auth\\ConfirmablePasswordController@show",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "confirm-password",
+        "name": null,
+        "action": "App\\Http\\Controllers\\Auth\\ConfirmablePasswordController@store",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "dashboard",
+        "name": "dashboard",
+        "action": "Closure",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "App\\Http\\Middleware\\EnsureEmailIsVerified"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "email\/verification-notification",
+        "name": "verification.send",
+        "action": "App\\Http\\Controllers\\Auth\\EmailVerificationNotificationController@store",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "Illuminate\\Routing\\Middleware\\ThrottleRequests:6,1"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "forgot-password",
+        "name": "password.request",
+        "action": "App\\Http\\Controllers\\Auth\\PasswordResetLinkController@create",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "forgot-password",
+        "name": "password.email",
+        "action": "App\\Http\\Controllers\\Auth\\PasswordResetLinkController@store",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "login",
+        "name": "login",
+        "action": "App\\Http\\Controllers\\Auth\\AuthenticatedSessionController@create",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "login",
+        "name": null,
+        "action": "App\\Http\\Controllers\\Auth\\AuthenticatedSessionController@store",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "logout",
+        "name": "logout",
+        "action": "App\\Http\\Controllers\\Auth\\AuthenticatedSessionController@destroy",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PUT",
+        "uri": "password",
+        "name": "password.update",
+        "action": "App\\Http\\Controllers\\Auth\\PasswordController@update",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "profile",
+        "name": "profile.edit",
+        "action": "App\\Http\\Controllers\\ProfileController@edit",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "PATCH",
+        "uri": "profile",
+        "name": "profile.update",
+        "action": "App\\Http\\Controllers\\ProfileController@update",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "DELETE",
+        "uri": "profile",
+        "name": "profile.destroy",
+        "action": "App\\Http\\Controllers\\ProfileController@destroy",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "register",
+        "name": "register",
+        "action": "App\\Http\\Controllers\\Auth\\RegisteredUserController@create",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "register",
+        "name": null,
+        "action": "App\\Http\\Controllers\\Auth\\RegisteredUserController@store",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "resend\/webhook",
+        "name": "resend.webhook",
+        "action": "Resend\\Laravel\\Http\\Controllers\\WebhookController@handleWebhook",
+        "middleware": []
+    },
+    {
+        "domain": null,
+        "method": "POST",
+        "uri": "reset-password",
+        "name": "password.store",
+        "action": "App\\Http\\Controllers\\Auth\\NewPasswordController@store",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "reset-password\/{token}",
+        "name": "password.reset",
+        "action": "App\\Http\\Controllers\\Auth\\NewPasswordController@create",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "sanctum\/csrf-cookie",
+        "name": "sanctum.csrf-cookie",
+        "action": "Laravel\\Sanctum\\Http\\Controllers\\CsrfCookieController@show",
+        "middleware": [
+            "web"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "up",
+        "name": null,
+        "action": "Closure",
+        "middleware": []
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "verify-email",
+        "name": "verification.notice",
+        "action": "App\\Http\\Controllers\\Auth\\EmailVerificationPromptController",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate"
+        ]
+    },
+    {
+        "domain": null,
+        "method": "GET|HEAD",
+        "uri": "verify-email\/{id}\/{hash}",
+        "name": "verification.verify",
+        "action": "App\\Http\\Controllers\\Auth\\VerifyEmailController",
+        "middleware": [
+            "web",
+            "Illuminate\\Auth\\Middleware\\Authenticate",
+            "Illuminate\\Routing\\Middleware\\ValidateSignature",
+            "Illuminate\\Routing\\Middleware\\ThrottleRequests:6,1"
+        ]
+    }
+]
