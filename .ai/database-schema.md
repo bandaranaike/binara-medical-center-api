@@ -16,6 +16,10 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
   - role records keyed by values such as `admin`, `doctor`, `reception`, `patient`, `pharmacy`, `pharmacy_admin`, `nurse`
 - `trusted_sites`
   - allowed `domain` + `api_key` pairs for the `X-API-KEY` / `Referer` gate
+- `public_app_tokens`
+  - bearer tokens for non-user application clients such as the Electron desktop app
+  - each token belongs to a trusted site
+  - stores hashed token value, abilities, expiry, revocation, and last-used timestamp
 - `phone_verifications`
   - OTP verification records for phone-based flows
 
@@ -94,6 +98,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 
 - `users.role_id -> roles.id`
 - `patients.user_id -> users.id`
+- `public_app_tokens.trusted_site_id -> trusted_sites.id`
 - `doctors.user_id -> users.id`
 - `doctors.hospital_id -> hospitals.id`
 - `doctors.specialty_id -> specialties.id`
@@ -167,6 +172,8 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 
 ## Practical schema notes
 
+- `/api/public/*` routes are authenticated by both `trusted_sites` and `public_app_tokens`.
+- `public_app_tokens` are app-level machine credentials, not staff or patient login tokens.
 - Booking creates a `bill`, related `bill_items`, and a `daily_patient_queues` row.
 - Pharmacy sales decrement `stocks` and persist per-batch deductions in `temporary_sales`.
 - Removing or changing a sale restores stock first, then re-applies deductions.

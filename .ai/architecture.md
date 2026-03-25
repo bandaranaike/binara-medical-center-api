@@ -31,15 +31,17 @@ High-level route layers:
 2. large `verify.apikey` route group
 3. nested authenticated routes
 4. public booking/patient endpoints that still require API-key access
-5. role-gated CRUD resources
-6. included `routes/admin.php`
-7. included `routes/otp.php`
+5. dedicated machine-authenticated `/api/public/*` routes for the Electron app
+6. role-gated CRUD resources
+7. included `routes/admin.php`
+8. included `routes/otp.php`
 
 ### Middleware stack
 
 Important aliases from `bootstrap/app.php`:
 
 - `verify.apikey`
+- `public.app.token`
 - `role`
 - `ensure.doctor`
 - `ensure.patient`
@@ -50,6 +52,7 @@ Cross-cutting access rules:
 - API routes are stateful-aware through Sanctum middleware
 - almost all API usage expects trusted external clients via API key + referer
 - route-level role checks enforce staff capabilities
+- Electron desktop routes add a separate app-token middleware and do not depend on user login
 
 ## 3. Code organization
 
@@ -71,6 +74,9 @@ Representative business controllers:
 - `SaleController`
 - `PatientAuthController`
 - `ReportController`
+- `PublicApi\PublicPatientController`
+- `PublicApi\PublicDoctorController`
+- `PublicApi\PublicBillController`
 
 ### Shared controller traits
 
@@ -127,6 +133,8 @@ Key aggregate roots:
 - `Sale`
 - `DoctorSchedule`
 - `DoctorAvailability`
+- `TrustedSite`
+- `PublicAppToken`
 
 ### Resources
 
@@ -153,6 +161,15 @@ Implication:
 - public booking reads from generated doctor availability
 - appointment creation adjusts seat inventory
 - bill + bill items + queue entry are created together
+
+### Public desktop API
+
+- `/api/public/*` is a separate machine-to-machine surface for the Electron app
+- authentication is two-layered:
+  - trusted site validation
+  - bearer token validation
+- no interactive staff login is required
+- the token model is app-scoped, not user-scoped
 
 ### Billing
 
@@ -201,6 +218,7 @@ Important commands:
 - `generate:calendar`
 - `app:reset-daily-queue`
 - `patient:update-ages`
+- `public-api:token`
 
 These support operational upkeep outside normal request handling.
 
@@ -226,6 +244,7 @@ There are PHPUnit feature tests around:
 - billing price/system-price logic
 - doctor availability calendar generation
 - print data preparation
+- public desktop API endpoints
 
 The tests are useful for identifying current behavior, but some areas still rely more on controller/trait inspection than broad integration coverage.
 

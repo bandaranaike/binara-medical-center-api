@@ -21,8 +21,8 @@ use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\DrugController;
 use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\PatientAuthController;
-use App\Http\Controllers\PatientsAllergyController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PatientsAllergyController;
 use App\Http\Controllers\PatientsDiseaseController;
 use App\Http\Controllers\PatientsHistoryController;
 use App\Http\Controllers\PatientsMedicineHistoryController;
@@ -45,7 +45,6 @@ Route::middleware(['auth:sanctum'])->get('/check-user-session', [AuthController:
 
 Route::middleware(['verify.apikey'])->group(function () {
 
-
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
@@ -57,12 +56,12 @@ Route::middleware(['verify.apikey'])->group(function () {
         Route::delete('patients/remove-disease/{diseaseId}', [PatientsDiseaseController::class, 'removeDisease'])
             ->middleware('role:doctor');
 
-        Route::get('bills/{billId}/sales', [SaleController::class, "getDrugSalesForBill"])
+        Route::get('bills/{billId}/sales', [SaleController::class, 'getDrugSalesForBill'])
             ->middleware('role:reception,pharmacy,pharmacy_admin,admin,doctor');
 
-        Route::get('bills/{billId}/bill-items', [BillItemController::class, "getBillItemsForBill"])
+        Route::get('bills/{billId}/bill-items', [BillItemController::class, 'getBillItemsForBill'])
             ->middleware('role:reception,pharmacy,pharmacy_admin,admin,doctor');
-        Route::get('bills/bookings/{time?}', [BillController::class, "bookings"])->middleware('role:reception,admin');
+        Route::get('bills/bookings/{time?}', [BillController::class, 'bookings'])->middleware('role:reception,admin');
         Route::get('bills/pending/doctor', [BillController::class, 'getPendingBillsForDoctor'])
             ->middleware(['role:doctor', 'ensure.doctor']);
         Route::get('bills/pending/pharmacy', [BillController::class, 'getPendingBillsForPharmacy'])
@@ -78,7 +77,7 @@ Route::middleware(['verify.apikey'])->group(function () {
             ->middleware(['role:pharmacy,doctor,admin', 'ensure.doctor']);
         Route::get('doctors/patient/bill/{billId}/medicine-histories', [PatientsMedicineHistoryController::class, 'getHistoryForABill'])
             ->middleware(['role:doctor,pharmacy']);
-        Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, "getFee"])
+        Route::get('doctor-channeling-fees/get-fee/{id}', [DoctorsChannelingFeeController::class, 'getFee'])
             ->middleware('role:reception');
         Route::get('dropdown/{table}', [DropdownController::class, 'index']);
         Route::get('drugs/stock-sale-data', [DrugController::class, 'getDrugStockSaleData'])
@@ -88,7 +87,6 @@ Route::middleware(['verify.apikey'])->group(function () {
         Route::patch('sales/update-quantity', [SaleController::class, 'changeStockQuantity'])
             ->middleware('role:pharmacy_admin,admin,doctor,pharmacy');
         Route::put('/sales/update-number-of-days', [SaleController::class, 'updateNumberOfDays']);
-
 
         Route::post('logout', [PatientAuthController::class, 'destroy']);
         Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])
@@ -112,7 +110,6 @@ Route::middleware(['verify.apikey'])->group(function () {
             Route::get('services-with-positive-system-amount', [ReportController::class, 'getServicesWithPositiveSystemAmount']);
         });
 
-
         Route::get('doctors/{doctor}/availabilities', [DoctorController::class, 'getDoctorAvailability'])
             ->middleware(['role:admin']);
     });
@@ -122,7 +119,6 @@ Route::middleware(['verify.apikey'])->group(function () {
      * |  Public AIPs                   |
      * +--------------------------------+
      */
-
     Route::delete('patient/delete-patient/{patient}', [PatientController::class, 'destroy'])->middleware('auth:sanctum');
 
     Route::get('bookings/doctors/list', [BookingController::class, 'getDoctorsList']);
@@ -154,12 +150,15 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::put('patient/update-profile', [PatientAuthController::class, 'updateProfile'])->middleware('auth:sanctum');
     Route::put('patient/update-patient/{patient}', [PatientController::class, 'update'])->middleware('auth:sanctum');
 
+    Route::prefix('public')->middleware('public.app.token')->group(function () {
+        require base_path('routes/public.php');
+    });
+
     /**
      * +--------------------------------+
      * |  End of Public AIPs            |
      * +--------------------------------+
      */
-
     Route::apiResource('allergies', AllergyController::class)->middleware(['role:admin']);
     Route::apiResource('bills', BillController::class)->middleware(['role:admin,reception']);
     Route::apiResource('bill-cruds', BillCrudController::class)->middleware(['role:admin,reception']);
@@ -188,5 +187,3 @@ Route::middleware(['verify.apikey'])->group(function () {
     require base_path('routes/admin.php');
     require base_path('routes/otp.php');
 });
-
-

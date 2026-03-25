@@ -20,10 +20,16 @@ Private endpoints add one or more of:
 - `ensure.doctor`
 - `ensure.patient`
 
+Separate machine-authenticated desktop endpoints now also exist under `/api/public/*` and use:
+
+- `verify.apikey`
+- `public.app.token`
+
 Main files:
 
 - `bootstrap/app.php`
 - `app/Http/Middleware/VerifyApiKey.php`
+- `app/Http/Middleware/AuthenticatePublicAppToken.php`
 - `app/Http/Middleware/RoleMiddleware.php`
 - `app/Http/Middleware/EnsureDoctor.php`
 - `app/Http/Middleware/EnsurePatient.php`
@@ -79,6 +85,36 @@ Main files:
 - `routes/otp.php`
 - `app/Http/Controllers/PhoneVerificationController.php`
 - `app/Http/Controllers/Traits/OTPManager.php`
+
+### Public desktop app token auth
+
+The Electron integration now has a dedicated machine-auth path:
+
+- trusted site validation via `X-API-KEY` + `Referer`
+- bearer token validation via `Authorization: Bearer <public-app-token>`
+- no staff login
+- no user session
+- no CSRF flow
+
+Current public desktop endpoints:
+
+- `GET /api/public/patients/search`
+- `POST /api/public/patients`
+- `PUT /api/public/patients/{id}`
+- `POST /api/public/patients/upsert`
+- `GET /api/public/doctors`
+- `POST /api/public/bills`
+
+Main files:
+
+- `app/Models/PublicAppToken.php`
+- `app/Http/Middleware/AuthenticatePublicAppToken.php`
+- `routes/public.php`
+- `app/Console/Commands/CreatePublicApiToken.php`
+
+Operational note:
+
+- new public bearer tokens are issued with `php artisan public-api:token {trusted_site} {name}`
 
 ## 3. Booking and appointments
 
@@ -187,6 +223,7 @@ Main files:
 - `app/Http/Controllers/BillController.php`
 - `app/Http/Controllers/BillCrudController.php`
 - `app/Http/Controllers/BillItemController.php`
+- `app/Http/Controllers/PublicApi/PublicBillController.php`
 - `app/Http/Controllers/Traits/PrintingDataProcess.php`
 - `app/Http/Controllers/Traits/SystemPriceCalculator.php`
 
@@ -245,8 +282,38 @@ Main files:
 - `app/Http/Controllers/PatientsDiseaseController.php`
 - `app/Http/Controllers/PatientsHistoryController.php`
 - `app/Http/Controllers/PatientsMedicineHistoryController.php`
+- `app/Http/Controllers/PublicApi/PublicPatientController.php`
 
-## 8. Master-data CRUD modules
+## 8. Public desktop billing API
+
+This is a separate API surface for the Electron medical-center application.
+
+Main capabilities:
+
+- search patients by name or telephone
+- create patients
+- update patients
+- upsert patients by telephone
+- list doctors for billing selection
+- create bills without interactive staff login
+
+Important behavior:
+
+- public app tokens are bound to trusted sites
+- the desktop app must send both trusted-site headers and bearer token
+- bill creation still creates queue entries
+- when a service-type maps to an existing default service, a default bill item is inserted
+
+Main files:
+
+- `app/Http/Controllers/PublicApi/PublicPatientController.php`
+- `app/Http/Controllers/PublicApi/PublicDoctorController.php`
+- `app/Http/Controllers/PublicApi/PublicBillController.php`
+- `app/Http/Requests/PublicApi/*`
+- `app/Http/Middleware/AuthenticatePublicAppToken.php`
+- `routes/public.php`
+
+## 9. Master-data CRUD modules
 
 Many resources share generic CRUD behavior through `CrudTrait`.
 
@@ -281,7 +348,7 @@ Main file:
 
 - `app/Http/Controllers/Traits/CrudTrait.php`
 
-## 9. Reports
+## 10. Reports
 
 Admin report endpoints expose operational and revenue summaries.
 
@@ -299,7 +366,7 @@ Main file:
 
 - `app/Http/Controllers/ReportController.php`
 
-## 10. Miscellaneous modules
+## 11. Miscellaneous modules
 
 - `ContactController`
   - accepts public contact submissions
@@ -308,7 +375,7 @@ Main file:
 - `TrustedSiteController`
   - manages domains/API keys allowed through the API-key gate
 
-## 11. Operational commands
+## 12. Operational commands
 
 - `generate:calendar`
   - bulk-generate doctor availability rows
@@ -316,9 +383,12 @@ Main file:
   - clears prior queue data
 - `patient:update-ages`
   - recalculates patient ages
+- `public-api:token`
+  - issues bearer tokens for machine clients such as the Electron desktop app
 
 Main files:
 
 - `app/Console/Commands/GenerateDoctorsAvailabilityCalendar.php`
 - `app/Console/Commands/ResetDailyQueue.php`
 - `app/Console/Commands/UpdatePatientAges.php`
+- `app/Console/Commands/CreatePublicApiToken.php`
