@@ -137,7 +137,8 @@ Main behavior of appointment creation:
 7. create the bill
 8. create default bill items
 9. create daily queue entry
-10. return booking reference and queue number
+10. assign bill and booking registration numbers
+11. return booking reference and queue number
 
 Main files:
 
@@ -183,6 +184,8 @@ Billing is the center of the app.
 
 Bills can be created directly or via booking. A bill stores:
 
+- bill registration number
+- booking registration number when the bill is a booking
 - patient
 - doctor
 - date

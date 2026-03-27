@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\PublicApi;
 
 use App\Enums\AppointmentType;
 use App\Enums\BillStatus;
 use App\Enums\UserRole;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\BillTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
 use App\Http\Controllers\Traits\DoctorAvailabilityTrait;
 use App\Http\Controllers\Traits\OTPManager;
-use App\Http\Controllers\Traits\PrintingDataProcess;
 use App\Http\Controllers\Traits\ServiceType;
-use App\Http\Requests\Website\StoreBookingRequest;
-use App\Http\Resources\PatientAppointmentHistory;
+use App\Http\Controllers\Traits\SystemPriceCalculator;
+use App\Http\Requests\PublicApi\StorePublicBookingRequest;
 use App\Models\Bill;
 use App\Models\Doctor;
 use App\Models\Patient;
@@ -21,45 +21,50 @@ use App\Models\Role;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class BookingController extends Controller
+class PublicBookingController extends Controller
 {
     use BillItemsTrait;
     use BillTrait;
     use DailyPatientQueueTrait;
     use DoctorAvailabilityTrait;
     use OTPManager;
-    use PrintingDataProcess;
     use ServiceType;
+    use SystemPriceCalculator;
 
-    public function makeAppointment(StoreBookingRequest $request): JsonResponse
+    public function makeAppointment(StorePublicBookingRequest $request): JsonResponse
     {
         $data = $request->validated();
 
         try {
             $this->checkPhoneHasVerified($data['phone']);
         } catch (Exception $exception) {
-            return new JsonResponse($exception->getMessage(), 422);
+            return response()->json($exception->getMessage(), 422);
         }
 
         try {
             $this->adjustDoctorSeats($data['doctor_id'], $data['date']);
         } catch (Exception $exception) {
-            return new JsonResponse($exception->getMessage(), 422);
+            return response()->json($exception->getMessage(), 422);
         }
 
-        $patientId = $this->getOrCreatePatient($data['name'], $data['phone'], $data['age'], $data['email'], $request->input('user_id'));
+        $patientId = $this->getOrCreatePatient(
+            $data['name'],
+            $data['phone'],
+            $data['age'],
+            $data['email'] ?? null,
+            $data['user_id'] ?? null,
+        );
 
         try {
             $this->hasPatientHasBook($data['date'], $patientId, $data['doctor_id']);
         } catch (Exception $exception) {
-            return new JsonResponse($exception->getMessage(), 422);
+            return response()->json($exception->getMessage(), 422);
         }
 
-        $service = $this->getService($request->input('doctor_type'));
+        $service = $this->getService($data['doctor_type']);
         [$billAmount, $systemAmount] = $this->getBillPriceAndSystemPrice($service);
 
         $bill = Bill::create([
@@ -74,11 +79,11 @@ class BookingController extends Controller
 
         $this->insertBillItems($service->id, $systemAmount, $billAmount, $bill->id);
 
-        $bookingNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id']);
+        $bookingNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id'], $data['date']);
 
         [$doctorName, $doctorSpecialty] = $this->getDoctorDetails($data['doctor_id'], $data['doctor_type']);
 
-        return new JsonResponse([
+        return response()->json([
             'doctor_name' => $doctorName,
             'doctor_specialty' => $doctorSpecialty,
             'booking_number' => $bookingNumber,
@@ -91,63 +96,50 @@ class BookingController extends Controller
         ]);
     }
 
-    public function getOrCreatePatient($name, $phone, $age, $email, $user_uuid): int
-    {
-        if ($user_uuid) {
-            $user = User::where('uuid', $user_uuid)->first();
+    private function getOrCreatePatient(
+        string $name,
+        string $phone,
+        int|float|string $age,
+        ?string $email,
+        ?string $userUuid,
+    ): int {
+        if ($userUuid !== null) {
+            $user = User::query()->where('uuid', $userUuid)->firstOrFail();
         } else {
-            $user = User::firstOrCreate(
+            $patientRoleId = Role::query()
+                ->where('key', UserRole::PATIENT->value)
+                ->value('id');
+
+            $user = User::query()->firstOrCreate(
                 ['phone' => $phone],
                 [
                     'email' => $email,
                     'name' => $name,
-                    'role_id' => Role::where('key', UserRole::PATIENT->value)->first()->id,
+                    'role_id' => $patientRoleId,
                     'phone_verified_at' => now(),
                     'password' => Hash::make(Str::random(8)),
                 ],
             );
         }
 
-        $patient = Patient::firstOrCreate(
+        $patient = Patient::query()->firstOrCreate(
             ['name' => $name, 'telephone' => $phone, 'user_id' => $user->id],
-            ['age' => $age, 'email' => $email]
+            ['age' => $age, 'email' => $email],
         );
 
         return $patient->id;
     }
 
-    private function getDoctorDetails($doctorId, $type): array
+    private function getDoctorDetails(int $doctorId, string $type): array
     {
-        if ($type == AppointmentType::SPECIALIST) {
-            $doctor = Doctor::with('specialty:id,name')->find($doctorId);
+        if ($type === AppointmentType::SPECIALIST->value) {
+            $doctor = Doctor::query()->with('specialty:id,name')->findOrFail($doctorId);
 
             return [$doctor->name, $doctor->specialty->name];
-        } else {
-            $doctor = Doctor::find($doctorId);
-
-            return [$doctor->name, 'Dental Surgical Doctor'];
         }
-    }
 
-    public function getPatientsHistoryForWeb(Request $request): JsonResponse
-    {
-        $patientBillHistories = Bill::whereIn('patient_id', $request->get('ensure_middleware_patient_ids'))
-            ->with('doctor.specialty:id,name')
-            ->with('patient:id,name')
-            ->with('doctor:id,name,specialty_id')
-            ->select([
-                'id',
-                'patient_id',
-                'doctor_id',
-                'bill_registration_number',
-                'booking_registration_number',
-                'payment_status',
-                'appointment_type',
-                'status',
-                'date',
-            ])
-            ->get();
+        $doctor = Doctor::query()->findOrFail($doctorId);
 
-        return new JsonResponse(PatientAppointmentHistory::collection($patientBillHistories));
+        return [$doctor->name, 'Dental Surgical Doctor'];
     }
 }

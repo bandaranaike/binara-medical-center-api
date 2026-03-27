@@ -50,6 +50,8 @@ class PublicBillController extends Controller
             'id' => $bill->id,
             'uuid' => $bill->uuid,
             'reference' => $bill->uuid,
+            'bill_registration_number' => $bill->bill_registration_number,
+            'booking_registration_number' => $bill->booking_registration_number,
             'patient_id' => $bill->patient_id,
             'doctor_id' => $bill->doctor_id,
             'bill_amount' => (float) $bill->bill_amount,

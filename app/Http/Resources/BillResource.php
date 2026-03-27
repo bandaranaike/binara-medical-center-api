@@ -16,6 +16,8 @@ class BillResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'bill_registration_number' => $this->bill_registration_number,
+            'booking_registration_number' => $this->booking_registration_number,
             'system_amount' => $this->system_amount,
             'bill_amount' => $this->bill_amount,
             'patient_id' => $this->patient_id,
@@ -23,7 +25,7 @@ class BillResource extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'bill_items' => $this->billItems->map(function($billItem) {
+            'bill_items' => $this->billItems->map(function ($billItem) {
                 return [
                     'id' => $billItem->id,
                     'service_id' => $billItem->service_id,
@@ -32,7 +34,7 @@ class BillResource extends JsonResource
                     'created_at' => $billItem->created_at,
                     'updated_at' => $billItem->updated_at,
                 ];
-            })
+            }),
         ];
     }
 }

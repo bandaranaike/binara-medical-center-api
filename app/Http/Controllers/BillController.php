@@ -30,7 +30,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 
-
 class BillController extends Controller
 {
     use BillItemsTrait;
@@ -45,6 +44,7 @@ class BillController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $bills = Bill::all();
+
         return BillResource::collection($bills);
     }
 
@@ -62,7 +62,7 @@ class BillController extends Controller
         $service = $this->getService($request->input('service_type'));
 
         $bill = Bill::firstOrCreate(
-            ["id" => $request->get('bill_id')],
+            ['id' => $request->get('bill_id')],
             [...$data, 'status' => $status, 'appointment_type' => $service->name, 'date' => $date]
         );
 
@@ -77,8 +77,8 @@ class BillController extends Controller
 
         return new JsonResponse([
             ...$this->billPrintingResponse($bill, false, $request->input('bill_reference')),
-            "queue_id" => $queueNumber,
-            "warning" => $duplicate ? 'Note: This patient already has a booking with the same doctor on this date.' : null,
+            'queue_id' => $queueNumber,
+            'warning' => $duplicate ? 'Note: This patient already has a booking with the same doctor on this date.' : null,
         ], 201);
     }
 
@@ -96,13 +96,15 @@ class BillController extends Controller
         $billData = $this->getBillItemsFroPrint($bill->id, $excludeDentalRegFee);
 
         return [
-            "bill_reference" => "$billReference",
-            "payment_type" => $bill->payment_type,
-            "bill_id" => $bill->id,
-            "bill_items" => $billData['items'],
+            'bill_reference' => "$billReference",
+            'payment_type' => $bill->payment_type,
+            'bill_id' => $bill->id,
+            'bill_registration_number' => $bill->bill_registration_number,
+            'booking_registration_number' => $bill->booking_registration_number,
+            'bill_items' => $billData['items'],
             'patient_name' => $bill->patient->name,
             'doctor_name' => $bill->doctor?->name,
-            'total' => number_format($billData['total'] + $billData['system_total'], 2)
+            'total' => number_format($billData['total'] + $billData['system_total'], 2),
         ];
     }
 
@@ -126,8 +128,6 @@ class BillController extends Controller
 
     /**
      * Get all pending bills.
-     *
-     * @return JsonResponse
      */
     public function getPendingBillsForDoctor(): JsonResponse
     {
@@ -143,7 +143,15 @@ class BillController extends Controller
                     ->orderBy('created_at', 'desc');
             })
             ->join('daily_patient_queues', 'bills.id', '=', 'daily_patient_queues.bill_id', 'left')
-            ->select(['bills.id', 'patient_id', 'uuid', 'bills.doctor_id', 'daily_patient_queues.queue_number'])
+            ->select([
+                'bills.id',
+                'patient_id',
+                'uuid',
+                'bill_registration_number',
+                'booking_registration_number',
+                'bills.doctor_id',
+                'daily_patient_queues.queue_number',
+            ])
             ->where('bills.doctor_id', '=', $doctorId)
             ->orderBy('daily_patient_queues.order_number')
             ->get();
@@ -153,8 +161,6 @@ class BillController extends Controller
 
     /**
      * Get all pending bills.
-     *
-     * @return JsonResponse
      */
     public function getPendingBillsForPharmacy(): JsonResponse
     {
@@ -183,8 +189,6 @@ class BillController extends Controller
 
     /**
      * Get all pending bills.
-     *
-     * @return JsonResponse
      */
     public function getPendingBillsForReception(): JsonResponse
     {
@@ -193,8 +197,8 @@ class BillController extends Controller
             'doctor:id,name',
             'dailyPatientQueue:id,bill_id,queue_number,queue_date',
         ])
-            ->withSum('billItems as system_amount','system_amount')
-            ->withSum('billItems as bill_amount','bill_amount')
+            ->withSum('billItems as system_amount', 'system_amount')
+            ->withSum('billItems as bill_amount', 'bill_amount')
             ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
             ->orderByDesc('id')
             ->get();
@@ -204,15 +208,11 @@ class BillController extends Controller
 
     /**
      * Finalize the bill by updating its status and bill amount.
-     *
-     * @param Request $request
-     * @param int $billId
-     * @return JsonResponse
      */
     public function sendBillToReception(Request $request, int $billId): JsonResponse
     {
         $validatedData = $request->validate([
-            'status' => 'required|string|in:' . BillStatus::RECEPTION->value,
+            'status' => 'required|string|in:'.BillStatus::RECEPTION->value,
             'bill_amount' => 'required|numeric|min:0',
             'system_amount' => 'required|numeric|min:0',
         ]);
@@ -229,12 +229,12 @@ class BillController extends Controller
 
             return new JsonResponse([
                 'message' => 'Bill finalized successfully',
-                'data' => $bill
+                'data' => $bill,
             ]);
         } catch (Exception $e) {
             return new JsonResponse([
                 'message' => 'Failed to finalize the bill',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -243,7 +243,7 @@ class BillController extends Controller
     {
         $validated = $request->validated();
 
-        if (!$bill = Bill::with('patient:id,name')
+        if (! $bill = Bill::with('patient:id,name')
             ->with('doctor:id,name')->find($billId)) {
             return new JsonResponse(['message' => 'Bill not found'], 404);
         }
@@ -272,7 +272,7 @@ class BillController extends Controller
         return new JsonResponse([
             'message' => 'Bill status updated successfully',
             'bill' => $bill,
-            ...$this->billPrintingResponse($bill, false)
+            ...$this->billPrintingResponse($bill, false),
         ]);
     }
 
@@ -290,13 +290,13 @@ class BillController extends Controller
             ->with([
                 'doctor:id,name',
                 'patient:id,name',
-                'dailyPatientQueue:id,bill_id,queue_number,queue_date'
+                'dailyPatientQueue:id,bill_id,queue_number,queue_date',
             ]);
 
         match ($filter) {
             BookingTimeFilter::TODAY => $bookingsQuery->whereBetween('date', [
                 $now->copy()->startOfDay(),
-                $now->copy()->endOfDay()
+                $now->copy()->endOfDay(),
             ]),
             BookingTimeFilter::FUTURE => $bookingsQuery->where('date', '>', $now->copy()->endOfDay()),
             BookingTimeFilter::OLD => $bookingsQuery->where('date', '<', $now->copy()->startOfDay()),
@@ -320,28 +320,28 @@ class BillController extends Controller
                 'status' => $status,
                 'doctor_id' => $doctorId,
                 'patient_id' => $validatedData['patient_id'],
-                'bill_amount' => $validatedData['bill_amount']
+                'bill_amount' => $validatedData['bill_amount'],
             ]);
 
         $queueNumber = $this->createDailyPatientQueue($billId, $doctorId);
 
-        return new JsonResponse(["bill_id" => $billId, "queue_id" => $queueNumber]);
+        return new JsonResponse(['bill_id' => $billId, 'queue_id' => $queueNumber]);
     }
 
     public function destroy(string $id): JsonResponse
     {
         try {
             $bill = Bill::where('status', '!=', BillStatus::DONE)->where('uuid', $id)->first();
-            if (!$bill) {
+            if (! $bill) {
                 return new JsonResponse(['message' => 'Bill not found'], 404);
             }
             $bill->dailyPatientQueue()->delete();
             $bill->billItems()->delete();
             $bill->delete();
+
             return new JsonResponse(['message' => 'Bill deleted successfully'], 200);
         } catch (Exception $e) {
             return new JsonResponse(['message' => 'Error deleting bill', 'error' => $e->getMessage()], 500);
         }
     }
-
 }

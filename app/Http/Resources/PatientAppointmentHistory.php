@@ -15,13 +15,15 @@ class PatientAppointmentHistory extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id" => $this->id,
-            "appointmentType" => $this->appointment_type,
-            "doctorName" => $this->doctor?->name ?? 'No doctor',
-            "patientName" => $this->patient?->name,
-            "date" => $this->date,
-            "paymentStatus" => $this->payment_status,
-            "status" => $this->status,
+            'id' => $this->id,
+            'billRegistrationNumber' => $this->bill_registration_number,
+            'bookingRegistrationNumber' => $this->booking_registration_number,
+            'appointmentType' => $this->appointment_type,
+            'doctorName' => $this->doctor?->name ?? 'No doctor',
+            'patientName' => $this->patient?->name,
+            'date' => $this->date,
+            'paymentStatus' => $this->payment_status,
+            'status' => $this->status,
         ];
     }
 }

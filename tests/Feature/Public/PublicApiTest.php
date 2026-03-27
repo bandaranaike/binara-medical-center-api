@@ -11,6 +11,7 @@ use App\Models\Doctor;
 use App\Models\DoctorAvailability;
 use App\Models\Hospital;
 use App\Models\Patient;
+use App\Models\PhoneVerification;
 use App\Models\PublicAppToken;
 use App\Models\Role;
 use App\Models\Service;
@@ -345,6 +346,10 @@ class PublicApiTest extends TestCase
         $bill = Bill::query()->first();
 
         $this->assertNotNull($bill);
+        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $payload['bill_registration_number']);
+        $this->assertNull($payload['booking_registration_number']);
+        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $bill->bill_registration_number);
+        $this->assertNull($bill->booking_registration_number);
         $this->assertDatabaseHas('bill_items', [
             'bill_id' => $bill->id,
         ]);
@@ -355,6 +360,113 @@ class PublicApiTest extends TestCase
         ]);
 
         Event::assertDispatched(NewBillCreated::class);
+    }
+
+    public function test_public_booking_make_appointment_matches_booking_flow(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        Role::query()->create([
+            'name' => 'Patient',
+            'key' => 'patient',
+            'description' => 'Patient role',
+        ]);
+
+        $doctorRole = Role::query()->create([
+            'name' => 'Doctor',
+            'key' => 'doctor',
+            'description' => 'Doctor role',
+        ]);
+
+        $specialty = Specialty::query()->create(['name' => 'Cardiology']);
+        $hospital = Hospital::query()->create(['name' => 'Heart Center', 'location' => 'Colombo']);
+        $doctor = Doctor::query()->create([
+            'name' => 'Dr. Public Booking',
+            'hospital_id' => $hospital->id,
+            'specialty_id' => $specialty->id,
+            'user_id' => User::factory()->create(['role_id' => $doctorRole->id])->id,
+            'telephone' => '+94770000011',
+            'email' => 'public-booking@example.com',
+            'doctor_type' => AppointmentType::SPECIALIST->value,
+        ]);
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $doctor->id,
+            'date' => '2026-03-27',
+            'time' => '09:00:00',
+            'seats' => 5,
+            'available_seats' => 5,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
+        ]);
+
+        Service::query()->create([
+            'name' => 'Specialist Channeling',
+            'key' => 'channeling',
+            'bill_price' => 2500,
+            'system_price' => 500,
+        ]);
+
+        PhoneVerification::query()->create([
+            'phone_number' => '0771234567',
+            'otp' => '123456',
+            'token' => 'verified-token',
+            'verified_at' => now(),
+            'expires_at' => now()->addMinutes(10),
+        ]);
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'POST',
+            '/api/public/bookings/make-appointment',
+            [
+                'name' => 'John Public',
+                'phone' => '0771234567',
+                'email' => 'john.public@example.com',
+                'age' => 30,
+                'doctor_id' => $doctor->id,
+                'doctor_type' => AppointmentType::SPECIALIST->value,
+                'date' => '2026-03-27',
+            ],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertSame('Dr. Public Booking', $payload['doctor_name']);
+        $this->assertSame('Cardiology', $payload['doctor_specialty']);
+        $this->assertSame(1, $payload['booking_number']);
+        $this->assertSame('2026-03-27', $payload['date']);
+        $this->assertArrayHasKey('reference', $payload);
+        $this->assertArrayHasKey('generated_at', $payload);
+        $this->assertArrayHasKey('bill_id', $payload);
+
+        $bill = Bill::query()->find($payload['bill_id']);
+
+        $this->assertNotNull($bill);
+        $this->assertSame('booked', $bill->status);
+        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $payload['bill_registration_number']);
+        $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $payload['booking_registration_number']);
+        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $bill->bill_registration_number);
+        $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $bill->booking_registration_number);
+        $this->assertDatabaseHas('patients', [
+            'name' => 'John Public',
+            'telephone' => '0771234567',
+        ]);
+        $this->assertDatabaseHas('bill_items', [
+            'bill_id' => $bill->id,
+        ]);
+        $this->assertDatabaseHas('daily_patient_queues', [
+            'bill_id' => $bill->id,
+            'doctor_id' => $doctor->id,
+            'queue_date' => '2026-03-27',
+            'queue_number' => 1,
+        ]);
+        $this->assertSame(
+            4,
+            DoctorAvailability::query()
+                ->where('doctor_id', $doctor->id)
+                ->where('date', '2026-03-27')
+                ->firstOrFail()
+                ->available_seats,
+        );
     }
 
     private function createTrustedSiteWithToken(): array

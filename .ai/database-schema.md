@@ -64,6 +64,8 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 - `bills`
   - central encounter / booking / bill record
   - links patient and doctor
+  - stores `bill_registration_number` for every bill
+  - stores `booking_registration_number` for booked appointments
   - stores workflow status, payment data, appointment type, date, shift
   - soft deletes enabled
 - `bill_items`
