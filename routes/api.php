@@ -20,6 +20,7 @@ use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\DrugController;
 use App\Http\Controllers\HospitalController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\PatientAuthController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientsAllergyController;
@@ -139,6 +140,7 @@ Route::middleware(['verify.apikey'])->group(function () {
 
     Route::post('bookings/make-appointment', [BookingController::class, 'makeAppointment']);
     Route::post('contacts', [ContactController::class, 'store']);
+    Route::get('holidays/today-status', [HolidayController::class, 'todayStatus']);
     Route::post('patient/create-patient', [PatientController::class, 'store'])->middleware('auth:sanctum');
     Route::post('patient/change-password', [PasswordController::class, 'update'])->middleware('auth:sanctum');
     Route::post('patient/forgot-password', [PasswordResetLinkController::class, 'store']);
