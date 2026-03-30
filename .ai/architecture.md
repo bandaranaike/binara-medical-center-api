@@ -77,6 +77,7 @@ Representative business controllers:
 - `PublicApi\PublicPatientController`
 - `PublicApi\PublicDoctorController`
 - `PublicApi\PublicBillController`
+- `PublicApi\PublicBookingController`
 
 ### Shared controller traits
 
@@ -170,6 +171,8 @@ Implication:
   - bearer token validation
 - no interactive staff login is required
 - the token model is app-scoped, not user-scoped
+- booking management for the desktop app reuses `bills` with `status = booked` instead of a separate bookings table
+- edit/delete flows must keep `doctor_availabilities` and `daily_patient_queues` in sync when the booked slot changes
 
 ### Billing
 

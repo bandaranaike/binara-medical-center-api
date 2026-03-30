@@ -20,7 +20,7 @@ class PublicPatientController extends Controller
         $normalizedLikeQuery = '%'.$normalizedQuery.'%';
 
         $patients = Patient::query()
-            ->select(['id', 'name', 'telephone', 'email', 'age', 'gender', 'address', 'birthday'])
+            ->select(['id', 'name', 'telephone', 'email', 'registration_no', 'age', 'gender', 'address', 'birthday'])
             ->where(function ($builder) use ($likeQuery, $normalizedLikeQuery) {
                 $builder->where('telephone', 'like', $likeQuery)
                     ->orWhere('telephone', 'like', $normalizedLikeQuery)
@@ -119,6 +119,7 @@ class PublicPatientController extends Controller
             'name' => $patient->name,
             'telephone' => $patient->telephone,
             'email' => $patient->email,
+            'registration_no' => $patient->registration_no,
             'age' => $patient->age,
             'gender' => $patient->gender,
             'address' => $patient->address,

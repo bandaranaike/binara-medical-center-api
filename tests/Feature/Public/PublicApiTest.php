@@ -3,10 +3,12 @@
 namespace Tests\Feature\Public;
 
 use App\Enums\AppointmentType;
+use App\Enums\BillStatus;
 use App\Enums\DoctorAvailabilityStatus;
 use App\Enums\PaymentType;
 use App\Events\NewBillCreated;
 use App\Models\Bill;
+use App\Models\DailyPatientQueue;
 use App\Models\Doctor;
 use App\Models\DoctorAvailability;
 use App\Models\Hospital;
@@ -434,7 +436,7 @@ class PublicApiTest extends TestCase
         $this->assertSame('Cardiology', $payload['doctor_specialty']);
         $this->assertSame(1, $payload['booking_number']);
         $this->assertSame('2026-03-27', $payload['date']);
-        $this->assertArrayHasKey('reference', $payload);
+        $this->assertStringStartsWith('BOOK-', $payload['reference']);
         $this->assertArrayHasKey('generated_at', $payload);
         $this->assertArrayHasKey('bill_id', $payload);
 
@@ -444,6 +446,7 @@ class PublicApiTest extends TestCase
         $this->assertSame('booked', $bill->status);
         $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $payload['bill_registration_number']);
         $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $payload['booking_registration_number']);
+        $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $payload['reference']);
         $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $bill->bill_registration_number);
         $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $bill->booking_registration_number);
         $this->assertDatabaseHas('patients', [
@@ -467,6 +470,283 @@ class PublicApiTest extends TestCase
                 ->firstOrFail()
                 ->available_seats,
         );
+    }
+
+    public function test_public_doctors_by_date_supports_type_alias_and_contract_shape(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        $specialty = Specialty::query()->create(['name' => 'Pediatrics']);
+        $hospital = Hospital::query()->create(['name' => 'Children Hospital', 'location' => 'Colombo']);
+        $doctorRole = Role::query()->create([
+            'name' => 'Doctor',
+            'key' => 'doctor',
+            'description' => 'Doctor role',
+        ]);
+
+        $doctor = Doctor::query()->create([
+            'name' => 'Dr. Alias',
+            'hospital_id' => $hospital->id,
+            'specialty_id' => $specialty->id,
+            'user_id' => User::factory()->create(['role_id' => $doctorRole->id])->id,
+            'telephone' => '+94770000021',
+            'email' => 'alias@example.com',
+            'doctor_type' => AppointmentType::OPD->value,
+        ]);
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $doctor->id,
+            'date' => '2026-03-30',
+            'time' => '09:30:00',
+            'seats' => 12,
+            'available_seats' => 7,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
+        ]);
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/doctors/by-date?date=2026-03-30&type=opd',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertSame('Dr. Alias', $payload['data'][0]['name']);
+        $this->assertSame('Pediatrics', $payload['data'][0]['specialty']);
+        $this->assertSame('2026-03-30', $payload['data'][0]['availability_date']);
+        $this->assertSame(7, $payload['data'][0]['available_seats']);
+        $this->assertNull($payload['data'][0]['address']);
+        $this->assertNull($payload['data'][0]['dental_split_mode']);
+        $this->assertNull($payload['data'][0]['dental_split_value']);
+    }
+
+    public function test_public_booking_list_and_show_return_date_filtered_bookings(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $booking = $this->createBookedBillWithRelations(date: '2026-03-30', registrationNo: 'REG-001');
+        $this->createBookedBillWithRelations(date: '2026-03-31', registrationNo: 'REG-002');
+
+        [$listStatus, $listPayload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/bookings?date=2026-03-30',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $listStatus);
+        $this->assertCount(1, $listPayload['data']);
+        $this->assertSame($booking->id, $listPayload['data'][0]['id']);
+        $this->assertSame($booking->booking_registration_number, $listPayload['data'][0]['reference']);
+        $this->assertSame('REG-001', $listPayload['data'][0]['patient']['registration_no']);
+        $this->assertSame(1, $listPayload['meta']['page']);
+        $this->assertSame(1, $listPayload['meta']['total']);
+
+        [$showStatus, $showPayload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/bookings/'.$booking->id,
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $showStatus);
+        $this->assertSame($booking->id, $showPayload['id']);
+        $this->assertSame('REG-001', $showPayload['patient']['registration_no']);
+        $this->assertSame($booking->doctor->name, $showPayload['doctor_name']);
+        $this->assertSame($booking->doctor->specialty->name, $showPayload['doctor_specialty']);
+    }
+
+    public function test_public_booking_update_restores_previous_slot_and_regenerates_queue(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $booking = $this->createBookedBillWithRelations(date: '2026-03-30', registrationNo: 'REG-010');
+        $newDate = '2026-03-31';
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $booking->doctor_id,
+            'date' => $newDate,
+            'time' => '09:00:00',
+            'seats' => 5,
+            'available_seats' => 5,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
+        ]);
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'PUT',
+            '/api/public/bookings/'.$booking->id,
+            [
+                'patient' => [
+                    'name' => 'Updated Patient',
+                    'telephone' => '0771234567',
+                    'email' => 'updated@example.com',
+                    'registration_no' => 'REG-999',
+                    'age' => 31,
+                    'gender' => 'female',
+                    'address' => 'Galle',
+                    'birthday' => '1995-02-14',
+                ],
+                'doctor_id' => $booking->doctor_id,
+                'doctor_type' => AppointmentType::SPECIALIST->value,
+                'date' => $newDate,
+                'shift' => 'morning',
+                'payment_type' => PaymentType::CARD->value,
+                'service_type' => AppointmentType::SPECIALIST->value,
+                'bill_amount' => 3200,
+                'system_amount' => 600,
+                'items' => [
+                    ['name' => 'Consultation', 'price' => 3200],
+                ],
+            ],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertSame('Booking updated successfully.', $payload['message']);
+        $this->assertSame($booking->booking_registration_number, $payload['booking']['reference']);
+        $this->assertSame($newDate, $payload['booking']['date']);
+
+        $booking->refresh();
+
+        $this->assertSame($newDate, substr((string) $booking->date, 0, 10));
+        $this->assertSame(PaymentType::CARD->value, $booking->payment_type);
+        $this->assertSame(3200.0, (float) $booking->bill_amount);
+        $this->assertSame(600.0, (float) $booking->system_amount);
+        $this->assertSame('Updated Patient', $booking->patient->name);
+        $this->assertSame('+94771234567', $booking->patient->telephone);
+        $this->assertSame('REG-999', $booking->patient->registration_no);
+        $this->assertDatabaseHas('daily_patient_queues', [
+            'bill_id' => $booking->id,
+            'queue_date' => $newDate,
+            'queue_number' => 1,
+        ]);
+        $this->assertDatabaseMissing('daily_patient_queues', [
+            'bill_id' => $booking->id,
+            'queue_date' => '2026-03-30',
+        ]);
+        $this->assertSame(5, DoctorAvailability::query()->where('doctor_id', $booking->doctor_id)->where('date', '2026-03-30')->firstOrFail()->available_seats);
+        $this->assertSame(4, DoctorAvailability::query()->where('doctor_id', $booking->doctor_id)->where('date', $newDate)->firstOrFail()->available_seats);
+    }
+
+    public function test_public_booking_delete_restores_seat_and_removes_booking_records(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $booking = $this->createBookedBillWithRelations(date: '2026-03-30', registrationNo: 'REG-020');
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'DELETE',
+            '/api/public/bookings/'.$booking->id,
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertSame('Booking deleted successfully.', $payload['message']);
+        $this->assertSame($booking->id, $payload['deleted_id']);
+        $this->assertSoftDeleted('bills', ['id' => $booking->id]);
+        $this->assertDatabaseMissing('daily_patient_queues', ['bill_id' => $booking->id]);
+        $this->assertDatabaseMissing('bill_items', ['bill_id' => $booking->id]);
+        $this->assertSame(5, DoctorAvailability::query()->where('doctor_id', $booking->doctor_id)->where('date', '2026-03-30')->firstOrFail()->available_seats);
+    }
+
+    public function test_public_booking_can_proceed_to_payment(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $booking = $this->createBookedBillWithRelations(date: '2026-03-30', registrationNo: 'REG-030');
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'POST',
+            '/api/public/bookings/'.$booking->id.'/proceed-to-payment',
+            [
+                'payment_type' => PaymentType::CASH->value,
+                'shift' => 'evening',
+                'bill_amount' => 4000,
+                'system_amount' => 750,
+                'items' => [
+                    ['name' => 'Consultation', 'price' => 4000],
+                ],
+            ],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertSame('Booking moved to payment successfully.', $payload['message']);
+        $this->assertSame($booking->booking_registration_number, $payload['bill']['reference']);
+        $this->assertSame(BillStatus::DOCTOR->value, $payload['bill']['status']);
+
+        $booking->refresh();
+
+        $this->assertSame(BillStatus::DOCTOR->value, $booking->status);
+        $this->assertSame(PaymentType::CASH->value, $booking->payment_type);
+        $this->assertSame('evening', $booking->shift);
+        $this->assertSame(4000.0, (float) $booking->bill_amount);
+        $this->assertSame(750.0, (float) $booking->system_amount);
+    }
+
+    private function createBookedBillWithRelations(string $date, string $registrationNo): Bill
+    {
+        $specialty = Specialty::query()->firstOrCreate(['name' => 'Cardiology']);
+        $hospital = Hospital::query()->firstOrCreate(['name' => 'Main Hospital'], ['location' => 'Colombo']);
+        $doctorRole = Role::query()->firstOrCreate(
+            ['key' => 'doctor'],
+            ['name' => 'Doctor', 'description' => 'Doctor role'],
+        );
+
+        $doctor = Doctor::query()->create([
+            'name' => 'Dr. Booking '.$registrationNo,
+            'hospital_id' => $hospital->id,
+            'specialty_id' => $specialty->id,
+            'user_id' => User::factory()->create(['role_id' => $doctorRole->id])->id,
+            'telephone' => '+94770000111',
+            'email' => strtolower($registrationNo).'@example.com',
+            'doctor_type' => AppointmentType::SPECIALIST->value,
+        ]);
+
+        $patient = Patient::factory()->create([
+            'name' => 'Patient '.$registrationNo,
+            'telephone' => '+94770000123',
+            'registration_no' => $registrationNo,
+        ]);
+
+        $service = Service::query()->firstOrCreate(
+            ['key' => 'channeling'],
+            ['name' => 'Specialist Channeling', 'bill_price' => 2500, 'system_price' => 500],
+        );
+
+        DoctorAvailability::query()->create([
+            'doctor_id' => $doctor->id,
+            'date' => $date,
+            'time' => '09:00:00',
+            'seats' => 5,
+            'available_seats' => 4,
+            'status' => DoctorAvailabilityStatus::ACTIVE->value,
+        ]);
+
+        $bill = Bill::query()->create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'date' => $date,
+            'status' => BillStatus::BOOKED->value,
+            'payment_type' => PaymentType::CASH->value,
+            'shift' => 'morning',
+            'bill_amount' => 2500,
+            'system_amount' => 500,
+            'appointment_type' => $service->name,
+        ]);
+
+        $bill->billItems()->create([
+            'service_id' => $service->id,
+            'bill_amount' => 2500,
+            'system_amount' => 500,
+        ]);
+
+        DailyPatientQueue::query()->create([
+            'bill_id' => $bill->id,
+            'doctor_id' => $doctor->id,
+            'queue_date' => $date,
+            'queue_number' => 1,
+            'order_number' => 1,
+        ]);
+
+        return $bill->load(['patient', 'doctor.specialty', 'billItems.service', 'dailyPatientQueue']);
     }
 
     private function createTrustedSiteWithToken(): array

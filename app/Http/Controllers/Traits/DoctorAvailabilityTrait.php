@@ -16,11 +16,37 @@ trait DoctorAvailabilityTrait
             ->where('date', $date)
             ->first();
 
+        if (! $doctorAvailabilities) {
+            throw new Exception("We're sorry, this doctor is not available for the selected date.");
+        }
+
         if ($doctorAvailabilities->seats > 0 && $doctorAvailabilities->available_seats < $count) {
             throw new Exception("We're sorry, this doctor's schedule is full for the selected date. Please try another date.");
         }
 
         $doctorAvailabilities->available_seats = $doctorAvailabilities->available_seats - $count;
+
+        return $doctorAvailabilities->save();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function restoreDoctorSeats($doctorId, $date, $count = 1)
+    {
+        $doctorAvailabilities = DoctorAvailability::where('doctor_id', $doctorId)
+            ->where('date', $date)
+            ->first();
+
+        if (! $doctorAvailabilities) {
+            throw new Exception("We're sorry, this doctor is not available for the selected date.");
+        }
+
+        $doctorAvailabilities->available_seats = min(
+            $doctorAvailabilities->seats,
+            $doctorAvailabilities->available_seats + $count,
+        );
+
         return $doctorAvailabilities->save();
     }
 }

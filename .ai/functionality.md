@@ -103,7 +103,14 @@ Current public desktop endpoints:
 - `PUT /api/public/patients/{id}`
 - `POST /api/public/patients/upsert`
 - `GET /api/public/doctors`
+- `GET /api/public/doctors/by-date`
 - `POST /api/public/bills`
+- `GET /api/public/bookings`
+- `GET /api/public/bookings/{id}`
+- `PUT /api/public/bookings/{id}`
+- `DELETE /api/public/bookings/{id}`
+- `POST /api/public/bookings/{id}/proceed-to-payment`
+- `POST /api/public/bookings/make-appointment`
 
 Main files:
 
@@ -124,6 +131,10 @@ Public booking endpoints let external clients:
 - list upcoming availability
 - fetch doctor dates
 - book an appointment
+- list booked appointments for a selected date
+- fetch a single booked appointment for editing
+- update or delete a booked appointment
+- move a booked appointment into the normal bill workflow
 - view patient booking history for web users
 
 Main behavior of appointment creation:
@@ -139,6 +150,15 @@ Main behavior of appointment creation:
 9. create daily queue entry
 10. assign bill and booking registration numbers
 11. return booking reference and queue number
+
+Public desktop booking management now also supports:
+
+- `GET /api/public/bookings?date=YYYY-MM-DD`
+- filtering by doctor and text search
+- returning Electron-friendly booking rows with patient, doctor, queue, totals, and item data
+- updating patient details including `registration_no`
+- deleting only `booked` bills while restoring the consumed doctor availability seat
+- proceeding a booked bill to `doctor` status without using staff auth
 
 Main files:
 

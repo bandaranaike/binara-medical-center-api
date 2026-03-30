@@ -25,6 +25,7 @@ class StorePublicPatientRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'telephone' => ['required', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:255'],
+            'registration_no' => ['nullable', 'string', 'max:255', 'unique:patients,registration_no'],
             'age' => ['required', 'numeric', 'min:0'],
             'gender' => ['nullable', 'string', 'in:male,female,other'],
             'address' => ['nullable', 'string', 'max:255'],

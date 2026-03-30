@@ -27,6 +27,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 
 - `patients`
   - patient profile record, optionally linked to `users`
+  - includes nullable unique `registration_no`
   - soft deletes enabled
 - `allergies`
 - `diseases`
@@ -177,6 +178,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 - `/api/public/*` routes are authenticated by both `trusted_sites` and `public_app_tokens`.
 - `public_app_tokens` are app-level machine credentials, not staff or patient login tokens.
 - Booking creates a `bill`, related `bill_items`, and a `daily_patient_queues` row.
+- public booking edits can move a booking to a new date / doctor by restoring the old availability seat, consuming the new one, and regenerating the queue row
 - Pharmacy sales decrement `stocks` and persist per-batch deductions in `temporary_sales`.
 - Removing or changing a sale restores stock first, then re-applies deductions.
 - A patient can exist without a fully populated user account, but web/patient auth tries to keep `users` and `patients` linked.

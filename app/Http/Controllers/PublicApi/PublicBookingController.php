@@ -13,7 +13,10 @@ use App\Http\Controllers\Traits\DoctorAvailabilityTrait;
 use App\Http\Controllers\Traits\OTPManager;
 use App\Http\Controllers\Traits\ServiceType;
 use App\Http\Controllers\Traits\SystemPriceCalculator;
+use App\Http\Requests\PublicApi\ListPublicBookingsRequest;
+use App\Http\Requests\PublicApi\ProceedPublicBookingPaymentRequest;
 use App\Http\Requests\PublicApi\StorePublicBookingRequest;
+use App\Http\Requests\PublicApi\UpdatePublicBookingRequest;
 use App\Models\Bill;
 use App\Models\Doctor;
 use App\Models\Patient;
@@ -21,6 +24,8 @@ use App\Models\Role;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -34,17 +39,80 @@ class PublicBookingController extends Controller
     use ServiceType;
     use SystemPriceCalculator;
 
+    public function index(ListPublicBookingsRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+        $perPage = $validated['per_page'] ?? 20;
+
+        $bookings = Bill::query()
+            ->where('status', BillStatus::BOOKED->value)
+            ->whereDate('date', $validated['date'])
+            ->with([
+                'patient:id,name,telephone,email,registration_no,age,gender,address,birthday',
+                'doctor:id,name,specialty_id,doctor_type',
+                'doctor.specialty:id,name',
+                'dailyPatientQueue:id,bill_id,queue_number,queue_date',
+                'billItems:id,bill_id,service_id,bill_amount',
+                'billItems.service:id,name',
+            ])
+            ->when(
+                $validated['doctor_id'] ?? null,
+                fn ($query, $doctorId) => $query->where('doctor_id', $doctorId),
+            )
+            ->when(
+                $validated['search'] ?? null,
+                function ($query, $search): void {
+                    $query->where(function ($builder) use ($search): void {
+                        $builder->where('booking_registration_number', 'like', '%'.$search.'%')
+                            ->orWhere('bill_registration_number', 'like', '%'.$search.'%')
+                            ->orWhereHas('patient', function ($patientQuery) use ($search): void {
+                                $patientQuery->where('name', 'like', '%'.$search.'%')
+                                    ->orWhere('telephone', 'like', '%'.$search.'%')
+                                    ->orWhere('registration_no', 'like', '%'.$search.'%');
+                            })
+                            ->orWhereHas('doctor', function ($doctorQuery) use ($search): void {
+                                $doctorQuery->where('name', 'like', '%'.$search.'%');
+                            });
+                    });
+                },
+            )
+            ->orderBy('id')
+            ->paginate($perPage);
+
+        return response()->json([
+            'data' => collect($bookings->items())
+                ->map(fn (Bill $booking): array => $this->serializeBooking($booking))
+                ->all(),
+            'meta' => $this->paginationMeta($bookings),
+        ]);
+    }
+
+    public function show(Bill $booking): JsonResponse
+    {
+        if (! $this->isBooked($booking)) {
+            return response()->json([
+                'message' => 'Booking not found.',
+            ], 404);
+        }
+
+        $booking->load([
+            'patient:id,name,telephone,email,registration_no,age,gender,address,birthday',
+            'doctor:id,name,specialty_id,doctor_type',
+            'doctor.specialty:id,name',
+            'dailyPatientQueue:id,bill_id,queue_number,queue_date',
+            'billItems:id,bill_id,service_id,bill_amount',
+            'billItems.service:id,name',
+        ]);
+
+        return response()->json($this->serializeBooking($booking));
+    }
+
     public function makeAppointment(StorePublicBookingRequest $request): JsonResponse
     {
         $data = $request->validated();
 
         try {
             $this->checkPhoneHasVerified($data['phone']);
-        } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 422);
-        }
-
-        try {
             $this->adjustDoctorSeats($data['doctor_id'], $data['date']);
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), 422);
@@ -72,12 +140,14 @@ class PublicBookingController extends Controller
             'bill_amount' => $billAmount,
             'patient_id' => $patientId,
             'doctor_id' => $data['doctor_id'],
-            'appointment_type' => $service->name,
+            'appointment_type' => $service?->name ?? $data['doctor_type'],
             'date' => $data['date'],
             'status' => BillStatus::BOOKED,
         ]);
 
-        $this->insertBillItems($service->id, $systemAmount, $billAmount, $bill->id);
+        if ($service !== null) {
+            $this->insertBillItems($service->id, $billAmount, $systemAmount, $bill->id);
+        }
 
         $bookingNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id'], $data['date']);
 
@@ -88,11 +158,147 @@ class PublicBookingController extends Controller
             'doctor_specialty' => $doctorSpecialty,
             'booking_number' => $bookingNumber,
             'date' => $bill->date,
-            'reference' => $bill->uuid,
+            'reference' => $bill->booking_registration_number,
             'bill_registration_number' => $bill->bill_registration_number,
             'booking_registration_number' => $bill->booking_registration_number,
             'generated_at' => $bill->created_at,
             'bill_id' => $bill->id,
+        ]);
+    }
+
+    public function update(UpdatePublicBookingRequest $request, Bill $booking): JsonResponse
+    {
+        if (! $this->isBooked($booking)) {
+            return response()->json([
+                'message' => 'Only bookings in booked status can be updated.',
+            ], 409);
+        }
+
+        $validated = $request->validated();
+        $oldDoctorId = $booking->doctor_id;
+        $oldDate = $booking->date;
+        $hasSlotChanged = (int) $oldDoctorId !== (int) $validated['doctor_id'] || $oldDate !== $validated['date'];
+        $service = $this->getService($validated['service_type']);
+
+        try {
+            DB::transaction(function () use ($booking, $validated, $oldDoctorId, $oldDate, $hasSlotChanged, $service): void {
+                if ($hasSlotChanged) {
+                    $this->restoreDoctorSeats($oldDoctorId, $oldDate);
+                    $this->adjustDoctorSeats($validated['doctor_id'], $validated['date']);
+                }
+
+                $booking->patient()->update([
+                    'name' => $validated['patient']['name'],
+                    'telephone' => $this->normalizePhone($validated['patient']['telephone']),
+                    'email' => $validated['patient']['email'] ?? null,
+                    'registration_no' => $validated['patient']['registration_no'] ?? null,
+                    'age' => $validated['patient']['age'],
+                    'gender' => $validated['patient']['gender'] ?? null,
+                    'address' => $validated['patient']['address'] ?? null,
+                    'birthday' => $validated['patient']['birthday'] ?? null,
+                ]);
+
+                $booking->update([
+                    'doctor_id' => $validated['doctor_id'],
+                    'date' => $validated['date'],
+                    'shift' => $validated['shift'],
+                    'payment_type' => $validated['payment_type'],
+                    'bill_amount' => $validated['bill_amount'],
+                    'system_amount' => $validated['system_amount'],
+                    'appointment_type' => $service?->name ?? $validated['service_type'],
+                ]);
+
+                if ($service !== null) {
+                    $booking->billItems()->delete();
+                    $this->insertBillItems($service->id, $validated['bill_amount'], $validated['system_amount'], $booking->id);
+                }
+
+                if ($hasSlotChanged) {
+                    $booking->dailyPatientQueue()?->delete();
+                    $this->createDailyPatientQueue($booking->id, $validated['doctor_id'], $validated['date']);
+                }
+            });
+        } catch (Exception $exception) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => [
+                    'doctor_id' => [$exception->getMessage()],
+                ],
+            ], 422);
+        }
+
+        $booking->load('dailyPatientQueue:id,bill_id,queue_number,queue_date');
+
+        return response()->json([
+            'message' => 'Booking updated successfully.',
+            'booking' => [
+                'id' => $booking->id,
+                'bill_id' => $booking->id,
+                'reference' => $booking->booking_registration_number,
+                'booking_number' => $booking->dailyPatientQueue?->queue_number,
+                'date' => $booking->date,
+                'status' => $booking->status,
+            ],
+        ]);
+    }
+
+    public function destroy(Bill $booking): JsonResponse
+    {
+        if (! $this->isBooked($booking)) {
+            return response()->json([
+                'message' => 'Only bookings in booked status can be deleted.',
+            ], 409);
+        }
+
+        DB::transaction(function () use ($booking): void {
+            $this->restoreDoctorSeats($booking->doctor_id, $booking->date);
+            $booking->dailyPatientQueue()?->delete();
+            $booking->billItems()->delete();
+            $booking->delete();
+        });
+
+        return response()->json([
+            'message' => 'Booking deleted successfully.',
+            'deleted_id' => $booking->id,
+        ]);
+    }
+
+    public function proceedToPayment(ProceedPublicBookingPaymentRequest $request, Bill $booking): JsonResponse
+    {
+        if (! $this->isBooked($booking)) {
+            return response()->json([
+                'message' => 'This booking has already been processed.',
+            ], 409);
+        }
+
+        $validated = $request->validated();
+
+        $booking->update([
+            'payment_type' => $validated['payment_type'],
+            'shift' => $validated['shift'],
+            'bill_amount' => $validated['bill_amount'],
+            'system_amount' => $validated['system_amount'],
+            'status' => BillStatus::DOCTOR,
+        ]);
+
+        if ($booking->billItems()->exists()) {
+            $booking->billItems()->update([
+                'bill_amount' => $validated['bill_amount'],
+                'system_amount' => $validated['system_amount'],
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Booking moved to payment successfully.',
+            'bill' => [
+                'id' => $booking->id,
+                'reference' => $booking->booking_registration_number,
+                'status' => $booking->status,
+                'payment_type' => $booking->payment_type,
+                'bill_amount' => (float) $booking->bill_amount,
+                'system_amount' => (float) $booking->system_amount,
+                'date' => $booking->date,
+            ],
         ]);
     }
 
@@ -135,11 +341,72 @@ class PublicBookingController extends Controller
         if ($type === AppointmentType::SPECIALIST->value) {
             $doctor = Doctor::query()->with('specialty:id,name')->findOrFail($doctorId);
 
-            return [$doctor->name, $doctor->specialty->name];
+            return [$doctor->name, $doctor->specialty?->name];
         }
 
         $doctor = Doctor::query()->findOrFail($doctorId);
 
         return [$doctor->name, 'Dental Surgical Doctor'];
+    }
+
+    private function isBooked(Bill $booking): bool
+    {
+        return $booking->status === BillStatus::BOOKED->value;
+    }
+
+    private function normalizePhone(string $telephone): string
+    {
+        return Str::replaceMatches('/^0/', '+94', trim($telephone));
+    }
+
+    private function paginationMeta(LengthAwarePaginator $paginator): array
+    {
+        return [
+            'page' => $paginator->currentPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+        ];
+    }
+
+    private function serializeBooking(Bill $booking): array
+    {
+        return [
+            'id' => $booking->id,
+            'bill_id' => $booking->id,
+            'reference' => $booking->booking_registration_number,
+            'booking_number' => $booking->dailyPatientQueue?->queue_number,
+            'date' => $booking->date,
+            'status' => $booking->status,
+            'patient' => [
+                'id' => $booking->patient?->id,
+                'name' => $booking->patient?->name,
+                'telephone' => $booking->patient?->telephone,
+                'email' => $booking->patient?->email,
+                'age' => $booking->patient?->age,
+                'gender' => $booking->patient?->gender,
+                'address' => $booking->patient?->address,
+                'birthday' => $booking->patient?->birthday,
+                'registration_no' => $booking->patient?->registration_no,
+            ],
+            'doctor' => [
+                'id' => $booking->doctor?->id,
+                'name' => $booking->doctor?->name,
+                'specialty' => $booking->doctor?->specialty?->name,
+                'doctor_type' => $booking->doctor?->doctor_type,
+            ],
+            'doctor_name' => $booking->doctor?->name,
+            'doctor_specialty' => $booking->doctor?->specialty?->name,
+            'payment_type' => $booking->payment_type,
+            'shift' => $booking->shift,
+            'service_type' => $booking->doctor?->doctor_type,
+            'bill_amount' => (float) $booking->bill_amount,
+            'system_amount' => (float) $booking->system_amount,
+            'items' => $booking->billItems->map(fn ($item): array => [
+                'name' => $item->service?->name,
+                'price' => (string) $item->bill_amount,
+            ])->values()->all(),
+            'created_at' => $booking->created_at?->toISOString(),
+        ];
     }
 }

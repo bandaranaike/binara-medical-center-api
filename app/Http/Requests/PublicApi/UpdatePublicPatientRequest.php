@@ -3,6 +3,7 @@
 namespace App\Http\Requests\PublicApi;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePublicPatientRequest extends FormRequest
 {
@@ -25,6 +26,12 @@ class UpdatePublicPatientRequest extends FormRequest
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'telephone' => ['sometimes', 'required', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:255'],
+            'registration_no' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('patients', 'registration_no')->ignore($this->route('patient')?->id),
+            ],
             'age' => ['sometimes', 'required', 'numeric', 'min:0'],
             'gender' => ['nullable', 'string', 'in:male,female,other'],
             'address' => ['nullable', 'string', 'max:255'],

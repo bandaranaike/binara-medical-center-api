@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property numeric $id
+ *
  * @method static find(int $patientId)
  * @method static select(string...$string)
  */
@@ -24,38 +25,27 @@ class Patient extends Model
         'address',
         'telephone',
         'email',
+        'registration_no',
         'birthday',
         'gender',
-        'user_id'
+        'user_id',
     ];
 
-    /**
-     * @return BelongsToMany
-     */
     public function allergies(): BelongsToMany
     {
         return $this->belongsToMany(Allergy::class);
     }
 
-    /**
-     * @return HasMany
-     */
     public function bills(): HasMany
     {
         return $this->hasMany(Bill::class);
     }
 
-    /**
-     * @return BelongsToMany
-     */
     public function diseases(): BelongsToMany
     {
         return $this->belongsToMany(Disease::class);
     }
 
-    /**
-     * @return HasMany
-     */
     public function patientHistories(): hasMany
     {
         return $this->hasMany(PatientsHistory::class);
@@ -63,11 +53,8 @@ class Patient extends Model
 
     /**
      * Set the patient's birthday.
-     *
-     * @param string|null $value
-     * @return void
      */
-    public function setBirthdayAttribute(string|null $value): void
+    public function setBirthdayAttribute(?string $value): void
     {
         $this->attributes['birthday'] = Carbon::parse($value)->format('Y-m-d');
     }
