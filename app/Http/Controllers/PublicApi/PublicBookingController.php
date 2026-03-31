@@ -28,6 +28,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class PublicBookingController extends Controller
 {
@@ -111,23 +112,19 @@ class PublicBookingController extends Controller
     {
         $data = $request->validated();
 
-        try {
-            $this->checkPhoneHasVerified($data['phone']);
-            $this->adjustDoctorSeats($data['doctor_id'], $data['date']);
-        } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 422);
-        }
-
         $patientId = $this->getOrCreatePatient(
             $data['name'],
             $data['phone'],
             $data['age'],
             $data['email'] ?? null,
+            $data['registration_no'] ?? null,
+            $data['address'] ?? null,
             $data['user_id'] ?? null,
         );
 
         try {
             $this->hasPatientHasBook($data['date'], $patientId, $data['doctor_id']);
+            $this->adjustDoctorSeats($data['doctor_id'], $data['date']);
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), 422);
         }
@@ -307,6 +304,8 @@ class PublicBookingController extends Controller
         string $phone,
         int|float|string $age,
         ?string $email,
+        ?string $registrationNo,
+        ?string $address,
         ?string $userUuid,
     ): int {
         if ($userUuid !== null) {
@@ -330,8 +329,39 @@ class PublicBookingController extends Controller
 
         $patient = Patient::query()->firstOrCreate(
             ['name' => $name, 'telephone' => $phone, 'user_id' => $user->id],
-            ['age' => $age, 'email' => $email],
+            [
+                'age' => $age,
+                'email' => $email,
+                'registration_no' => $registrationNo,
+                'address' => $address,
+            ],
         );
+
+        if (
+            $registrationNo !== null
+            && Patient::query()
+                ->where('registration_no', $registrationNo)
+                ->whereKeyNot($patient->id)
+                ->exists()
+        ) {
+            throw ValidationException::withMessages([
+                'registration_no' => ['The registration no has already been taken.'],
+            ]);
+        }
+
+        $patientUpdates = array_filter([
+            'email' => $email,
+            'registration_no' => $registrationNo,
+            'address' => $address,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        if ($patientUpdates !== []) {
+            $patient->fill($patientUpdates);
+
+            if ($patient->isDirty()) {
+                $patient->save();
+            }
+        }
 
         return $patient->id;
     }

@@ -78,7 +78,7 @@ Main file:
 - resend OTP
 - validate OTP
 
-Used by booking flows that require verified phone numbers.
+Used by legacy booking flows that require verified phone numbers. The machine-authenticated public desktop booking flow no longer blocks on OTP verification.
 
 Main files:
 
@@ -140,7 +140,7 @@ Public booking endpoints let external clients:
 Main behavior of appointment creation:
 
 1. validate booking request
-2. ensure phone is verified
+2. public desktop booking does not require phone verification
 3. reduce available seats for the doctor/date
 4. create or reuse patient / user records
 5. prevent duplicate same-day booking for same doctor

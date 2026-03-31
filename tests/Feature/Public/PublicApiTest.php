@@ -13,7 +13,6 @@ use App\Models\Doctor;
 use App\Models\DoctorAvailability;
 use App\Models\Hospital;
 use App\Models\Patient;
-use App\Models\PhoneVerification;
 use App\Models\PublicAppToken;
 use App\Models\Role;
 use App\Models\Service;
@@ -364,7 +363,7 @@ class PublicApiTest extends TestCase
         Event::assertDispatched(NewBillCreated::class);
     }
 
-    public function test_public_booking_make_appointment_matches_booking_flow(): void
+    public function test_public_booking_make_appointment_skips_phone_verification_and_persists_patient_details(): void
     {
         [$trustedSite, $token] = $this->createTrustedSiteWithToken();
 
@@ -408,14 +407,6 @@ class PublicApiTest extends TestCase
             'system_price' => 500,
         ]);
 
-        PhoneVerification::query()->create([
-            'phone_number' => '0771234567',
-            'otp' => '123456',
-            'token' => 'verified-token',
-            'verified_at' => now(),
-            'expires_at' => now()->addMinutes(10),
-        ]);
-
         [$status, $payload] = $this->dispatchJsonRequest(
             'POST',
             '/api/public/bookings/make-appointment',
@@ -423,6 +414,8 @@ class PublicApiTest extends TestCase
                 'name' => 'John Public',
                 'phone' => '0771234567',
                 'email' => 'john.public@example.com',
+                'registration_no' => 'REG-PUBLIC-001',
+                'address' => 'Colombo 07',
                 'age' => 30,
                 'doctor_id' => $doctor->id,
                 'doctor_type' => AppointmentType::SPECIALIST->value,
@@ -452,6 +445,8 @@ class PublicApiTest extends TestCase
         $this->assertDatabaseHas('patients', [
             'name' => 'John Public',
             'telephone' => '0771234567',
+            'registration_no' => 'REG-PUBLIC-001',
+            'address' => 'Colombo 07',
         ]);
         $this->assertDatabaseHas('bill_items', [
             'bill_id' => $bill->id,
