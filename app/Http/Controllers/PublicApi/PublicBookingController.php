@@ -27,6 +27,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -79,6 +80,8 @@ class PublicBookingController extends Controller
             )
             ->orderBy('id')
             ->paginate($perPage);
+
+//        Log::info('Public bookings', ['bookings' => $bookings]);
 
         return response()->json([
             'data' => collect($bookings->items())
