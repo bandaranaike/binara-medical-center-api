@@ -35,6 +35,7 @@ Current domain notes:
 
 - `public-api/backend-spec.md`
 - `public-api/booking-date-contracts.md`
+- `public-api/electron-day-summary-agent-guide.md`
 - `public-api/electron-booking-agent-guide.md`
 - `public-api/public-app-token-status.md`
 - `public-api/resources/Summary-Bill.jpeg`

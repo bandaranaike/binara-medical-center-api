@@ -52,6 +52,7 @@ This project has domain-specific skills available. You MUST activate the relevan
   - `.ai/tasks/inbox.md`
 - When the task involves the Electron desktop integration or the public bearer-token API, also read:
   - `.ai/domains/public-api/public-app-token-status.md`
+  - `.ai/domains/public-api/electron-day-summary-agent-guide.md` when the task involves the printed day summary flow
   - `.ai/domains/public-api/electron-booking-agent-guide.md`
   - `.ai/domains/public-api/backend-spec.md`
   - `.ai/domains/public-api/booking-date-contracts.md`
