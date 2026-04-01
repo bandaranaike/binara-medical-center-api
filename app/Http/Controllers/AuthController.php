@@ -2,80 +2,138 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
+    private const STAFF_ROLES = [
+        UserRole::ADMIN->value,
+        UserRole::DOCTOR->value,
+        UserRole::NURSE->value,
+        UserRole::PHARMACY->value,
+        UserRole::PHARMACY_ADMIN->value,
+        UserRole::RECEPTION->value,
+    ];
 
     public function register(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
-            'password' => ['required', 'confirmed', Password::defaults()],
-            'role' => ['required', 'string', 'in:reception,patient,pharmacy,doctor,nurse'],
+            "name" => "required|string|max:255",
+            "email" => "required|string|lowercase|email|max:255|unique:".User::class,
+            "password" => ["required", "confirmed", Password::defaults()],
+            "role" => ["required", "string", "in:admin,reception,pharmacy,pharmacy_admin,doctor,nurse"],
         ]);
 
-        $roleId = Role::where("key", $validatedData['role'])->select(['id'])->first()?->id;
+        $roleId = Role::where("key", $validatedData["role"])->select(["id"])->first()?->id;
 
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role_id' => $roleId,
+            "name" => $validatedData["name"],
+            "email" => $validatedData["email"],
+            "password" => Hash::make($validatedData["password"]),
+            "role_id" => $roleId,
         ]);
 
-        return $this->sendToken($request);
+        return $this->authenticateSession(
+            $request,
+            $validatedData["email"],
+            $validatedData["password"]
+        );
     }
 
-    // Laravel controller example
     public function login(Request $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+        $validatedData = $request->validate([
+            "email" => "required|string|email",
+            "password" => "required|string",
+            "remember" => "nullable|boolean",
         ]);
 
-        return $this->sendToken($request);
+        return $this->authenticateSession(
+            $request,
+            $validatedData["email"],
+            $validatedData["password"],
+            (bool) ($validatedData["remember"] ?? false)
+        );
     }
 
-    private function sendToken($request): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
-        $credentials = $request->only('email', 'password');
-        Log::info('Login failed for', $credentials);
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('API Token')->plainTextToken;
+        Auth::guard("web")->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-            return new JsonResponse([
-                'message' => 'Logged in successfully',
-                'token' => $token,
-                'role' => $user->role?->key,
-                'name' => $user->name
-            ], 200);
-        }
-        return new JsonResponse(['message' => 'Provided credentials invalid'], 401);
+        return new JsonResponse(["message" => "Logged out successfully"]);
     }
 
-    public function checkUserSession()
+    public function checkUserSession(Request $request): JsonResponse
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-            return new JsonResponse([
-                'message' => 'Logged in successfully',
-                'token' => $user->currentAccessToken(),
-                'role' => $user->role?->key,
-                'name' => $user->name
-            ], 200);
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            return new JsonResponse(["message" => "Unauthenticated."], 401);
         }
-        return false;
+
+        $user->loadMissing("role");
+
+        if (! $this->isStaffUser($user)) {
+            Auth::guard("web")->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return new JsonResponse(["message" => "This account cannot access the staff application."], 403);
+        }
+
+        return new JsonResponse($this->formatUser($user));
     }
 
+    private function authenticateSession(
+        Request $request,
+        string $email,
+        string $password,
+        bool $remember = false
+    ): JsonResponse {
+        if (! Auth::attempt(["email" => $email, "password" => $password], $remember)) {
+            return new JsonResponse(["message" => "Provided credentials are invalid."], 401);
+        }
+
+        $request->session()->regenerate();
+
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            return new JsonResponse(["message" => "Unable to start an authenticated session."], 500);
+        }
+
+        $user->loadMissing("role");
+
+        if (! $this->isStaffUser($user)) {
+            Auth::guard("web")->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return new JsonResponse(["message" => "This account cannot access the staff application."], 403);
+        }
+
+        return new JsonResponse($this->formatUser($user));
+    }
+
+    private function isStaffUser(User $user): bool
+    {
+        return in_array($user->role?->key, self::STAFF_ROLES, true);
+    }
+
+    private function formatUser(User $user): array
+    {
+        return [
+            "name" => $user->name,
+            "role" => $user->role?->key,
+        ];
+    }
 }

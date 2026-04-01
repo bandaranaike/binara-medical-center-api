@@ -89,7 +89,7 @@ Route::middleware(['verify.apikey'])->group(function () {
             ->middleware('role:pharmacy_admin,admin,doctor,pharmacy');
         Route::put('/sales/update-number-of-days', [SaleController::class, 'updateNumberOfDays']);
 
-        Route::post('logout', [PatientAuthController::class, 'destroy']);
+        Route::post('logout', [AuthController::class, 'logout']);
         Route::post('patients/add-allergy', [PatientsAllergyController::class, 'store'])
             ->middleware('role:doctor');
         Route::post('patients/add-disease', [PatientsDiseaseController::class, 'store'])
