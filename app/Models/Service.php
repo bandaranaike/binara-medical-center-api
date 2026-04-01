@@ -22,6 +22,19 @@ class Service extends Model
         'system_price',
     ];
 
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'bill_price' => 'decimal:2',
+            'system_price' => 'decimal:2',
+            'separate_items' => 'boolean',
+            'is_percentage' => 'boolean',
+        ];
+    }
+
     public function scopeGetByKey($query, $key)
     {
         return $query->where('key', $key);

@@ -20,23 +20,41 @@ class BillItem extends Model
     protected $fillable = [
         'bill_id',
         'service_id',
+        'service_name',
+        'service_key',
+        'doctor_id',
         'system_amount',
-        'bill_amount'
+        'bill_amount',
+        'referred_amount',
+        'category',
+        'is_ad_hoc',
     ];
 
     /**
-     * @return BelongsTo
+     * @return array<string, string>
      */
+    protected function casts(): array
+    {
+        return [
+            'bill_amount' => 'decimal:2',
+            'system_amount' => 'decimal:2',
+            'referred_amount' => 'decimal:2',
+            'is_ad_hoc' => 'boolean',
+        ];
+    }
+
     public function bill(): BelongsTo
     {
         return $this->belongsTo(Bill::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function doctor(): BelongsTo
+    {
+        return $this->belongsTo(Doctor::class);
     }
 }

@@ -2,7 +2,7 @@
 
 ## Title
 
-Add public day-summary API for the Electron app
+Add Electron billing service public API changes
 
 ## Status
 
@@ -10,18 +10,19 @@ Completed
 
 ## Goal
 
-Expose the day-summary report through the public app-token API in `routes/public.php` so the Electron app can fetch printer-ready summary data.
+Support the Electron billing desk changes for service autocomplete, doctor billing defaults, split-price bill items, ad hoc services, and doctor-optional `others` billing through the public API.
 
 ## Work items
 
-- extract the aggregation into a shared service
-- add a public controller and route under `/api/public/*`
-- keep the response contract identical to the existing day-summary output
-- update public API docs for the Electron agent
-- cover the public route with feature tests
+- add receptionist-safe service search under `/api/public/services/search`
+- add doctor billing defaults under `/api/public/doctors/{doctor}/billing-config`
+- extend public bill and booking payloads to accept structured split-price items
+- persist bill item snapshots and referred amounts for Electron round trips
+- support `others` requests by mapping them onto the existing backend treatment flow
+- cover the updated public routes with feature tests
 
 ## Notes
 
-- public route should use app-token auth, not Sanctum staff auth
-- keep `date` optional and `shift` required
-- implemented at `GET /api/public/reports/day-summary`
+- ad hoc item service records are created with unique dashed `services.key` values derived from the item name
+- `doctor_id` is optional for public bill creation when the normalized service type is `treatment` / Electron `others`
+- bill item snapshots now carry `service_name`, `service_key`, `referred_amount`, `doctor_id`, `category`, and `is_ad_hoc`

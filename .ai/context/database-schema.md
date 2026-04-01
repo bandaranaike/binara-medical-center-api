@@ -64,6 +64,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 - `services`
   - billable service catalog
   - fields include `key`, `bill_price`, `system_price`, `separate_items`, `is_percentage`
+  - public Electron ad hoc items may create additional service rows with unique dashed keys derived from the typed service name
 - `bills`
   - central encounter / booking / bill record
   - links patient and doctor
@@ -72,6 +73,13 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
   - soft deletes enabled
 - `bill_items`
   - line items for a bill, each linked to a `service`
+  - stores snapshot and split-price fields used by the public Electron billing flow:
+    - `service_name`
+    - `service_key`
+    - `referred_amount`
+    - optional `doctor_id`
+    - optional `category`
+    - `is_ad_hoc`
 - `daily_patient_queues`
   - queue number and order number per bill/doctor/day
 
@@ -114,6 +122,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 - `bills.doctor_id -> doctors.id`
 - `bill_items.bill_id -> bills.id`
 - `bill_items.service_id -> services.id`
+- `bill_items.doctor_id -> doctors.id`
 - `daily_patient_queues.bill_id -> bills.id`
 - `daily_patient_queues.doctor_id -> doctors.id`
 - `patients_histories.patient_id -> patients.id`
@@ -181,6 +190,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 - Booking creates a `bill`, related `bill_items`, and a `daily_patient_queues` row.
 - `bills.uuid` is the remaining API-facing bill / booking reference after registration-number removal.
 - public booking edits can move a booking to a new date / doctor by restoring the old availability seat, consuming the new one, and regenerating the queue row
+- public Electron bill creation can omit `doctor_id` for `others` / normalized treatment bills, in which case no `daily_patient_queues` row is created
 - Pharmacy sales decrement `stocks` and persist per-batch deductions in `temporary_sales`.
 - Removing or changing a sale restores stock first, then re-applies deductions.
 - A patient can exist without a fully populated user account, but web/patient auth tries to keep `users` and `patients` linked.

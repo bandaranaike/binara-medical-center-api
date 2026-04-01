@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\PublicApi;
 
 use App\Enums\DoctorAvailabilityStatus;
+use App\Enums\ServiceKey;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
+use App\Models\Service;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -99,6 +101,38 @@ class PublicDoctorController extends Controller
 
         return response()->json([
             'data' => $doctors,
+        ]);
+    }
+
+    public function billingConfig(Doctor $doctor): JsonResponse
+    {
+        $doctor->load('channellingFee:doctor_id,fee');
+
+        $channelingService = Service::query()->where('key', ServiceKey::DEFAULT_SPECIALIST_CHANNELING->value)->first();
+        $dentalRegistrationService = Service::query()->where('key', ServiceKey::DENTAL_REGISTRATION->value)->first();
+        $dentalServices = Service::query()
+            ->where('key', 'like', 'dental-%')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'doctor_id' => $doctor->id,
+            'doctor_type' => $doctor->doctor_type,
+            'channeling' => [
+                'consultation_referred_amount' => (float) ($doctor->channellingFee?->fee ?? $channelingService?->bill_price ?? 0),
+                'booking_in_house_amount' => (float) ($channelingService?->system_price ?? 0),
+            ],
+            'dental' => [
+                'registration_in_house_amount' => (float) ($dentalRegistrationService?->system_price ?? 0),
+                'services' => $dentalServices->map(static function (Service $service): array {
+                    return [
+                        'service_id' => $service->id,
+                        'name' => $service->name,
+                        'system_price' => (float) $service->system_price,
+                        'bill_price' => (float) $service->bill_price,
+                    ];
+                })->values()->all(),
+            ],
         ]);
     }
 }

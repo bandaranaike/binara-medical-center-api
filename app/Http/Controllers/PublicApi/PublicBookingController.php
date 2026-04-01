@@ -6,7 +6,6 @@ use App\Enums\AppointmentType;
 use App\Enums\BillStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\BillItemsTrait;
 use App\Http\Controllers\Traits\BillTrait;
 use App\Http\Controllers\Traits\DailyPatientQueueTrait;
 use App\Http\Controllers\Traits\DoctorAvailabilityTrait;
@@ -22,6 +21,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\PublicBillingService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -33,13 +33,14 @@ use Illuminate\Validation\ValidationException;
 
 class PublicBookingController extends Controller
 {
-    use BillItemsTrait;
     use BillTrait;
     use DailyPatientQueueTrait;
     use DoctorAvailabilityTrait;
     use OTPManager;
     use ServiceType;
     use SystemPriceCalculator;
+
+    public function __construct(private readonly PublicBillingService $publicBillingService) {}
 
     public function index(ListPublicBookingsRequest $request): JsonResponse
     {
@@ -54,8 +55,8 @@ class PublicBookingController extends Controller
                 'doctor:id,name,specialty_id,doctor_type',
                 'doctor.specialty:id,name',
                 'dailyPatientQueue:id,bill_id,queue_number,queue_date',
-                'billItems:id,bill_id,service_id,bill_amount',
-                'billItems.service:id,name',
+                'billItems:id,bill_id,service_id,service_name,service_key,doctor_id,bill_amount,system_amount,referred_amount,category,is_ad_hoc',
+                'billItems.service:id,name,key',
             ])
             ->when(
                 $validated['doctor_id'] ?? null,
@@ -103,8 +104,8 @@ class PublicBookingController extends Controller
             'doctor:id,name,specialty_id,doctor_type',
             'doctor.specialty:id,name',
             'dailyPatientQueue:id,bill_id,queue_number,queue_date',
-            'billItems:id,bill_id,service_id,bill_amount',
-            'billItems.service:id,name',
+            'billItems:id,bill_id,service_id,service_name,service_key,doctor_id,bill_amount,system_amount,referred_amount,category,is_ad_hoc',
+            'billItems.service:id,name,key',
         ]);
 
         return response()->json($this->serializeBooking($booking));
@@ -145,7 +146,14 @@ class PublicBookingController extends Controller
         ]);
 
         if ($service !== null) {
-            $this->insertBillItems($service->id, $billAmount, $systemAmount, $bill->id);
+            $this->publicBillingService->createDefaultBillItem(
+                $bill,
+                $service,
+                (float) $billAmount,
+                (float) $systemAmount,
+                $data['doctor_id'],
+                $data['doctor_type'],
+            );
         }
 
         $bookingNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id'], $data['date']);
@@ -205,9 +213,23 @@ class PublicBookingController extends Controller
                     'appointment_type' => $service?->name ?? $validated['service_type'],
                 ]);
 
-                if ($service !== null) {
+                if (! empty($validated['items'])) {
+                    $this->publicBillingService->replaceBillItems(
+                        $booking,
+                        $validated['items'],
+                        $validated['doctor_id'],
+                        $validated['service_type'],
+                    );
+                } elseif ($service !== null) {
                     $booking->billItems()->delete();
-                    $this->insertBillItems($service->id, $validated['bill_amount'], $validated['system_amount'], $booking->id);
+                    $this->publicBillingService->createDefaultBillItem(
+                        $booking,
+                        $service,
+                        (float) $validated['bill_amount'],
+                        (float) $validated['system_amount'],
+                        $validated['doctor_id'],
+                        $validated['service_type'],
+                    );
                 }
 
                 if ($hasSlotChanged) {
@@ -278,12 +300,22 @@ class PublicBookingController extends Controller
             'status' => BillStatus::DOCTOR,
         ]);
 
-        if ($booking->billItems()->exists()) {
+        if (! empty($validated['items'])) {
+            $this->publicBillingService->replaceBillItems(
+                $booking,
+                $validated['items'],
+                $booking->doctor_id,
+                $booking->doctor?->doctor_type,
+            );
+        } elseif ($booking->billItems()->exists()) {
             $booking->billItems()->update([
                 'bill_amount' => $validated['bill_amount'],
                 'system_amount' => $validated['system_amount'],
+                'referred_amount' => round((float) $validated['bill_amount'] - (float) $validated['system_amount'], 2),
             ]);
         }
+
+        $booking->load('billItems.service');
 
         return response()->json([
             'message' => 'Booking moved to payment successfully.',
@@ -295,6 +327,10 @@ class PublicBookingController extends Controller
                 'bill_amount' => (float) $booking->bill_amount,
                 'system_amount' => (float) $booking->system_amount,
                 'date' => $booking->date,
+                'items' => $booking->billItems
+                    ->map(fn ($billItem): array => $this->publicBillingService->serializeBillItem($billItem))
+                    ->values()
+                    ->all(),
             ],
         ]);
     }
@@ -432,10 +468,10 @@ class PublicBookingController extends Controller
             'service_type' => $booking->doctor?->doctor_type,
             'bill_amount' => (float) $booking->bill_amount,
             'system_amount' => (float) $booking->system_amount,
-            'items' => $booking->billItems->map(fn ($item): array => [
-                'name' => $item->service?->name,
-                'price' => (string) $item->bill_amount,
-            ])->values()->all(),
+            'items' => $booking->billItems
+                ->map(fn ($item): array => $this->publicBillingService->serializeBillItem($item))
+                ->values()
+                ->all(),
             'created_at' => $booking->created_at?->toISOString(),
         ];
     }

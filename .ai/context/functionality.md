@@ -104,8 +104,10 @@ Current public desktop endpoints:
 - `POST /api/public/patients`
 - `PUT /api/public/patients/{id}`
 - `POST /api/public/patients/upsert`
+- `GET /api/public/services/search`
 - `GET /api/public/doctors`
 - `GET /api/public/doctors/by-date`
+- `GET /api/public/doctors/{doctor}/billing-config`
 - `POST /api/public/bills`
 - `GET /api/public/reports/day-summary`
 - `GET /api/public/bookings`
@@ -158,6 +160,7 @@ Public desktop booking management now also supports:
 - `GET /api/public/bookings?date=YYYY-MM-DD`
 - filtering by doctor and text search
 - returning Electron-friendly booking rows with patient, doctor, queue, totals, and item data
+- returning structured item rows with `service_id`, `service_key`, `service_name`, `bill_amount`, `system_amount`, `referred_amount`, `doctor_id`, `category`, and `is_ad_hoc`
 - updating patient details including `registration_no`
 - deleting only `booked` bills while restoring the consumed doctor availability seat
 - proceeding a booked bill to `doctor` status without using staff auth
@@ -174,6 +177,25 @@ Main files:
 - `app/Http/Controllers/Traits/DailyPatientQueueTrait.php`
 - `app/Http/Controllers/Traits/SystemPriceCalculator.php`
 - `app/Services/DoctorScheduleService.php`
+
+### Public Electron billing desk additions
+
+The Electron billing desk now also relies on public app-token endpoints for service and pricing helpers.
+
+Supported behavior:
+
+- receptionist-safe service autocomplete through `GET /api/public/services/search`
+- doctor billing defaults through `GET /api/public/doctors/{doctor}/billing-config`
+- `POST /api/public/bills` accepting structured `items` with split prices
+- public bill creation with no doctor for Electron `others` requests, normalized internally onto the existing treatment flow
+- ad hoc item support by creating backing `services` rows with unique dashed keys derived from the typed item name
+
+Important contract details:
+
+- top-level `bill_amount` must equal the sum of item `bill_amount`
+- top-level `system_amount` must equal the sum of item `system_amount`
+- `referred_amount` is returned explicitly for each item
+- booking update and proceed-to-payment now preserve and return the same split item shape
 
 ## 4. Doctor schedule and availability management
 

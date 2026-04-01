@@ -12,6 +12,7 @@ use App\Models\Bill;
 use App\Models\DailyPatientQueue;
 use App\Models\Doctor;
 use App\Models\DoctorAvailability;
+use App\Models\DoctorsChannelingFee;
 use App\Models\Hospital;
 use App\Models\Patient;
 use App\Models\PublicAppToken;
@@ -130,6 +131,40 @@ class PublicApiTest extends TestCase
         $this->assertSame('updated', $payload['action']);
         $this->assertSame($patient->id, $payload['patient']['id']);
         $this->assertSame('New Address', $payload['patient']['address']);
+    }
+
+    public function test_public_service_search_returns_reception_safe_autocomplete_results(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        Service::query()->create([
+            'name' => 'Wound Dressing',
+            'key' => 'wound-dressing',
+            'bill_price' => 800,
+            'system_price' => 500,
+        ]);
+
+        Service::query()->create([
+            'name' => 'Dental Consultation',
+            'key' => 'dental-consultation',
+            'bill_price' => 1500,
+            'system_price' => 800,
+        ]);
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/services/search?query=Dressing&type=others',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertCount(1, $payload['data']);
+        $this->assertSame('Wound Dressing', $payload['data'][0]['name']);
+        $this->assertSame('wound-dressing', $payload['data'][0]['key']);
+        $this->assertSame('others', $payload['data'][0]['type']);
+        $this->assertSame(500.0, (float) $payload['data'][0]['system_price']);
+        $this->assertSame(800.0, (float) $payload['data'][0]['bill_price']);
     }
 
     public function test_public_doctor_list_supports_filtering_and_sorting(): void
@@ -289,6 +324,55 @@ class PublicApiTest extends TestCase
         $this->assertSame('Dr. Future', $futurePayload['data'][0]['name']);
     }
 
+    public function test_public_doctor_billing_config_returns_channeling_and_dental_defaults(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $doctor = $this->createDoctorForPublicDaySummary('Dr. Billing');
+
+        DoctorsChannelingFee::query()->create([
+            'doctor_id' => $doctor->id,
+            'fee' => 2500,
+        ]);
+
+        Service::query()->create([
+            'name' => 'Specialist Channeling',
+            'key' => 'channeling',
+            'bill_price' => 2200,
+            'system_price' => 300,
+        ]);
+
+        Service::query()->create([
+            'name' => 'Dental Registration',
+            'key' => 'dental-registration',
+            'bill_price' => 500,
+            'system_price' => 500,
+        ]);
+
+        Service::query()->create([
+            'name' => 'Dental Consultation',
+            'key' => 'dental-consultation',
+            'bill_price' => 1500,
+            'system_price' => 800,
+        ]);
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/doctors/'.$doctor->id.'/billing-config',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertSame($doctor->id, $payload['doctor_id']);
+        $this->assertSame(2500.0, (float) $payload['channeling']['consultation_referred_amount']);
+        $this->assertSame(300.0, (float) $payload['channeling']['booking_in_house_amount']);
+        $this->assertSame(500.0, (float) $payload['dental']['registration_in_house_amount']);
+        $this->assertSame(
+            'Dental Consultation',
+            collect($payload['dental']['services'])->firstWhere('name', 'Dental Consultation')['name']
+        );
+    }
+
     public function test_public_bill_create_creates_bill_bill_item_and_queue(): void
     {
         Event::fake([NewBillCreated::class]);
@@ -334,6 +418,19 @@ class PublicApiTest extends TestCase
                 'service_type' => AppointmentType::OPD->value,
                 'shift' => 'morning',
                 'date' => '2026-03-25',
+                'items' => [
+                    [
+                        'service_id' => Service::query()->where('key', 'opd-doctor')->value('id'),
+                        'service_key' => 'opd-doctor',
+                        'service_name' => 'OPD doctor',
+                        'bill_amount' => 2500,
+                        'system_amount' => 0,
+                        'referred_amount' => 2500,
+                        'category' => 'opd',
+                        'doctor_id' => $doctor->id,
+                        'is_ad_hoc' => false,
+                    ],
+                ],
             ],
             $this->trustedHeaders($trustedSite, $token),
         );
@@ -347,6 +444,8 @@ class PublicApiTest extends TestCase
         $this->assertSame($payload['uuid'], $payload['reference']);
         $this->assertArrayNotHasKey('bill_registration_number', $payload);
         $this->assertArrayNotHasKey('booking_registration_number', $payload);
+        $this->assertSame('OPD doctor', $payload['items'][0]['service_name']);
+        $this->assertSame(2500.0, (float) $payload['items'][0]['referred_amount']);
 
         $bill = Bill::query()->first();
 
@@ -362,6 +461,75 @@ class PublicApiTest extends TestCase
         ]);
 
         Event::assertDispatched(NewBillCreated::class);
+    }
+
+    public function test_public_bill_create_accepts_others_without_doctor_and_creates_unique_service_keys_for_ad_hoc_items(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $patient = Patient::factory()->create();
+
+        Service::query()->create([
+            'name' => 'Special Report',
+            'key' => 'special-report',
+            'bill_price' => 1000,
+            'system_price' => 100,
+        ]);
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'POST',
+            '/api/public/bills',
+            [
+                'bill_amount' => 3300,
+                'payment_type' => PaymentType::CASH->value,
+                'system_amount' => 800,
+                'patient_id' => $patient->id,
+                'doctor_id' => null,
+                'is_booking' => false,
+                'service_type' => 'others',
+                'shift' => 'morning',
+                'date' => '2026-04-01',
+                'items' => [
+                    [
+                        'service_id' => -1,
+                        'service_key' => null,
+                        'service_name' => 'Special Report',
+                        'bill_amount' => 2000,
+                        'system_amount' => 300,
+                        'referred_amount' => 1700,
+                        'category' => 'others',
+                        'doctor_id' => null,
+                        'is_ad_hoc' => true,
+                    ],
+                    [
+                        'service_id' => -1,
+                        'service_key' => null,
+                        'service_name' => 'Special Report',
+                        'bill_amount' => 1300,
+                        'system_amount' => 500,
+                        'referred_amount' => 800,
+                        'category' => 'others',
+                        'doctor_id' => null,
+                        'is_ad_hoc' => true,
+                    ],
+                ],
+            ],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(201, $status);
+        $this->assertNull($payload['doctor_id']);
+        $this->assertCount(2, $payload['items']);
+        $this->assertSame('special-report-2', $payload['items'][0]['service_key']);
+        $this->assertSame('special-report-3', $payload['items'][1]['service_key']);
+        $this->assertDatabaseMissing('daily_patient_queues', ['bill_id' => $payload['id']]);
+        $this->assertDatabaseHas('services', ['key' => 'special-report-2']);
+        $this->assertDatabaseHas('services', ['key' => 'special-report-3']);
+        $this->assertDatabaseHas('bill_items', [
+            'bill_id' => $payload['id'],
+            'service_name' => 'Special Report',
+            'category' => 'others',
+            'is_ad_hoc' => 1,
+        ]);
     }
 
     public function test_public_day_summary_returns_printer_ready_shift_filtered_items(): void
@@ -587,6 +755,9 @@ class PublicApiTest extends TestCase
         $this->assertSame($booking->id, $listPayload['data'][0]['id']);
         $this->assertSame($booking->uuid, $listPayload['data'][0]['reference']);
         $this->assertSame('REG-001', $listPayload['data'][0]['patient']['registration_no']);
+        $this->assertSame('Specialist Channeling', $listPayload['data'][0]['items'][0]['service_name']);
+        $this->assertSame(500.0, (float) $listPayload['data'][0]['items'][0]['system_amount']);
+        $this->assertSame(2000.0, (float) $listPayload['data'][0]['items'][0]['referred_amount']);
         $this->assertSame(1, $listPayload['meta']['page']);
         $this->assertSame(1, $listPayload['meta']['total']);
 
@@ -602,6 +773,7 @@ class PublicApiTest extends TestCase
         $this->assertSame('REG-001', $showPayload['patient']['registration_no']);
         $this->assertSame($booking->doctor->name, $showPayload['doctor_name']);
         $this->assertSame($booking->doctor->specialty->name, $showPayload['doctor_specialty']);
+        $this->assertSame($booking->billItems[0]->service->key, $showPayload['items'][0]['service_key']);
     }
 
     public function test_public_booking_update_restores_previous_slot_and_regenerates_queue(): void
@@ -642,7 +814,17 @@ class PublicApiTest extends TestCase
                 'bill_amount' => 3200,
                 'system_amount' => 600,
                 'items' => [
-                    ['name' => 'Consultation', 'price' => 3200],
+                    [
+                        'service_id' => $booking->billItems[0]->service_id,
+                        'service_key' => $booking->billItems[0]->service->key,
+                        'service_name' => 'Consultation',
+                        'bill_amount' => 3200,
+                        'system_amount' => 600,
+                        'referred_amount' => 2600,
+                        'category' => 'specialist',
+                        'doctor_id' => $booking->doctor_id,
+                        'is_ad_hoc' => false,
+                    ],
                 ],
             ],
             $this->trustedHeaders($trustedSite, $token),
@@ -662,6 +844,8 @@ class PublicApiTest extends TestCase
         $this->assertSame('Updated Patient', $booking->patient->name);
         $this->assertSame('+94771234567', $booking->patient->telephone);
         $this->assertSame('REG-999', $booking->patient->registration_no);
+        $this->assertSame('Consultation', $booking->billItems()->firstOrFail()->service_name);
+        $this->assertSame(2600.0, (float) $booking->billItems()->firstOrFail()->referred_amount);
         $this->assertDatabaseHas('daily_patient_queues', [
             'bill_id' => $booking->id,
             'queue_date' => $newDate,
@@ -710,7 +894,17 @@ class PublicApiTest extends TestCase
                 'bill_amount' => 4000,
                 'system_amount' => 750,
                 'items' => [
-                    ['name' => 'Consultation', 'price' => 4000],
+                    [
+                        'service_id' => $booking->billItems[0]->service_id,
+                        'service_key' => $booking->billItems[0]->service->key,
+                        'service_name' => 'Consultation',
+                        'bill_amount' => 4000,
+                        'system_amount' => 750,
+                        'referred_amount' => 3250,
+                        'category' => 'specialist',
+                        'doctor_id' => $booking->doctor_id,
+                        'is_ad_hoc' => false,
+                    ],
                 ],
             ],
             $this->trustedHeaders($trustedSite, $token),
@@ -720,6 +914,7 @@ class PublicApiTest extends TestCase
         $this->assertSame('Booking moved to payment successfully.', $payload['message']);
         $this->assertSame($booking->uuid, $payload['bill']['reference']);
         $this->assertSame(BillStatus::DOCTOR->value, $payload['bill']['status']);
+        $this->assertSame(3250.0, (float) $payload['bill']['items'][0]['referred_amount']);
 
         $booking->refresh();
 
@@ -783,8 +978,13 @@ class PublicApiTest extends TestCase
 
         $bill->billItems()->create([
             'service_id' => $service->id,
+            'service_name' => $service->name,
+            'service_key' => $service->key,
+            'doctor_id' => $doctor->id,
             'bill_amount' => 2500,
             'system_amount' => 500,
+            'referred_amount' => 2000,
+            'category' => 'specialist',
         ]);
 
         DailyPatientQueue::query()->create([
