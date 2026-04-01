@@ -11,24 +11,22 @@ The backend already returns the payload shape expected by the Windows-side `prin
 ## Endpoint
 
 - Local base URL: `http://localhost/test-b.local`
-- Day summary endpoint: `GET /api/reports/day-summary`
+- Day summary endpoint: `GET /api/public/reports/day-summary`
 
 Full local URL:
 
 ```text
-http://localhost/test-b.local/api/reports/day-summary
+http://localhost/test-b.local/api/public/reports/day-summary
 ```
 
 ## Authentication
 
-This is not a `/api/public/*` bearer-token endpoint.
+This is a `/api/public/*` bearer-token endpoint.
 
-It uses the normal authenticated admin API path:
+It uses the Electron public API path:
 
 - `verify.apikey`
-- `auth:sanctum`
-- `auth`
-- `role:admin`
+- `public.app.token`
 
 ### Required headers
 
@@ -37,14 +35,14 @@ Accept: application/json
 Content-Type: application/json
 X-API-KEY: <trusted-site-api-key>
 Referer: https://<trusted-site-domain>
-Authorization: Bearer <sanctum-user-token>
+Authorization: Bearer <public-app-token>
 ```
 
 ### Auth requirements
 
-- the token must belong to a logged-in user
-- the user must have the `admin` role
-- a public app token will not work for this route
+- the token must be a valid public app bearer token
+- no staff login is required
+- no Sanctum user token is required
 
 ## Query parameters
 
@@ -61,13 +59,13 @@ Authorization: Bearer <sanctum-user-token>
 ### Selected date and shift
 
 ```text
-GET /api/reports/day-summary?date=2026-04-01&shift=morning
+GET /api/public/reports/day-summary?date=2026-04-01&shift=morning
 ```
 
 ### Today for evening shift
 
 ```text
-GET /api/reports/day-summary?shift=evening
+GET /api/public/reports/day-summary?shift=evening
 ```
 
 ## Response shape
@@ -123,10 +121,9 @@ Status: `200 OK`
 ## Common error responses
 
 - `401 Unauthorized`
-  - missing or invalid Sanctum token
+  - missing or invalid public app bearer token
 - `403 Forbidden`
   - missing or invalid trusted-site headers
-  - authenticated user is not an admin
 - `422 Unprocessable Entity`
   - missing `shift`
   - invalid `shift`
@@ -134,8 +131,7 @@ Status: `200 OK`
 
 ## Agent guidance
 
-- Do not call this route with the Electron public bearer token.
-- Use the currently authenticated admin staff token for this request.
+- Call this route with the Electron public bearer token.
 - Always send `shift`.
 - Send `date` explicitly when reprinting an older summary.
 - Pass the response body directly to the Python print service without reshaping field names.
@@ -145,7 +141,7 @@ Status: `200 OK`
 
 ```ts
 const response = await fetch(
-  'http://localhost/test-b.local/api/reports/day-summary?date=2026-04-01&shift=morning',
+  'http://localhost/test-b.local/api/public/reports/day-summary?date=2026-04-01&shift=morning',
   {
     method: 'GET',
     headers: {
@@ -153,7 +149,7 @@ const response = await fetch(
       'Content-Type': 'application/json',
       'X-API-KEY': process.env.API_KEY ?? '',
       Referer: 'https://desktop.local',
-      Authorization: `Bearer ${process.env.ADMIN_SANCTUM_TOKEN ?? ''}`,
+      Authorization: `Bearer ${process.env.PUBLIC_APP_TOKEN ?? ''}`,
     },
   },
 );

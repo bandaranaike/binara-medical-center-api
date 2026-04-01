@@ -107,6 +107,7 @@ Current public desktop endpoints:
 - `GET /api/public/doctors`
 - `GET /api/public/doctors/by-date`
 - `POST /api/public/bills`
+- `GET /api/public/reports/day-summary`
 - `GET /api/public/bookings`
 - `GET /api/public/bookings/{id}`
 - `PUT /api/public/bookings/{id}`
@@ -161,6 +162,7 @@ Public desktop booking management now also supports:
 - deleting only `booked` bills while restoring the consumed doctor availability seat
 - proceeding a booked bill to `doctor` status without using staff auth
 - using `uuid` as the `reference` field in booking-related responses
+- fetching printer-ready day summaries by selected date and shift
 
 Main files:
 

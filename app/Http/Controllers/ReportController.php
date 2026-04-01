@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\BillStatus;
 use App\Http\Requests\DaySummaryReportRequest;
 use App\Models\Bill;
+use App\Services\DaySummaryReportService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
+    public function __construct(private readonly DaySummaryReportService $daySummaryReportService) {}
+
     private string $end;
 
     private string $start;
@@ -173,40 +176,7 @@ class ReportController extends Controller
     public function daySummary(DaySummaryReportRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $date = Carbon::parse($validated['date'])->toDateString();
 
-        $items = DB::table('bill_items')
-            ->join('bills', 'bill_items.bill_id', '=', 'bills.id')
-            ->join('services', 'bill_items.service_id', '=', 'services.id')
-            ->leftJoin('doctors', 'bills.doctor_id', '=', 'doctors.id')
-            ->selectRaw(
-                "CASE WHEN services.`key` = ? THEN CONCAT(services.name, ' ', doctors.name) ELSE services.name END as service_name",
-                ['channeling'],
-            )
-            ->selectRaw('COUNT(bill_items.id) as quantity')
-            ->selectRaw('SUM(bill_items.bill_amount) as total')
-            ->whereDate('bills.date', $date)
-            ->where('bills.shift', $validated['shift'])
-            ->where('bills.payment_status', 'paid')
-            ->whereNull('bills.deleted_at')
-            ->groupByRaw(
-                "CASE WHEN services.`key` = 'channeling' THEN CONCAT(services.name, ' ', doctors.name) ELSE services.name END",
-            )
-            ->havingRaw('SUM(bill_items.bill_amount) > 0')
-            ->orderByDesc('total')
-            ->get()
-            ->map(static fn ($item): array => [
-                'service_name' => $item->service_name,
-                'quantity' => (int) $item->quantity,
-                'total' => (float) $item->total,
-            ])
-            ->values()
-            ->all();
-
-        return response()->json([
-            'start_date' => $date,
-            'end_date' => $date,
-            'items' => $items,
-        ]);
+        return response()->json($this->daySummaryReportService->build($validated['date'], $validated['shift']));
     }
 }

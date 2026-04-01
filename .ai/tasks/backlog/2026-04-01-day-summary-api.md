@@ -96,6 +96,7 @@ Observed consumer expectations from `print_summary.py`:
 ## Implementation Notes
 
 - Implemented on 2026-04-01 at `GET /api/reports/day-summary`
+- Exposed on the public app-token surface at `GET /api/public/reports/day-summary`
 - Uses `bills.date` for the selected day, defaults `date` to today, and requires `shift`
 - Includes only paid, non-deleted bills
 - Uses `COUNT(bill_items.id)` for quantity and `SUM(bill_items.bill_amount)` for total

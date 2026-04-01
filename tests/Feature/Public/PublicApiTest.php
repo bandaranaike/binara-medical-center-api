@@ -3,6 +3,7 @@
 namespace Tests\Feature\Public;
 
 use App\Enums\AppointmentType;
+use App\Enums\BillPaymentStatus;
 use App\Enums\BillStatus;
 use App\Enums\DoctorAvailabilityStatus;
 use App\Enums\PaymentType;
@@ -361,6 +362,61 @@ class PublicApiTest extends TestCase
         ]);
 
         Event::assertDispatched(NewBillCreated::class);
+    }
+
+    public function test_public_day_summary_returns_printer_ready_shift_filtered_items(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $patient = Patient::factory()->create();
+        $doctorAruna = $this->createDoctorForPublicDaySummary('Dr.Aruna');
+        $doctorBimal = $this->createDoctorForPublicDaySummary('Dr.Bimal');
+
+        $channeling = Service::query()->create([
+            'name' => 'Channeling',
+            'key' => 'channeling',
+            'bill_price' => 2000,
+            'system_price' => 500,
+        ]);
+
+        $dressing = Service::query()->create([
+            'name' => 'Dressing',
+            'key' => 'dressing',
+            'bill_price' => 400,
+            'system_price' => 0,
+        ]);
+
+        $this->createBillForPublicDaySummary($patient, $doctorAruna, $channeling, '2026-04-01 09:00:00', 'morning', BillPaymentStatus::PAID->value, [2000, 2000]);
+        $this->createBillForPublicDaySummary($patient, $doctorBimal, $channeling, '2026-04-01 10:00:00', 'morning', BillPaymentStatus::PAID->value, [2000]);
+        $this->createBillForPublicDaySummary($patient, $doctorAruna, $dressing, '2026-04-01 11:00:00', 'morning', BillPaymentStatus::PAID->value, [400, 400, 0]);
+        $this->createBillForPublicDaySummary($patient, $doctorAruna, $dressing, '2026-04-01 18:00:00', 'evening', BillPaymentStatus::PAID->value, [999]);
+        $this->createBillForPublicDaySummary($patient, $doctorAruna, $dressing, '2026-04-01 12:00:00', 'morning', BillPaymentStatus::PENDING->value, [999]);
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/reports/day-summary?date=2026-04-01&shift=morning',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertSame('2026-04-01', $payload['start_date']);
+        $this->assertSame('2026-04-01', $payload['end_date']);
+        $this->assertCount(3, $payload['items']);
+        $channelingAruna = collect($payload['items'])->firstWhere('service_name', 'Channeling Dr.Aruna');
+        $channelingBimal = collect($payload['items'])->firstWhere('service_name', 'Channeling Dr.Bimal');
+        $dressingSummary = collect($payload['items'])->firstWhere('service_name', 'Dressing');
+
+        $this->assertNotNull($channelingAruna);
+        $this->assertSame(2, $channelingAruna['quantity']);
+        $this->assertSame(4000.0, (float) $channelingAruna['total']);
+
+        $this->assertNotNull($channelingBimal);
+        $this->assertSame(1, $channelingBimal['quantity']);
+        $this->assertSame(2000.0, (float) $channelingBimal['total']);
+
+        $this->assertNotNull($dressingSummary);
+        $this->assertSame(3, $dressingSummary['quantity']);
+        $this->assertSame(800.0, (float) $dressingSummary['total']);
     }
 
     public function test_public_booking_make_appointment_skips_phone_verification_and_persists_patient_details(): void
@@ -740,6 +796,62 @@ class PublicApiTest extends TestCase
         ]);
 
         return $bill->load(['patient', 'doctor.specialty', 'billItems.service', 'dailyPatientQueue']);
+    }
+
+    private function createDoctorForPublicDaySummary(string $name): Doctor
+    {
+        $specialty = Specialty::query()->firstOrCreate(['name' => 'General']);
+        $hospital = Hospital::query()->firstOrCreate(['name' => 'Main Hospital'], ['location' => 'Colombo']);
+        $doctorRole = Role::query()->firstOrCreate(
+            ['key' => 'doctor'],
+            ['name' => 'Doctor', 'description' => 'Doctor role'],
+        );
+
+        return Doctor::query()->create([
+            'name' => $name,
+            'hospital_id' => $hospital->id,
+            'specialty_id' => $specialty->id,
+            'user_id' => User::factory()->create(['role_id' => $doctorRole->id])->id,
+            'telephone' => fake()->numerify('+9477#######'),
+            'email' => fake()->unique()->safeEmail(),
+            'doctor_type' => AppointmentType::OPD->value,
+        ]);
+    }
+
+    /**
+     * @param  list<int|float>  $amounts
+     */
+    private function createBillForPublicDaySummary(
+        Patient $patient,
+        Doctor $doctor,
+        Service $service,
+        string $date,
+        string $shift,
+        string $paymentStatus,
+        array $amounts,
+    ): Bill {
+        $bill = Bill::query()->create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'date' => $date,
+            'status' => BillStatus::DONE->value,
+            'shift' => $shift,
+            'payment_status' => $paymentStatus,
+            'payment_type' => PaymentType::CASH->value,
+            'bill_amount' => array_sum($amounts),
+            'system_amount' => 0,
+            'appointment_type' => $service->name,
+        ]);
+
+        foreach ($amounts as $amount) {
+            $bill->billItems()->create([
+                'service_id' => $service->id,
+                'bill_amount' => $amount,
+                'system_amount' => 0,
+            ]);
+        }
+
+        return $bill;
     }
 
     private function createTrustedSiteWithToken(): array

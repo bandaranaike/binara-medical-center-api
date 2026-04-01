@@ -2,7 +2,7 @@
 
 ## Title
 
-Add bill day-summary API for printed service totals
+Add public day-summary API for the Electron app
 
 ## Status
 
@@ -10,18 +10,18 @@ Completed
 
 ## Goal
 
-Create an API endpoint that returns a printable day summary grouped by service for a selected date and shift.
+Expose the day-summary report through the public app-token API in `routes/public.php` so the Electron app can fetch printer-ready summary data.
 
 ## Work items
 
-- add a request validator for date and shift
-- add an admin reporting endpoint under `/api/reports/*`
-- aggregate paid bill items into printer-friendly rows
-- include doctor name in channeling rows
-- cover the endpoint with feature tests
+- extract the aggregation into a shared service
+- add a public controller and route under `/api/public/*`
+- keep the response contract identical to the existing day-summary output
+- update public API docs for the Electron agent
+- cover the public route with feature tests
 
 ## Notes
 
-- use `bills.date` as the report date filter
-- use `bill_items.bill_amount` for totals and `COUNT(bill_items.id)` for quantity
-- filter to paid, non-deleted bills and exclude zero-total rows
+- public route should use app-token auth, not Sanctum staff auth
+- keep `date` optional and `shift` required
+- implemented at `GET /api/public/reports/day-summary`
