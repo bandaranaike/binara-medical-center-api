@@ -19,8 +19,8 @@ use App\Http\Controllers\DoctorsChannelingFeeController;
 use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\DrugController;
-use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\PatientAuthController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientsAllergyController;
@@ -107,6 +107,7 @@ Route::middleware(['verify.apikey'])->group(function () {
 
         Route::prefix('reports')->middleware(['role:admin'])->group(function () {
             Route::get('', [ReportController::class, 'index']);
+            Route::get('day-summary', [ReportController::class, 'daySummary']);
             Route::get('service-costs', [ReportController::class, 'serviceCostReport']);
             Route::get('services-with-positive-system-amount', [ReportController::class, 'getServicesWithPositiveSystemAmount']);
         });

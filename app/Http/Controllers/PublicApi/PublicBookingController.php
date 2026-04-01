@@ -65,8 +65,7 @@ class PublicBookingController extends Controller
                 $validated['search'] ?? null,
                 function ($query, $search): void {
                     $query->where(function ($builder) use ($search): void {
-                        $builder->where('booking_registration_number', 'like', '%'.$search.'%')
-                            ->orWhere('bill_registration_number', 'like', '%'.$search.'%')
+                        $builder->where('uuid', 'like', '%'.$search.'%')
                             ->orWhereHas('patient', function ($patientQuery) use ($search): void {
                                 $patientQuery->where('name', 'like', '%'.$search.'%')
                                     ->orWhere('telephone', 'like', '%'.$search.'%')
@@ -81,7 +80,7 @@ class PublicBookingController extends Controller
             ->orderBy('id')
             ->paginate($perPage);
 
-//        Log::info('Public bookings', ['bookings' => $bookings]);
+        //        Log::info('Public bookings', ['bookings' => $bookings]);
 
         return response()->json([
             'data' => collect($bookings->items())
@@ -158,9 +157,7 @@ class PublicBookingController extends Controller
             'doctor_specialty' => $doctorSpecialty,
             'booking_number' => $bookingNumber,
             'date' => $bill->date,
-            'reference' => $bill->booking_registration_number,
-            'bill_registration_number' => $bill->bill_registration_number,
-            'booking_registration_number' => $bill->booking_registration_number,
+            'reference' => $bill->uuid,
             'generated_at' => $bill->created_at,
             'bill_id' => $bill->id,
         ]);
@@ -234,7 +231,7 @@ class PublicBookingController extends Controller
             'booking' => [
                 'id' => $booking->id,
                 'bill_id' => $booking->id,
-                'reference' => $booking->booking_registration_number,
+                'reference' => $booking->uuid,
                 'booking_number' => $booking->dailyPatientQueue?->queue_number,
                 'date' => $booking->date,
                 'status' => $booking->status,
@@ -292,7 +289,7 @@ class PublicBookingController extends Controller
             'message' => 'Booking moved to payment successfully.',
             'bill' => [
                 'id' => $booking->id,
-                'reference' => $booking->booking_registration_number,
+                'reference' => $booking->uuid,
                 'status' => $booking->status,
                 'payment_type' => $booking->payment_type,
                 'bill_amount' => (float) $booking->bill_amount,
@@ -407,7 +404,7 @@ class PublicBookingController extends Controller
         return [
             'id' => $booking->id,
             'bill_id' => $booking->id,
-            'reference' => $booking->booking_registration_number,
+            'reference' => $booking->uuid,
             'booking_number' => $booking->dailyPatientQueue?->queue_number,
             'date' => $booking->date,
             'status' => $booking->status,

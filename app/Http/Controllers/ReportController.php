@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\BillStatus;
+use App\Http\Requests\DaySummaryReportRequest;
 use App\Models\Bill;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 class ReportController extends Controller
 {
     private string $end;
+
     private string $start;
 
     public function index(Request $request): JsonResponse
@@ -39,7 +41,7 @@ class ReportController extends Controller
             ->whereBetween('created_at', [$this->start, $this->end])
             ->count();
 
-        return ["statusData" => $statuses, "count" => $count];
+        return ['statusData' => $statuses, 'count' => $count];
     }
 
     private function getDailyReportSummary(): array
@@ -47,9 +49,9 @@ class ReportController extends Controller
 
         // Newly registered and updated patients count
         $patientsCounts = DB::table('patients')
-            ->selectRaw("
+            ->selectRaw('
                 COALESCE(COUNT(*), 0) as newPatientsCount,
-                COALESCE(SUM(CASE WHEN created_at < updated_at THEN 1 ELSE 0 END), 0) as updatedPatientsCount")
+                COALESCE(SUM(CASE WHEN created_at < updated_at THEN 1 ELSE 0 END), 0) as updatedPatientsCount')
             ->whereBetween('created_at', [$this->start, $this->end])
             ->first();
 
@@ -143,7 +145,7 @@ class ReportController extends Controller
                 'total_services' => $report->count(),
                 'total_bill_amount' => $report->sum('total_bill_amount'),
                 'total_system_amount' => $report->sum('total_system_amount'),
-            ]
+            ],
         ]);
     }
 
@@ -168,4 +170,43 @@ class ReportController extends Controller
         return response()->json(['start_date' => $startDate, 'end_date' => $endDate, 'items' => $items]);
     }
 
+    public function daySummary(DaySummaryReportRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+        $date = Carbon::parse($validated['date'])->toDateString();
+
+        $items = DB::table('bill_items')
+            ->join('bills', 'bill_items.bill_id', '=', 'bills.id')
+            ->join('services', 'bill_items.service_id', '=', 'services.id')
+            ->leftJoin('doctors', 'bills.doctor_id', '=', 'doctors.id')
+            ->selectRaw(
+                "CASE WHEN services.`key` = ? THEN CONCAT(services.name, ' ', doctors.name) ELSE services.name END as service_name",
+                ['channeling'],
+            )
+            ->selectRaw('COUNT(bill_items.id) as quantity')
+            ->selectRaw('SUM(bill_items.bill_amount) as total')
+            ->whereDate('bills.date', $date)
+            ->where('bills.shift', $validated['shift'])
+            ->where('bills.payment_status', 'paid')
+            ->whereNull('bills.deleted_at')
+            ->groupByRaw(
+                "CASE WHEN services.`key` = 'channeling' THEN CONCAT(services.name, ' ', doctors.name) ELSE services.name END",
+            )
+            ->havingRaw('SUM(bill_items.bill_amount) > 0')
+            ->orderByDesc('total')
+            ->get()
+            ->map(static fn ($item): array => [
+                'service_name' => $item->service_name,
+                'quantity' => (int) $item->quantity,
+                'total' => (float) $item->total,
+            ])
+            ->values()
+            ->all();
+
+        return response()->json([
+            'start_date' => $date,
+            'end_date' => $date,
+            'items' => $items,
+        ]);
+    }
 }

@@ -1,4 +1,6 @@
-# Task Reference: Electron Public Bearer Token
+# Public App Token Status
+
+This is a `domains/public-api/` reference note for the machine-auth token design used by the Electron integration.
 
 ## Status
 

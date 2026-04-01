@@ -1,5 +1,7 @@
 # Database Schema Reference
 
+This is a stable `context/` document. Update it when schema meaning, key relationships, or important state transitions change.
+
 Database engine: MariaDB
 
 The schema is centered around patient bookings, billing, doctor scheduling, and pharmacy stock/sales.
@@ -65,8 +67,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 - `bills`
   - central encounter / booking / bill record
   - links patient and doctor
-  - stores `bill_registration_number` for every bill
-  - stores `booking_registration_number` for booked appointments
+  - stores `uuid` as the stable external identifier
   - stores workflow status, payment data, appointment type, date, shift
   - soft deletes enabled
 - `bill_items`
@@ -178,6 +179,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
 - `/api/public/*` routes are authenticated by both `trusted_sites` and `public_app_tokens`.
 - `public_app_tokens` are app-level machine credentials, not staff or patient login tokens.
 - Booking creates a `bill`, related `bill_items`, and a `daily_patient_queues` row.
+- `bills.uuid` is the remaining API-facing bill / booking reference after registration-number removal.
 - public booking edits can move a booking to a new date / doctor by restoring the old availability seat, consuming the new one, and regenerating the queue row
 - Pharmacy sales decrement `stocks` and persist per-batch deductions in `temporary_sales`.
 - Removing or changing a sale restores stock first, then re-applies deductions.

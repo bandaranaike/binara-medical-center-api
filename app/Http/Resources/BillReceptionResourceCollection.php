@@ -17,8 +17,6 @@ class BillReceptionResourceCollection extends JsonResource
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
-            'bill_registration_number' => $this->bill_registration_number,
-            'booking_registration_number' => $this->booking_registration_number,
             'bill_amount' => $this->bill_amount,
             'system_amount' => $this->system_amount,
             'queue_number' => $this->dailyPatientQueue?->queue_number,

@@ -1,4 +1,6 @@
-# Booking And Date-Driven API Contracts
+# Booking Date Contracts
+
+This is a `domains/public-api/` reference note for date-driven booking endpoints and payloads.
 
 This document defines the backend API contracts needed before starting the next renderer tasks.
 

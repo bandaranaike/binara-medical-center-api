@@ -99,8 +99,7 @@ class BillController extends Controller
             'bill_reference' => "$billReference",
             'payment_type' => $bill->payment_type,
             'bill_id' => $bill->id,
-            'bill_registration_number' => $bill->bill_registration_number,
-            'booking_registration_number' => $bill->booking_registration_number,
+            'reference' => $bill->uuid,
             'bill_items' => $billData['items'],
             'patient_name' => $bill->patient->name,
             'doctor_name' => $bill->doctor?->name,
@@ -147,8 +146,6 @@ class BillController extends Controller
                 'bills.id',
                 'patient_id',
                 'uuid',
-                'bill_registration_number',
-                'booking_registration_number',
                 'bills.doctor_id',
                 'daily_patient_queues.queue_number',
             ])

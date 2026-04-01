@@ -16,8 +16,7 @@ class BillResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'bill_registration_number' => $this->bill_registration_number,
-            'booking_registration_number' => $this->booking_registration_number,
+            'uuid' => $this->uuid,
             'system_amount' => $this->system_amount,
             'bill_amount' => $this->bill_amount,
             'patient_id' => $this->patient_id,

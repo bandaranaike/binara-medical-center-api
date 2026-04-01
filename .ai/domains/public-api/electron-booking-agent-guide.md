@@ -1,4 +1,6 @@
-# Electron AI Agent: Public Booking API
+# Electron Booking Agent Guide
+
+This is a `domains/public-api/` reference note for Electron-side booking behavior.
 
 This note is for an AI agent running inside the Electron app that needs to create a booking through the public API.
 

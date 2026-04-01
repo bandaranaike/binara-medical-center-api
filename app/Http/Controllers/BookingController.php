@@ -84,8 +84,6 @@ class BookingController extends Controller
             'booking_number' => $bookingNumber,
             'date' => $bill->date,
             'reference' => $bill->uuid,
-            'bill_registration_number' => $bill->bill_registration_number,
-            'booking_registration_number' => $bill->booking_registration_number,
             'generated_at' => $bill->created_at,
             'bill_id' => $bill->id,
         ]);
@@ -139,8 +137,7 @@ class BookingController extends Controller
                 'id',
                 'patient_id',
                 'doctor_id',
-                'bill_registration_number',
-                'booking_registration_number',
+                'uuid',
                 'payment_status',
                 'appointment_type',
                 'status',

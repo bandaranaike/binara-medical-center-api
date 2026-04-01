@@ -343,14 +343,14 @@ class PublicApiTest extends TestCase
         $this->assertSame(PaymentType::CASH->value, $payload['payment_type']);
         $this->assertSame('doctor', $payload['status']);
         $this->assertSame(AppointmentType::OPD->value, $payload['service_type']);
+        $this->assertSame($payload['uuid'], $payload['reference']);
+        $this->assertArrayNotHasKey('bill_registration_number', $payload);
+        $this->assertArrayNotHasKey('booking_registration_number', $payload);
 
         $bill = Bill::query()->first();
 
         $this->assertNotNull($bill);
-        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $payload['bill_registration_number']);
-        $this->assertNull($payload['booking_registration_number']);
-        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $bill->bill_registration_number);
-        $this->assertNull($bill->booking_registration_number);
+        $this->assertSame($bill->uuid, $payload['reference']);
         $this->assertDatabaseHas('bill_items', [
             'bill_id' => $bill->id,
         ]);
@@ -429,19 +429,17 @@ class PublicApiTest extends TestCase
         $this->assertSame('Cardiology', $payload['doctor_specialty']);
         $this->assertSame(1, $payload['booking_number']);
         $this->assertSame('2026-03-27', $payload['date']);
-        $this->assertStringStartsWith('BOOK-', $payload['reference']);
+        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $payload['reference']);
         $this->assertArrayHasKey('generated_at', $payload);
         $this->assertArrayHasKey('bill_id', $payload);
+        $this->assertArrayNotHasKey('bill_registration_number', $payload);
+        $this->assertArrayNotHasKey('booking_registration_number', $payload);
 
         $bill = Bill::query()->find($payload['bill_id']);
 
         $this->assertNotNull($bill);
         $this->assertSame('booked', $bill->status);
-        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $payload['bill_registration_number']);
-        $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $payload['booking_registration_number']);
-        $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $payload['reference']);
-        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $bill->bill_registration_number);
-        $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $bill->booking_registration_number);
+        $this->assertSame($bill->uuid, $payload['reference']);
         $this->assertDatabaseHas('patients', [
             'name' => 'John Public',
             'telephone' => '0771234567',
@@ -531,7 +529,7 @@ class PublicApiTest extends TestCase
         $this->assertSame(200, $listStatus);
         $this->assertCount(1, $listPayload['data']);
         $this->assertSame($booking->id, $listPayload['data'][0]['id']);
-        $this->assertSame($booking->booking_registration_number, $listPayload['data'][0]['reference']);
+        $this->assertSame($booking->uuid, $listPayload['data'][0]['reference']);
         $this->assertSame('REG-001', $listPayload['data'][0]['patient']['registration_no']);
         $this->assertSame(1, $listPayload['meta']['page']);
         $this->assertSame(1, $listPayload['meta']['total']);
@@ -596,7 +594,7 @@ class PublicApiTest extends TestCase
 
         $this->assertSame(200, $status);
         $this->assertSame('Booking updated successfully.', $payload['message']);
-        $this->assertSame($booking->booking_registration_number, $payload['booking']['reference']);
+        $this->assertSame($booking->uuid, $payload['booking']['reference']);
         $this->assertSame($newDate, $payload['booking']['date']);
 
         $booking->refresh();
@@ -664,7 +662,7 @@ class PublicApiTest extends TestCase
 
         $this->assertSame(200, $status);
         $this->assertSame('Booking moved to payment successfully.', $payload['message']);
-        $this->assertSame($booking->booking_registration_number, $payload['bill']['reference']);
+        $this->assertSame($booking->uuid, $payload['bill']['reference']);
         $this->assertSame(BillStatus::DOCTOR->value, $payload['bill']['status']);
 
         $booking->refresh();

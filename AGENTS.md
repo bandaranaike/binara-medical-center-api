@@ -42,15 +42,23 @@ This project has domain-specific skills available. You MUST activate the relevan
 ## Task Startup Context
 
 - At the beginning of future tasks, read the relevant files in `.ai/` first to understand the project before making assumptions or code changes.
+- Start with `.ai/README.md` to understand the current knowledge-center structure.
 - Use these files as the default project reference set:
-  - `.ai/skills.md`
-  - `.ai/database-schema.md`
-  - `.ai/functionality.md`
-  - `.ai/architecture.md`
+  - `.ai/context/skills.md`
+  - `.ai/context/architecture.md`
+  - `.ai/context/functionality.md`
+  - `.ai/context/database-schema.md`
+  - `.ai/tasks/active/current-task.md`
+  - `.ai/tasks/inbox.md`
 - When the task involves the Electron desktop integration or the public bearer-token API, also read:
-  - `.ai/tasks/electron-public-bearer-token.md`
+  - `.ai/domains/public-api/public-app-token-status.md`
+  - `.ai/domains/public-api/electron-booking-agent-guide.md`
+  - `.ai/domains/public-api/backend-spec.md`
+  - `.ai/domains/public-api/booking-date-contracts.md`
+  - `.ai/domains/public-api/resources/Summary-Bill.jpeg` when the task needs the legacy printed summary layout
 - After reading the `.ai` files, inspect only the code files relevant to the specific task.
 - If a task changes architecture, core functionality, or schema meaningfully, update the affected `.ai` files as part of the task.
+- If a new task is introduced during the conversation, record it in `.ai/tasks/inbox.md` unless it is immediately becoming the active task.
 
 ## Verification Scripts
 

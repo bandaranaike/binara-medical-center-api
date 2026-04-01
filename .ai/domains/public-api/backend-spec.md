@@ -1,4 +1,6 @@
-# Public API Specification for Electron Medical Center App
+# Public API Backend Specification
+
+This is a `domains/public-api/` reference note for the Electron-facing public API surface.
 
 ## Purpose
 

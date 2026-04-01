@@ -1,5 +1,7 @@
 # Architecture Reference
 
+This is a stable `context/` document. Update it when the application structure or major integration boundaries change.
+
 This repository is primarily a Laravel 11 API application with a secondary Inertia/Breeze frontend scaffold still present for web auth/profile screens.
 
 ## 1. Runtime shape

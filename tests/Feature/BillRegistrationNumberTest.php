@@ -11,13 +11,14 @@ use App\Models\Role;
 use App\Models\Specialty;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class BillRegistrationNumberTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_bill_creation_generates_bill_registration_number(): void
+    public function test_bill_creation_generates_a_uuid_without_registration_number_columns(): void
     {
         $bill = Bill::query()->create([
             'patient_id' => $this->createPatient()->id,
@@ -26,11 +27,12 @@ class BillRegistrationNumberTest extends TestCase
             'date' => now(),
         ]);
 
-        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $bill->fresh()->bill_registration_number);
-        $this->assertNull($bill->fresh()->booking_registration_number);
+        $this->assertNotNull($bill->fresh()->uuid);
+        $this->assertFalse(Schema::hasColumn('bills', 'bill_registration_number'));
+        $this->assertFalse(Schema::hasColumn('bills', 'booking_registration_number'));
     }
 
-    public function test_bill_creation_generates_booking_registration_number_for_bookings(): void
+    public function test_bill_creation_for_bookings_still_persists_without_registration_number_columns(): void
     {
         $bill = Bill::query()->create([
             'patient_id' => $this->createPatient()->id,
@@ -39,11 +41,11 @@ class BillRegistrationNumberTest extends TestCase
             'date' => now(),
         ]);
 
-        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $bill->fresh()->bill_registration_number);
-        $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $bill->fresh()->booking_registration_number);
+        $this->assertNotNull($bill->fresh()->uuid);
+        $this->assertSame(BillStatus::BOOKED->value, $bill->fresh()->status);
     }
 
-    public function test_updating_a_bill_to_booked_generates_booking_registration_number(): void
+    public function test_updating_a_bill_to_booked_does_not_require_registration_number_columns(): void
     {
         $bill = Bill::query()->create([
             'patient_id' => $this->createPatient()->id,
@@ -56,8 +58,8 @@ class BillRegistrationNumberTest extends TestCase
             'status' => BillStatus::BOOKED,
         ]);
 
-        $this->assertSame(Bill::formatBillRegistrationNumber($bill->id), $bill->fresh()->bill_registration_number);
-        $this->assertSame(Bill::formatBookingRegistrationNumber($bill->id), $bill->fresh()->booking_registration_number);
+        $this->assertSame(BillStatus::BOOKED->value, $bill->fresh()->status);
+        $this->assertNotNull($bill->fresh()->uuid);
     }
 
     private function createDoctor(): Doctor

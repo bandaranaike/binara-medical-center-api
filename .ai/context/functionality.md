@@ -1,5 +1,7 @@
 # Functionality Reference
 
+This is a stable `context/` document. Update it when user-facing or API-facing behavior changes meaningfully.
+
 This document summarizes what the API does at a business level and which files currently implement the behavior.
 
 ## 1. Access model
@@ -148,8 +150,7 @@ Main behavior of appointment creation:
 7. create the bill
 8. create default bill items
 9. create daily queue entry
-10. assign bill and booking registration numbers
-11. return booking reference and queue number
+10. return the bill `uuid` as the booking reference together with the queue number
 
 Public desktop booking management now also supports:
 
@@ -159,6 +160,7 @@ Public desktop booking management now also supports:
 - updating patient details including `registration_no`
 - deleting only `booked` bills while restoring the consumed doctor availability seat
 - proceeding a booked bill to `doctor` status without using staff auth
+- using `uuid` as the `reference` field in booking-related responses
 
 Main files:
 
@@ -204,8 +206,7 @@ Billing is the center of the app.
 
 Bills can be created directly or via booking. A bill stores:
 
-- bill registration number
-- booking registration number when the bill is a booking
+- `uuid` as the stable API-facing reference identifier
 - patient
 - doctor
 - date
@@ -249,6 +250,24 @@ Main files:
 - `app/Http/Controllers/PublicApi/PublicBillController.php`
 - `app/Http/Controllers/Traits/PrintingDataProcess.php`
 - `app/Http/Controllers/Traits/SystemPriceCalculator.php`
+
+### Reporting
+
+Admin reporting endpoints under `/api/reports/*` include:
+
+- overview metrics
+- service cost summaries
+- positive system-amount service summaries
+- day summary printing data at `GET /api/reports/day-summary`
+
+Day summary behavior:
+
+- accepts `shift` and optional `date`
+- defaults `date` to today
+- filters to paid, non-deleted bills for the selected `bills.date`
+- groups by printable service label
+- appends doctor name for channeling rows
+- returns printer-friendly `start_date`, `end_date`, and `items`
 
 ## 6. Pharmacy, stock, and medicine history
 

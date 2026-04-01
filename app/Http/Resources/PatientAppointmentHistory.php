@@ -16,8 +16,7 @@ class PatientAppointmentHistory extends JsonResource
     {
         return [
             'id' => $this->id,
-            'billRegistrationNumber' => $this->bill_registration_number,
-            'bookingRegistrationNumber' => $this->booking_registration_number,
+            'reference' => $this->uuid,
             'appointmentType' => $this->appointment_type,
             'doctorName' => $this->doctor?->name ?? 'No doctor',
             'patientName' => $this->patient?->name,
