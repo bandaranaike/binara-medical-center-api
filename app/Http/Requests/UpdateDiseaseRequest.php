@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UpdateDiseaseRequest extends FormRequest
 {
@@ -22,9 +23,14 @@ class UpdateDiseaseRequest extends FormRequest
      */
     public function rules(): array
     {
-
         return [
-            'name' => 'sometimes|required|string|max:255|unique:diseases,name,' . $this->disease->id,
+            'name' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('diseases', 'name')->ignore(request()->route('disease') ?? request()->get('id')),
+            ],
         ];
     }
 }
