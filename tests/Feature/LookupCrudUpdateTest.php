@@ -75,6 +75,38 @@ class LookupCrudUpdateTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_list_users_when_a_user_has_no_role(): void
+    {
+        $admin = $this->createAdminUser();
+        Sanctum::actingAs($admin);
+
+        $trustedSite = TrustedSite::query()->create([
+            'domain' => 'admin.local',
+            'api_key' => 'trusted-api-key',
+        ]);
+
+        $orphanedUser = User::factory()->create([
+            'role_id' => null,
+        ]);
+
+        $response = $this->withHeaders($this->trustedHeaders($trustedSite))
+            ->getJson('/api/users');
+
+        $response->assertOk()
+            ->assertJsonFragment([
+                'id' => $admin->id,
+                'role' => 'Admin',
+            ])
+            ->assertJsonFragment([
+                'id' => $orphanedUser->id,
+                'role' => null,
+            ])
+            ->assertJson(fn ($json) => $json
+                ->has('data', 2)
+                ->where('last_page', 1)
+                ->etc());
+    }
+
     private function createAdminUser(): User
     {
         $adminRole = Role::query()->create([
