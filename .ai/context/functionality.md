@@ -128,6 +128,21 @@ Operational note:
 
 - new public bearer tokens are issued with `php artisan public-api:token {trusted_site} {name}`
 
+## 2.1 Holidays
+
+Holiday behavior now supports:
+
+- public `GET /api/holidays/today-status` to expose whether the current date is marked closed
+- admin-only CRUD under `/api/holidays`
+- unique holiday dates with optional display message and `is_closed` flag
+
+Main files:
+
+- `app/Http/Controllers/HolidayController.php`
+- `app/Http/Requests/StoreHolidayRequest.php`
+- `app/Http/Requests/UpdateHolidayRequest.php`
+- `routes/api.php`
+
 ## 3. Booking and appointments
 
 Public booking endpoints let external clients:

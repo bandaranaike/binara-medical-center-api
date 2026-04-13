@@ -175,6 +175,7 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::apiResource('drugs', DrugController::class)->middleware(['role:admin,pharmacy_admin']);
     Route::apiResource('doctor-channeling-fees', DoctorsChannelingFeeController::class)->middleware(['role:admin']);
     Route::apiResource('hospitals', HospitalController::class)->middleware(['role:admin']);
+    Route::apiResource('holidays', HolidayController::class)->middleware(['role:admin']);
     Route::apiResource('patients', PatientController::class)->middleware(['role:admin,reception']);
     Route::apiResource('patient-medicine-histories', PatientsMedicineHistoryController::class)
         ->middleware(['role:admin,reception,pharmacy,pharmacy_admin,doctor']);
