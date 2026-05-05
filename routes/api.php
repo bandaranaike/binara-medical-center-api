@@ -38,6 +38,7 @@ use App\Http\Controllers\TrustedSiteController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 Route::middleware(['auth:sanctum'])->get('/check-user', function (Request $request) {
     return $request->user();
@@ -153,9 +154,12 @@ Route::middleware(['verify.apikey'])->group(function () {
     Route::put('patient/update-profile', [PatientAuthController::class, 'updateProfile'])->middleware('auth:sanctum');
     Route::put('patient/update-patient/{patient}', [PatientController::class, 'update'])->middleware('auth:sanctum');
 
-    Route::prefix('public')->middleware('public.app.token')->group(function () {
-        require base_path('routes/public.php');
-    });
+    Route::prefix('public')
+        ->withoutMiddleware([EnsureFrontendRequestsAreStateful::class])
+        ->middleware('public.app.token')
+        ->group(function () {
+            require base_path('routes/public.php');
+        });
 
     /**
      * +--------------------------------+

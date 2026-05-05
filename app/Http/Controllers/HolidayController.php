@@ -53,5 +53,6 @@ class HolidayController extends Controller
         return new JsonResponse([
             'message' => 'Record updated successfully',
         ]);
+
     }
 }
