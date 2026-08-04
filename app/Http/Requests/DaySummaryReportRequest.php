@@ -16,7 +16,7 @@ class DaySummaryReportRequest extends FormRequest
     {
         return [
             'date' => ['nullable', Rule::date()->format('Y-m-d')],
-            'shift' => ['required', 'string', 'in:morning,evening'],
+            'shift' => ['nullable', 'string', 'in:morning,evening'],
         ];
     }
 

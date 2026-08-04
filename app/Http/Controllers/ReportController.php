@@ -177,6 +177,6 @@ class ReportController extends Controller
     {
         $validated = $request->validated();
 
-        return response()->json($this->daySummaryReportService->build($validated['date'], $validated['shift']));
+        return response()->json($this->daySummaryReportService->build($validated['date'], $validated['shift'] ?? null));
     }
 }

@@ -10,11 +10,11 @@ class DaySummaryReportService
     /**
      * @return array{start_date: string, end_date: string, items: array<int, array{service_name: string, quantity: int, total: float}>}
      */
-    public function build(string $date, string $shift): array
+    public function build(string $date, ?string $shift = null): array
     {
         $reportDate = Carbon::parse($date)->toDateString();
 
-        $items = DB::table('bill_items')
+        $query = DB::table('bill_items')
             ->join('bills', 'bill_items.bill_id', '=', 'bills.id')
             ->join('services', 'bill_items.service_id', '=', 'services.id')
             ->leftJoin('doctors', 'bills.doctor_id', '=', 'doctors.id')
@@ -25,9 +25,11 @@ class DaySummaryReportService
             ->selectRaw('COUNT(bill_items.id) as quantity')
             ->selectRaw('SUM(bill_items.bill_amount) as total')
             ->whereDate('bills.date', $reportDate)
-            ->where('bills.shift', $shift)
             ->where('bills.payment_status', 'paid')
-            ->whereNull('bills.deleted_at')
+            ->whereNull('bills.deleted_at');
+
+        $items = $query
+            ->when($shift !== null, fn ($builder) => $builder->where('bills.shift', $shift))
             ->groupByRaw(
                 "services.`key`, services.name, CASE WHEN services.`key` = 'channeling' THEN bills.doctor_id ELSE 0 END",
             )

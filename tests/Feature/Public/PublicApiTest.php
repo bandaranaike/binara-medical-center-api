@@ -441,6 +441,7 @@ class PublicApiTest extends TestCase
         $this->assertSame(PaymentType::CASH->value, $payload['payment_type']);
         $this->assertSame('doctor', $payload['status']);
         $this->assertSame(AppointmentType::OPD->value, $payload['service_type']);
+        $this->assertStringStartsWith(now()->toDateString(), (string) $payload['date']);
         $this->assertSame($payload['uuid'], $payload['reference']);
         $this->assertArrayNotHasKey('bill_registration_number', $payload);
         $this->assertArrayNotHasKey('booking_registration_number', $payload);
@@ -457,7 +458,7 @@ class PublicApiTest extends TestCase
         $this->assertDatabaseHas('daily_patient_queues', [
             'bill_id' => $bill->id,
             'doctor_id' => $doctor->id,
-            'queue_date' => '2026-03-25',
+            'queue_date' => now()->toDateString(),
         ]);
 
         Event::assertDispatched(NewBillCreated::class);
@@ -585,6 +586,82 @@ class PublicApiTest extends TestCase
         $this->assertNotNull($dressingSummary);
         $this->assertSame(3, $dressingSummary['quantity']);
         $this->assertSame(800.0, (float) $dressingSummary['total']);
+    }
+
+    public function test_public_today_bills_include_deleted_rows_and_combined_summary_excludes_them(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $patient = Patient::factory()->create();
+        $doctor = $this->createDoctorForPublicDaySummary('Dr. Today List');
+        $service = Service::query()->create([
+            'name' => 'Dressing',
+            'key' => 'dressing',
+            'bill_price' => 400,
+            'system_price' => 0,
+        ]);
+
+        $morningBill = $this->createBillForPublicDaySummary(
+            $patient,
+            $doctor,
+            $service,
+            '2026-04-01 09:00:00',
+            'morning',
+            BillPaymentStatus::PAID->value,
+            [400],
+        );
+        $this->createBillForPublicDaySummary(
+            $patient,
+            $doctor,
+            $service,
+            '2026-04-01 18:00:00',
+            'evening',
+            BillPaymentStatus::PAID->value,
+            [600],
+        );
+        $deletedBill = $this->createBillForPublicDaySummary(
+            $patient,
+            $doctor,
+            $service,
+            '2026-04-01 11:00:00',
+            'morning',
+            BillPaymentStatus::PAID->value,
+            [300],
+        );
+        $deletedBill->delete();
+
+        [$listStatus, $listPayload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/bills?date=2026-04-01',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $listStatus);
+        $this->assertCount(3, $listPayload['data']);
+        $this->assertCount(1, collect($listPayload['data'])->whereNotNull('deleted_at'));
+        $this->assertSame('Dr. Today List', $listPayload['data'][0]['doctor']['name']);
+        $this->assertNotEmpty($listPayload['data'][0]['items']);
+
+        [$summaryStatus, $summaryPayload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/reports/day-summary?date=2026-04-01',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $summaryStatus);
+        $this->assertSame(1000.0, (float) $summaryPayload['items'][0]['total']);
+
+        [$deleteStatus, $deletePayload] = $this->dispatchJsonRequest(
+            'DELETE',
+            '/api/public/bills/'.$morningBill->id,
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $deleteStatus);
+        $this->assertSame($morningBill->id, $deletePayload['deleted_id']);
+        $this->assertSoftDeleted('bills', ['id' => $morningBill->id]);
     }
 
     public function test_public_booking_make_appointment_skips_phone_verification_and_persists_patient_details(): void
