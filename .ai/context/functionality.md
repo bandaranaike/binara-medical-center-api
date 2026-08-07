@@ -105,6 +105,8 @@ Current public desktop endpoints:
 - `PUT /api/public/patients/{id}`
 - `POST /api/public/patients/upsert`
 - `GET /api/public/services/search`
+- `GET /api/public/services`
+- `POST /api/public/services`
 - `GET /api/public/doctors`
 - `GET /api/public/doctors/by-date`
 - `GET /api/public/doctors/{doctor}/billing-config`
@@ -200,6 +202,8 @@ The Electron billing desk now also relies on public app-token endpoints for serv
 Supported behavior:
 
 - receptionist-safe service autocomplete through `GET /api/public/services/search`
+- service lookup by name or key through `GET /api/public/services`
+- receptionist-safe idempotent service creation through `POST /api/public/services`
 - doctor billing defaults through `GET /api/public/doctors/{doctor}/billing-config`
 - `POST /api/public/bills` accepting structured `items` with split prices
 - public bill creation with no doctor for Electron `others` requests, normalized internally onto the existing treatment flow

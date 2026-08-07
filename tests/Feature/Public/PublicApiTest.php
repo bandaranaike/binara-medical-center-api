@@ -167,6 +167,71 @@ class PublicApiTest extends TestCase
         $this->assertSame(800.0, (float) $payload['data'][0]['bill_price']);
     }
 
+    public function test_public_service_lookup_matches_normalized_keys_and_creation_is_idempotent(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        [$createStatus, $created] = $this->dispatchJsonRequest(
+            'POST',
+            '/api/public/services',
+            [
+                'name' => 'Custom Wound Dressing',
+                'key' => 'Custom Wound Dressing',
+                'type' => 'treatment',
+                'bill_price' => 1500,
+                'system_price' => 1000,
+            ],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(201, $createStatus);
+        $this->assertSame('custom-wound-dressing', $created['key']);
+        $this->assertSame(1000.0, (float) $created['system_price']);
+        $this->assertSame(1500.0, (float) $created['bill_price']);
+
+        [$duplicateStatus, $duplicate] = $this->dispatchJsonRequest(
+            'POST',
+            '/api/public/services',
+            [
+                'name' => 'Changed Label',
+                'key' => 'custom-wound-dressing',
+                'type' => 'treatment',
+                'bill_price' => 9999,
+                'system_price' => 9999,
+            ],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $duplicateStatus);
+        $this->assertSame($created['id'], $duplicate['id']);
+        $this->assertSame('Custom Wound Dressing', $duplicate['name']);
+
+        [$lookupStatus, $lookup] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/services?query=wound-dress',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $lookupStatus);
+        $this->assertSame($created['id'], $lookup['data'][0]['id']);
+    }
+
+    public function test_public_service_creation_validates_short_lookup_queries(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/services?query=x',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(422, $status);
+        $this->assertArrayHasKey('query', $payload['errors']);
+    }
+
     public function test_public_doctor_list_supports_filtering_and_sorting(): void
     {
         [$trustedSite, $token] = $this->createTrustedSiteWithToken();

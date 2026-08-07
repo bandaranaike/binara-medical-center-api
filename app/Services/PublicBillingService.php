@@ -29,6 +29,9 @@ class PublicBillingService
             $service->key === ServiceKey::DEFAULT_DOCTOR->value => AppointmentType::OPD->value,
             $service->key === ServiceKey::DEFAULT_SPECIALIST_CHANNELING->value => AppointmentType::SPECIALIST->value,
             str_starts_with($service->key, 'dental-') => AppointmentType::DENTAL->value,
+            str_starts_with($service->key, 'opd-') => AppointmentType::OPD->value,
+            str_starts_with($service->key, 'specialist-') => AppointmentType::SPECIALIST->value,
+            str_starts_with($service->key, 'treatment-') => AppointmentType::TREATMENT->value,
             default => 'others',
         };
     }

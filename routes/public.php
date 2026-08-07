@@ -12,6 +12,8 @@ Route::get('patients/search', [PublicPatientController::class, 'search']);
 Route::post('patients', [PublicPatientController::class, 'store']);
 Route::put('patients/{patient}', [PublicPatientController::class, 'update']);
 Route::post('patients/upsert', [PublicPatientController::class, 'upsert']);
+Route::get('services', [PublicServiceController::class, 'index']);
+Route::post('services', [PublicServiceController::class, 'store']);
 Route::get('services/search', [PublicServiceController::class, 'search']);
 Route::get('doctors', [PublicDoctorController::class, 'index'])->name('public.doctors.index');
 Route::get('doctors/by-date', [PublicDoctorController::class, 'index'])->name('public.doctors.by-date');

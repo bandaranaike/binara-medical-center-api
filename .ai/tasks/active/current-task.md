@@ -2,7 +2,7 @@
 
 ## Title
 
-Add holiday CRUD API endpoints
+Add public service lookup, service creation, and grouped day-summary support
 
 ## Status
 
@@ -10,16 +10,18 @@ Completed
 
 ## Goal
 
-Provide full CRUD support for holidays through `app/Http/Controllers/HolidayController.php` and `routes/api.php`.
+Provide the Electron billing desk with receptionist-safe service lookup and idempotent creation, ensure structured OPD/Others bill items resolve to concrete services, and return grouped active service totals from the public day-summary endpoint.
 
 ## Work items
 
-- add store, index, show, update, and destroy behavior for holidays
-- add request validation for holiday payloads
-- expose admin CRUD endpoints in `routes/api.php`
-- cover the holiday API with feature tests
+- expose `GET /api/public/services` and `POST /api/public/services` using public app-token authentication
+- match service lookup by name or normalized key and support the documented type filters
+- normalize service keys and return an existing service for duplicate keys
+- verify structured bill-item compatibility for OPD and Others flows
+- group day-summary rows by the persisted normalized service name and exclude soft-deleted bills
+- update public API route inventory and endpoint documentation
+- add feature coverage for lookup, creation, duplicate keys, bill items, and summary behavior
 
-## Notes
+## Source
 
-- keep `GET /api/holidays/today-status` public inside the `verify.apikey` group
-- keep holiday CRUD admin-only to match other lookup-style resources
+The request was extracted from `.ai/tasks/backend-service-lookup-and-grouped-summary-request.md`, which has been removed after activation.

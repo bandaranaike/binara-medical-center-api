@@ -12,6 +12,17 @@ The target backend AI agent should use this file to implement a new public API s
 - does not require browser session or CSRF flow
 - does not depend on interactive staff login
 - supports patient search, patient upsert, doctor list, and bill creation for the desktop billing workflow
+- supports receptionist-safe service lookup and idempotent service creation for the desktop billing workflow
+
+## Service Lookup and Creation
+
+### `GET /api/public/services`
+
+Requires the standard trusted-site headers and public bearer token. The `query` parameter is required and must contain at least two characters; it matches service names and keys. The optional `type` filter accepts `opd`, `specialist`, `dental`, or `treatment`.
+
+### `POST /api/public/services`
+
+Accepts `name`, `key`, `bill_price`, `system_price`, and an optional service `type`. The key is normalized to a dashed slug. A repeated normalized key returns the existing service with status `200`; a new service returns `201`.
 
 ## Authentication Requirements
 
