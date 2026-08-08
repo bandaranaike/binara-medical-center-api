@@ -20,4 +20,11 @@ class SearchPublicServiceRequest extends FormRequest
             'type' => ['nullable', 'string', Rule::in([...AppointmentType::toArray(), 'others'])],
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'query' => is_string($this->input('query')) ? trim($this->input('query')) : $this->input('query'),
+        ]);
+    }
 }

@@ -2,7 +2,11 @@
 
 ## Title
 
-Add public service lookup, service creation, and grouped day-summary support
+Add receptionist-safe OPD service autocomplete for the Electron billing desk
+
+## ID
+
+TASK-128
 
 ## Status
 
@@ -10,18 +14,18 @@ Completed
 
 ## Goal
 
-Provide the Electron billing desk with receptionist-safe service lookup and idempotent creation, ensure structured OPD/Others bill items resolve to concrete services, and return grouped active service totals from the public day-summary endpoint.
+Provide a public app-token endpoint that lets reception search active services, including OPD services, without staff login or admin-only authorization.
 
-## Work items
+## Implementation
 
-- expose `GET /api/public/services` and `POST /api/public/services` using public app-token authentication
-- match service lookup by name or normalized key and support the documented type filters
-- normalize service keys and return an existing service for duplicate keys
-- verify structured bill-item compatibility for OPD and Others flows
-- group day-summary rows by the persisted normalized service name and exclude soft-deleted bills
-- update public API route inventory and endpoint documentation
-- add feature coverage for lookup, creation, duplicate keys, bill items, and summary behavior
+- kept the `verify.apikey` and `public.app.token` middleware chain on `/api/public/services/search`
+- normalized and validated the search query, including the two-character minimum
+- matched names and keys case-insensitively
+- ranked exact and prefix matches before contains matches
+- applied the public service-type filter before limiting results to eight
+- returned an empty `data` collection with HTTP `200` when there are no matches
+- documented the endpoint and added OPD, result-limit, and no-match feature coverage
 
-## Source
+## Verification
 
-The request was extracted from `.ai/tasks/backend-service-lookup-and-grouped-summary-request.md`, which has been removed after activation.
+- `tests/Feature/Public/PublicApiTest.php`

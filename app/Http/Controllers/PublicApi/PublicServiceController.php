@@ -8,6 +8,7 @@ use App\Http\Requests\PublicApi\StorePublicServiceRequest;
 use App\Models\Service;
 use App\Services\PublicBillingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 
 class PublicServiceController extends Controller
 {
@@ -21,23 +22,8 @@ class PublicServiceController extends Controller
             : ($validated['type'] ?? null);
         $query = trim($validated['query']);
 
-        $services = Service::query()
-            ->where(function ($builder) use ($query): void {
-                $builder
-                    ->where('name', 'like', '%'.$query.'%')
-                    ->orWhere('key', 'like', '%'.$query.'%');
-            })
-            ->orderByRaw(
-                'case
-                    when name = ? then 0
-                    when name like ? then 1
-                    else 2
-                end',
-                [$query, $query.'%']
-            )
-            ->orderBy('name')
-            ->limit(50)
-            ->get()
+        $services = $this->matchingServices($query)
+            ->take(50)
             ->filter(function (Service $service) use ($type): bool {
                 if ($type === null) {
                     return true;
@@ -55,7 +41,22 @@ class PublicServiceController extends Controller
 
     public function search(SearchPublicServiceRequest $request): JsonResponse
     {
-        return $this->index($request);
+        $validated = $request->validated();
+        $type = ($validated['type'] ?? null) === 'treatment'
+            ? 'others'
+            : ($validated['type'] ?? null);
+        $query = trim($validated['query']);
+
+        $services = $this->matchingServices($query)
+            ->filter(function (Service $service) use ($type): bool {
+                return $type === null
+                    || $this->publicBillingService->publicServiceTypeForService($service) === $type;
+            })
+            ->take(8)
+            ->map(fn (Service $service): array => $this->serialize($service))
+            ->values();
+
+        return response()->json(['data' => $services]);
     }
 
     public function store(StorePublicServiceRequest $request): JsonResponse
@@ -86,5 +87,28 @@ class PublicServiceController extends Controller
             'system_price' => (float) $service->system_price,
             'bill_price' => (float) $service->bill_price,
         ];
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, Service>
+     */
+    private function matchingServices(string $query): Collection
+    {
+        return Service::query()
+            ->where(function ($builder) use ($query): void {
+                $builder
+                    ->whereRaw('lower(name) like lower(?)', ['%'.$query.'%'])
+                    ->orWhereRaw('lower(`key`) like lower(?)', ['%'.$query.'%']);
+            })
+            ->orderByRaw(
+                'case
+                    when lower(name) = lower(?) or lower(`key`) = lower(?) then 0
+                    when lower(name) like lower(?) or lower(`key`) like lower(?) then 1
+                    else 2
+                end',
+                [$query, $query, $query.'%', $query.'%']
+            )
+            ->orderBy('name')
+            ->get();
     }
 }

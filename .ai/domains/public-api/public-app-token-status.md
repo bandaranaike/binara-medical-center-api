@@ -83,6 +83,7 @@ Authorization: Bearer <public-app-token>
 - `PUT /api/public/patients/{id}`
 - `POST /api/public/patients/upsert`
 - `GET /api/public/services`
+- `GET /api/public/services/search`
 - `POST /api/public/services`
 - `GET /api/public/doctors`
 - `POST /api/public/bills`

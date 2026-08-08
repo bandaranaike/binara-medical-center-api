@@ -20,6 +20,12 @@ The target backend AI agent should use this file to implement a new public API s
 
 Requires the standard trusted-site headers and public bearer token. The `query` parameter is required and must contain at least two characters; it matches service names and keys. The optional `type` filter accepts `opd`, `specialist`, `dental`, or `treatment`.
 
+### `GET /api/public/services/search`
+
+The Electron billing desk may use this alias for receptionist-safe autocomplete. It has the same authentication, query, and type-filter contract as `GET /api/public/services`, returns at most eight records, and ranks exact and prefix name/key matches before contains matches. A valid query with no matches returns `{"data": []}` with HTTP `200`.
+
+Each result contains `id`, `name`, `key`, `system_price`, `bill_price`, and the derived public `type`.
+
 ### `POST /api/public/services`
 
 Accepts `name`, `key`, `bill_price`, `system_price`, and an optional service `type`. The key is normalized to a dashed slug. A repeated normalized key returns the existing service with status `200`; a new service returns `201`.

@@ -167,6 +167,54 @@ class PublicApiTest extends TestCase
         $this->assertSame(800.0, (float) $payload['data'][0]['bill_price']);
     }
 
+    public function test_public_service_search_includes_opd_services_and_returns_at_most_eight_results(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        $opdService = Service::query()->create([
+            'name' => 'OPD Consultation',
+            'key' => 'opd-consultation',
+            'bill_price' => 1000,
+            'system_price' => 700,
+        ]);
+
+        for ($index = 1; $index <= 9; $index++) {
+            Service::query()->create([
+                'name' => 'OPD Follow Up '.$index,
+                'key' => 'opd-follow-up-'.$index,
+                'bill_price' => 500,
+                'system_price' => 300,
+            ]);
+        }
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/services/search?query=opd&type=opd',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertCount(8, $payload['data']);
+        $this->assertSame($opdService->id, $payload['data'][0]['id']);
+        $this->assertSame('opd', $payload['data'][0]['type']);
+    }
+
+    public function test_public_service_search_returns_an_empty_collection_when_nothing_matches(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/services/search?query=missing-opd-service&type=opd',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertSame([], $payload['data']);
+    }
+
     public function test_public_service_lookup_matches_normalized_keys_and_creation_is_idempotent(): void
     {
         [$trustedSite, $token] = $this->createTrustedSiteWithToken();
