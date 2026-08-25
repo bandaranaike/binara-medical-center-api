@@ -201,7 +201,6 @@ class BillController extends Controller
             'dailyPatientQueue:id,bill_id,queue_number,queue_date',
         ])
             ->withSum('billItems as system_amount', 'system_amount')
-            ->withSum('billItems as bill_amount', 'bill_amount')
             ->where('created_at', '>=', $start)
             ->where('created_at', '<', $end)
             ->orderByDesc('id')

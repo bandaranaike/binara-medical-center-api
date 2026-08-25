@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Bill;
+use App\Models\BillItem;
 use App\Models\Patient;
 use App\Models\Role;
+use App\Models\Service;
 use App\Models\TrustedSite;
 use App\Models\User;
 use Carbon\Carbon;
@@ -73,6 +75,29 @@ class BillReceptionTodayListTest extends TestCase
         $response = $this->getJson('/api/bills/pending/reception?date=2026-02-30', $this->apiHeaders());
 
         $response->assertUnprocessable()->assertJsonValidationErrors('date');
+    }
+
+    public function test_reception_list_uses_system_amount_for_the_displayed_bill_amount(): void
+    {
+        $this->authenticateReceptionUser();
+        $bill = $this->createBill('2026-08-25 06:30:00');
+        $service = Service::query()->create([
+            'name' => 'Consultation',
+            'key' => 'consultation',
+        ]);
+
+        BillItem::query()->create([
+            'bill_id' => $bill->id,
+            'service_id' => $service->id,
+            'bill_amount' => 900,
+            'system_amount' => 250,
+        ]);
+
+        $response = $this->getJson('/api/bills/pending/reception?date=2026-08-25', $this->apiHeaders());
+
+        $response->assertOk();
+        $response->assertJsonPath('0.bill_amount', 250);
+        $response->assertJsonPath('0.system_amount', 250);
     }
 
     public function test_reception_endpoint_still_requires_authorized_user(): void
