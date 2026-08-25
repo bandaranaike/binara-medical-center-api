@@ -126,6 +126,11 @@ Main files:
 - `routes/public.php`
 - `app/Console/Commands/CreatePublicApiToken.php`
 
+The authenticated `GET /api/bills/pending/reception` endpoint accepts an optional
+`date=YYYY-MM-DD` calendar date, interpreted in `Asia/Colombo`. It filters the
+existing bill creation timestamp using an explicit UTC half-open range and
+returns `queue_date` as an ISO-8601 UTC timestamp.
+
 Operational note:
 
 - new public bearer tokens are issued with `php artisan public-api:token {trusted_site} {name}`

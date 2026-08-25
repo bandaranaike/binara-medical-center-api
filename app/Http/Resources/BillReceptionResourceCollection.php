@@ -22,7 +22,7 @@ class BillReceptionResourceCollection extends JsonResource
             'queue_number' => $this->dailyPatientQueue?->queue_number,
             'patient_name' => $this->patient?->name,
             'doctor_name' => $this->doctor?->name,
-            'queue_date' => $this->created_at->format('d M - h:i a'),
+            'queue_date' => $this->created_at?->utc()->toIso8601ZuluString(),
             'status' => $this->status,
             'payment_status' => $this->payment_status,
             'payment_type' => $this->payment_type,

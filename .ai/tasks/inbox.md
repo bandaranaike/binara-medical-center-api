@@ -1,19 +1,9 @@
-# Task Inbox
+# The following items need to be done
 
-Add new tasks here in plain language.
-
-## How to use
-
-- Add one item per line.
-- Keep it short.
-- Include links, file paths, or constraints only if they matter.
-
-## Inbox
-
-### Corrections
-
-- Extracted to `.ai/tasks/backlog/2026-04-01-remove-bill-registration-columns.md`
-
-### Day summary
-
-- Extracted to `.ai/tasks/backlog/2026-04-01-day-summary-api.md`
+- Dr. Procedure charge is added to the summary. It should not be included.
+- Consultation fee should come as separate fee from OPD dr fee.
+- System time and bill time is differ
+- Two family members should be register under same phone number
+- Dr fee is not required for other services
+- Channeling OPD fee is differ - Ask from Janak mama - not clear
+- Need to clean the services : it should not repeat with the same name.

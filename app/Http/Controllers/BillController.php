@@ -14,6 +14,7 @@ use App\Http\Controllers\Traits\PrintingDataProcess;
 use App\Http\Controllers\Traits\ServiceType;
 use App\Http\Controllers\Traits\SystemPriceCalculator;
 use App\Http\Requests\ChangeBillStatusRequest;
+use App\Http\Requests\GetPendingBillsForReceptionRequest;
 use App\Http\Requests\StoreBillRequest;
 use App\Http\Requests\UpdateBillRequest;
 use App\Http\Resources\BillReceptionResourceCollection;
@@ -187,8 +188,13 @@ class BillController extends Controller
     /**
      * Get all pending bills.
      */
-    public function getPendingBillsForReception(): JsonResponse
+    public function getPendingBillsForReception(GetPendingBillsForReceptionRequest $request): JsonResponse
     {
+        $colomboTimezone = 'Asia/Colombo';
+        $selectedDate = $request->validated()['date'] ?? now($colomboTimezone)->toDateString();
+        $start = Carbon::createFromFormat('!Y-m-d', $selectedDate, $colomboTimezone)->utc();
+        $end = $start->copy()->addDay();
+
         $pendingBills = Bill::with([
             'patient:id,name,age,gender',
             'doctor:id,name',
@@ -196,7 +202,8 @@ class BillController extends Controller
         ])
             ->withSum('billItems as system_amount', 'system_amount')
             ->withSum('billItems as bill_amount', 'bill_amount')
-            ->whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
+            ->where('created_at', '>=', $start)
+            ->where('created_at', '<', $end)
             ->orderByDesc('id')
             ->get();
 
