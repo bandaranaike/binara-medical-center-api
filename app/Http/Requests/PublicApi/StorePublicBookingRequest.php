@@ -29,7 +29,7 @@ class StorePublicBookingRequest extends FormRequest
 
         return [
             'name' => ['required', 'string'],
-            'phone' => ['required_if:user_id,null'],
+            'phone' => ['required_without:patient_id'],
             'email' => ['nullable', 'email'],
             'registration_no' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
@@ -38,6 +38,7 @@ class StorePublicBookingRequest extends FormRequest
             'doctor_type' => ['required', 'string', 'in:'.implode(',', $doctorTypes)],
             'date' => ['required', 'date'],
             'user_id' => ['nullable', 'uuid'],
+            'patient_id' => ['nullable', 'integer', 'exists:patients,id'],
         ];
     }
 }

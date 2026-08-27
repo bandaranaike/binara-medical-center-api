@@ -24,7 +24,9 @@ class PublicPatientController extends Controller
             ->where(function ($builder) use ($likeQuery, $normalizedLikeQuery) {
                 $builder->where('telephone', 'like', $likeQuery)
                     ->orWhere('telephone', 'like', $normalizedLikeQuery)
-                    ->orWhere('name', 'like', $likeQuery);
+                    ->orWhere('name', 'like', $likeQuery)
+                    ->orWhere('email', 'like', $likeQuery)
+                    ->orWhere('registration_no', 'like', $likeQuery);
             })
             ->orderByRaw(
                 'case
@@ -34,7 +36,9 @@ class PublicPatientController extends Controller
                     when telephone like ? then 3
                     when name = ? then 4
                     when name like ? then 5
-                    else 6
+                    when email = ? then 6
+                    when registration_no = ? then 7
+                    else 8
                 end',
                 [
                     $normalizedQuery,
@@ -43,9 +47,12 @@ class PublicPatientController extends Controller
                     $query.'%',
                     $query,
                     $likeQuery,
+                    $query,
+                    $query,
                 ]
             )
             ->orderBy('name')
+            ->orderBy('id')
             ->limit(20)
             ->get();
 
@@ -59,10 +66,12 @@ class PublicPatientController extends Controller
         $payload = $request->validated();
         $payload['telephone'] = $this->normalizePhone($payload['telephone']);
 
-        if (Patient::query()->where('telephone', $payload['telephone'])->exists()) {
-            return response()->json([
-                'message' => 'Patient already exists for the given telephone number.',
-            ], 409);
+        if (isset($payload['patient_id'])) {
+            $patient = Patient::query()->findOrFail($payload['patient_id']);
+            unset($payload['patient_id']);
+            $patient->update($payload);
+
+            return response()->json($this->serializePatient($patient->fresh()));
         }
 
         $patient = Patient::create($payload);
@@ -88,9 +97,9 @@ class PublicPatientController extends Controller
         $payload = $request->validated();
         $payload['telephone'] = $this->normalizePhone($payload['telephone']);
 
-        $patient = Patient::query()->where('telephone', $payload['telephone'])->first();
-
-        if ($patient) {
+        if (isset($payload['patient_id'])) {
+            $patient = Patient::query()->findOrFail($payload['patient_id']);
+            unset($payload['patient_id']);
             $patient->update($payload);
 
             return response()->json([

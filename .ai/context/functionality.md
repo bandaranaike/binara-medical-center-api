@@ -119,6 +119,13 @@ Current public desktop endpoints:
 - `POST /api/public/bookings/{id}/proceed-to-payment`
 - `POST /api/public/bookings/make-appointment`
 
+Patient telephone numbers are searchable contact values, not unique patient
+identifiers. Public patient creation always creates a new patient when
+`patient_id` is omitted, while patient updates and public booking create/update
+flows use the supplied `patient_id` as the authoritative record identifier.
+Patient search can return multiple records sharing the same telephone number
+and also matches email and registration number.
+
 Main files:
 
 - `app/Models/PublicAppToken.php`

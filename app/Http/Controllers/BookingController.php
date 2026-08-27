@@ -39,10 +39,12 @@ class BookingController extends Controller
     {
         $data = $request->validated();
 
-        try {
-            $this->checkPhoneHasVerified($data['phone']);
-        } catch (Exception $exception) {
-            return new JsonResponse($exception->getMessage(), 422);
+        if (! isset($data['patient_id'])) {
+            try {
+                $this->checkPhoneHasVerified($data['phone']);
+            } catch (Exception $exception) {
+                return new JsonResponse($exception->getMessage(), 422);
+            }
         }
 
         try {
@@ -51,7 +53,7 @@ class BookingController extends Controller
             return new JsonResponse($exception->getMessage(), 422);
         }
 
-        $patientId = $this->getOrCreatePatient($data['name'], $data['phone'], $data['age'], $data['email'], $request->input('user_id'));
+        $patientId = $data['patient_id'] ?? $this->getOrCreatePatient($data['name'], $data['phone'], $data['age'], $data['email'], $request->input('user_id'));
 
         try {
             $this->hasPatientHasBook($data['date'], $patientId, $data['doctor_id']);

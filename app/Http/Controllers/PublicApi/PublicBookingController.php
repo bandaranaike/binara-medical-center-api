@@ -115,7 +115,7 @@ class PublicBookingController extends Controller
     {
         $data = $request->validated();
 
-        $patientId = $this->getOrCreatePatient(
+        $patientId = $data['patient_id'] ?? $this->getOrCreatePatient(
             $data['name'],
             $data['phone'],
             $data['age'],
@@ -187,12 +187,14 @@ class PublicBookingController extends Controller
 
         try {
             DB::transaction(function () use ($booking, $validated, $oldDoctorId, $oldDate, $hasSlotChanged, $service): void {
+                $patient = Patient::query()->findOrFail($validated['patient_id'] ?? $booking->patient_id);
+
                 if ($hasSlotChanged) {
                     $this->restoreDoctorSeats($oldDoctorId, $oldDate);
                     $this->adjustDoctorSeats($validated['doctor_id'], $validated['date']);
                 }
 
-                $booking->patient()->update([
+                $patient->update([
                     'name' => $validated['patient']['name'],
                     'telephone' => $this->normalizePhone($validated['patient']['telephone']),
                     'email' => $validated['patient']['email'] ?? null,
@@ -204,6 +206,7 @@ class PublicBookingController extends Controller
                 ]);
 
                 $booking->update([
+                    'patient_id' => $patient->id,
                     'doctor_id' => $validated['doctor_id'],
                     'date' => $validated['date'],
                     'shift' => $validated['shift'],

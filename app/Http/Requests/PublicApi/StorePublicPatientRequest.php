@@ -3,6 +3,7 @@
 namespace App\Http\Requests\PublicApi;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePublicPatientRequest extends FormRequest
 {
@@ -22,10 +23,16 @@ class StorePublicPatientRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'patient_id' => ['nullable', 'integer', 'exists:patients,id'],
             'name' => ['required', 'string', 'max:255'],
             'telephone' => ['required', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:255'],
-            'registration_no' => ['nullable', 'string', 'max:255', 'unique:patients,registration_no'],
+            'registration_no' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('patients', 'registration_no')->ignore($this->input('patient_id')),
+            ],
             'age' => ['required', 'numeric', 'min:0'],
             'gender' => ['nullable', 'string', 'in:male,female,other'],
             'address' => ['nullable', 'string', 'max:255'],

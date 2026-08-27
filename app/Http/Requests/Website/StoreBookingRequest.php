@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Website;
 
 use App\Enums\AppointmentType;
-use App\Models\Doctor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreBookingRequest extends FormRequest
 {
@@ -29,12 +29,13 @@ class StoreBookingRequest extends FormRequest
 
         return [
             'name' => 'required|string',
-            'phone' => 'required_if:user_id,null',
+            'phone' => ['required_without:patient_id'],
             'email' => 'nullable|email',
             'age' => 'required|numeric|between:0,100',
             'doctor_id' => 'required|exists:doctors,id',
-            'doctor_type' => 'required|string|in:' . implode(',', $doctorTypes),
+            'doctor_type' => 'required|string|in:'.implode(',', $doctorTypes),
             'date' => 'required|date',
+            'patient_id' => ['nullable', 'integer', Rule::exists('patients', 'id')],
         ];
     }
 }

@@ -78,7 +78,7 @@ class PublicApiTest extends TestCase
         $this->assertSame($exactMatch->id, $payload['data'][0]['id']);
     }
 
-    public function test_public_patient_create_returns_conflict_for_duplicate_telephone(): void
+    public function test_public_patient_create_allows_duplicate_telephone_numbers(): void
     {
         [$trustedSite, $token] = $this->createTrustedSiteWithToken();
 
@@ -100,11 +100,12 @@ class PublicApiTest extends TestCase
             $this->trustedHeaders($trustedSite, $token),
         );
 
-        $this->assertSame(409, $status);
-        $this->assertSame('Patient already exists for the given telephone number.', $payload['message']);
+        $this->assertSame(201, $status);
+        $this->assertNotSame(Patient::query()->where('telephone', '+94771234567')->firstOrFail()->id, $payload['id']);
+        $this->assertSame(2, Patient::query()->where('telephone', '+94771234567')->count());
     }
 
-    public function test_public_patient_upsert_updates_existing_patient_by_telephone(): void
+    public function test_public_patient_upsert_updates_only_the_patient_id_supplied(): void
     {
         [$trustedSite, $token] = $this->createTrustedSiteWithToken();
 
@@ -117,6 +118,7 @@ class PublicApiTest extends TestCase
             'POST',
             '/api/public/patients/upsert',
             [
+                'patient_id' => $patient->id,
                 'name' => $patient->name,
                 'telephone' => '0771234567',
                 'email' => $patient->email,
@@ -131,6 +133,25 @@ class PublicApiTest extends TestCase
         $this->assertSame('updated', $payload['action']);
         $this->assertSame($patient->id, $payload['patient']['id']);
         $this->assertSame('New Address', $payload['patient']['address']);
+    }
+
+    public function test_public_patient_search_returns_all_patients_sharing_a_telephone(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+
+        $first = Patient::factory()->create(['telephone' => '+94770000000', 'name' => 'Adult Member']);
+        $second = Patient::factory()->create(['telephone' => '+94770000000', 'name' => 'Child Member']);
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'GET',
+            '/api/public/patients/search?query=0770000000',
+            [],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(200, $status);
+        $this->assertEqualsCanonicalizing([$first->id, $second->id], array_column($payload['data'], 'id'));
+        $this->assertArrayHasKey('registration_no', $payload['data'][0]);
     }
 
     public function test_public_service_search_returns_reception_safe_autocomplete_results(): void
@@ -821,10 +842,16 @@ class PublicApiTest extends TestCase
             'system_price' => 500,
         ]);
 
+        $selectedPatient = Patient::factory()->create([
+            'name' => 'Existing Family Member',
+            'telephone' => '+94771234567',
+        ]);
+
         [$status, $payload] = $this->dispatchJsonRequest(
             'POST',
             '/api/public/bookings/make-appointment',
             [
+                'patient_id' => $selectedPatient->id,
                 'name' => 'John Public',
                 'phone' => '0771234567',
                 'email' => 'john.public@example.com',
@@ -854,12 +881,8 @@ class PublicApiTest extends TestCase
         $this->assertNotNull($bill);
         $this->assertSame('booked', $bill->status);
         $this->assertSame($bill->uuid, $payload['reference']);
-        $this->assertDatabaseHas('patients', [
-            'name' => 'John Public',
-            'telephone' => '0771234567',
-            'registration_no' => 'REG-PUBLIC-001',
-            'address' => 'Colombo 07',
-        ]);
+        $this->assertSame($selectedPatient->id, $bill->patient_id);
+        $this->assertDatabaseMissing('patients', ['name' => 'John Public']);
         $this->assertDatabaseHas('bill_items', [
             'bill_id' => $bill->id,
         ]);
@@ -970,6 +993,10 @@ class PublicApiTest extends TestCase
     {
         [$trustedSite, $token] = $this->createTrustedSiteWithToken();
         $booking = $this->createBookedBillWithRelations(date: '2026-03-30', registrationNo: 'REG-010');
+        $selectedPatient = Patient::factory()->create([
+            'name' => 'Second Family Member',
+            'telephone' => '+94771234567',
+        ]);
         $newDate = '2026-03-31';
 
         DoctorAvailability::query()->create([
@@ -985,6 +1012,7 @@ class PublicApiTest extends TestCase
             'PUT',
             '/api/public/bookings/'.$booking->id,
             [
+                'patient_id' => $selectedPatient->id,
                 'patient' => [
                     'name' => 'Updated Patient',
                     'telephone' => '0771234567',
@@ -1031,6 +1059,7 @@ class PublicApiTest extends TestCase
         $this->assertSame(PaymentType::CARD->value, $booking->payment_type);
         $this->assertSame(3200.0, (float) $booking->bill_amount);
         $this->assertSame(600.0, (float) $booking->system_amount);
+        $this->assertSame($selectedPatient->id, $booking->patient_id);
         $this->assertSame('Updated Patient', $booking->patient->name);
         $this->assertSame('+94771234567', $booking->patient->telephone);
         $this->assertSame('REG-999', $booking->patient->registration_no);
