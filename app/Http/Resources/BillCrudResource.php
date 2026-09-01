@@ -16,16 +16,16 @@ class BillCrudResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id" => $this->id,
-            "doctor" => $this->doctor?->name,
-            "patient" => $this->patient?->name,
-            "payment" => $this->system_amount + $this->bill_amount,
-            "appointment_date" => Carbon::create($this->date)->format('Y-m-d'),
-            "payment_type" => $this->payment_type,
-            "created_at" => $this->created_at->format('Y-m-d H:i:s'),
-            "appointment_type" => $this->appointment_type,
-            "payment_status" => $this->payment_status,
-            "status" => $this->status
+            'id' => $this->id,
+            'doctor' => $this->doctor?->name,
+            'patient' => $this->patient?->name,
+            'payment' => (float) $this->system_amount + (float) $this->referred_amount,
+            'appointment_date' => Carbon::create($this->date)->format('Y-m-d'),
+            'payment_type' => $this->payment_type,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'appointment_type' => $this->appointment_type,
+            'payment_status' => $this->payment_status,
+            'status' => $this->status,
         ];
     }
 }

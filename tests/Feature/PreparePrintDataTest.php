@@ -3,22 +3,21 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\BillController;
-use Tests\TestCase;
 use App\Models\Service;
-use App\Models\Bill;
 use Mockery;
+use Tests\TestCase;
 
 class PreparePrintDataTest extends TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         // Mocking class constants
-        if (!defined('App\\Models\\Bill::FEE_ORIGINAL')) {
+        if (! defined('App\\Models\\Bill::FEE_ORIGINAL')) {
             define('App\\Models\\Bill::FEE_ORIGINAL', 'FEE_ORIGINAL');
         }
-        if (!defined('App\\Models\\Bill::FEE_INSTITUTION')) {
+        if (! defined('App\\Models\\Bill::FEE_INSTITUTION')) {
             define('App\\Models\\Bill::FEE_INSTITUTION', 'FEE_INSTITUTION');
         }
     }
@@ -81,7 +80,7 @@ class PreparePrintDataTest extends TestCase
         $this->assertEmpty($data);
     }
 
-    public function test_valid_service_key_with_zero_bill_amount()
+    public function test_valid_service_key_with_zero_referred_amount()
     {
         $mockService = Mockery::mock(Service::class);
         $mockService->name = 'OPD doctor';

@@ -230,7 +230,7 @@ class DaySummaryReportTest extends TestCase
             'shift' => $shift,
             'payment_status' => $paymentStatus,
             'payment_type' => 'cash',
-            'bill_amount' => array_sum($amounts),
+            'referred_amount' => array_sum($amounts),
             'system_amount' => 0,
             'appointment_type' => $service->name,
         ]);
@@ -238,7 +238,7 @@ class DaySummaryReportTest extends TestCase
         foreach ($amounts as $amount) {
             $bill->billItems()->create([
                 'service_id' => $service->id,
-                'bill_amount' => $amount,
+                'referred_amount' => $amount,
                 'system_amount' => 0,
             ]);
         }

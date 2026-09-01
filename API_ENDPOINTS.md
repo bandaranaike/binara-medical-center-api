@@ -501,7 +501,7 @@ Body:
 
 ```json
 {
-  "bill_amount": 2500,
+  "referred_amount": 2200,
   "payment_type": "cash",
   "system_amount": 300,
   "patient_id": 1,
@@ -580,7 +580,7 @@ Body:
 ```json
 {
   "status": "reception",
-  "bill_amount": 2500,
+  "referred_amount": 2200,
   "system_amount": 300
 }
 ```
@@ -610,7 +610,7 @@ Body:
 {
   "patient_id": 1,
   "doctor_id": 12,
-  "bill_amount": 2500,
+  "referred_amount": 2200,
   "is_booking": false
 }
 ```
@@ -807,8 +807,8 @@ Below are the create/update fields defined in request classes or controller vali
 ### `bill-items`
 
 - Role: `admin|pharmacy_admin|pharmacy|reception|doctor`
-- Create: `patient_id?`, `bill_id`, `service_id`, `bill_amount`, `system_amount`, `service_name?`
-- Update: `bill_amount?`, `system_amount?`
+- Create: `patient_id?`, `bill_id`, `service_id`, `referred_amount`, `system_amount`, `service_name?`
+- Update: `referred_amount?`, `system_amount?`
 - Special behavior:
   - `service_id = "-1"` creates a new service using `service_name`
   - `bill_id = -1` creates a temporary treatment bill

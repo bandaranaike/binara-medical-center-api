@@ -395,7 +395,7 @@ Create a bill for the selected patient and doctor in the desktop billing workflo
 
 ```json
 {
-  "bill_amount": 2500,
+  "referred_amount": 2500,
   "payment_type": "cash",
   "system_amount": 0,
   "patient_id": 1,
@@ -409,7 +409,7 @@ Create a bill for the selected patient and doctor in the desktop billing workflo
 
 ### Required parameters
 
-- `bill_amount` numeric
+- `referred_amount` numeric
 - `payment_type` string
 - `system_amount` numeric
 - `patient_id` integer
@@ -443,7 +443,7 @@ Create a bill for the selected patient and doctor in the desktop billing workflo
 
 - `patient_id` must exist
 - `doctor_id` must exist
-- `bill_amount` must be numeric and zero or greater
+- `referred_amount` must be numeric and zero or greater
 - `system_amount` must be numeric and zero or greater
 - `payment_type` must be one of the allowed values
 - `service_type` must be one of the allowed values
@@ -460,7 +460,7 @@ Status: `201`
   "uuid": "generated-bill-uuid",
   "patient_id": 1,
   "doctor_id": 12,
-  "bill_amount": 2500,
+  "referred_amount": 2500,
   "system_amount": 0,
   "payment_type": "cash",
   "payment_status": "pending",
@@ -477,7 +477,7 @@ Status: `201`
 - `uuid` or `reference`
 - `patient_id`
 - `doctor_id`
-- `bill_amount`
+- `referred_amount`
 - `system_amount`
 - `payment_type`
 - `payment_status`
@@ -641,7 +641,7 @@ Expected fields:
 - `uuid`
 - `patient_id`
 - `doctor_id`
-- `bill_amount`
+- `referred_amount`
 - `system_amount`
 - `payment_type`
 - `payment_status`

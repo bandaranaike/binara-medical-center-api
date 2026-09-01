@@ -104,7 +104,7 @@ Status: `200 OK`
 - `items[].quantity`
   - count of matching `bill_items` rows for that service label
 - `items[].total`
-  - sum of `bill_items.bill_amount`
+  - sum of `bill_items.referred_amount + bill_items.system_amount`
 
 ## Backend behavior
 

@@ -67,7 +67,8 @@ class BillController extends Controller
             [...$data, 'status' => $status, 'appointment_type' => $service->name, 'date' => $date]
         );
 
-        $this->insertBillItems($service->id, $data['bill_amount'], $data['system_amount'], $bill->id);
+        $this->insertBillItems($service->id, $data['referred_amount'], $data['system_amount'], $bill->id);
+        $bill->syncAmounts();
 
         $queueNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id'], $date);
 
@@ -169,7 +170,7 @@ class BillController extends Controller
             ])
             ->with(['billItems' => function ($query) {
                 $query->with('service:id,name')
-                    ->select('id', 'bill_id', 'service_id', 'system_amount', 'bill_amount'); // Load only the necessary fields for bill items
+                    ->select('id', 'bill_id', 'service_id', 'system_amount', 'referred_amount');
             }])
             ->with('patientMedicines', function ($query) {
                 $query->with('medicationFrequency:id,name')
@@ -201,6 +202,7 @@ class BillController extends Controller
             'dailyPatientQueue:id,bill_id,queue_number,queue_date',
         ])
             ->withSum('billItems as system_amount', 'system_amount')
+            ->withSum('billItems as referred_amount', 'referred_amount')
             ->where('created_at', '>=', $start)
             ->where('created_at', '<', $end)
             ->orderByDesc('id')
@@ -210,13 +212,13 @@ class BillController extends Controller
     }
 
     /**
-     * Finalize the bill by updating its status and bill amount.
+     * Finalize the bill by updating its status and split amounts.
      */
     public function sendBillToReception(Request $request, int $billId): JsonResponse
     {
         $validatedData = $request->validate([
             'status' => 'required|string|in:'.BillStatus::RECEPTION->value,
-            'bill_amount' => 'required|numeric|min:0',
+            'referred_amount' => 'required|numeric|min:0',
             'system_amount' => 'required|numeric|min:0',
         ]);
 
@@ -224,11 +226,11 @@ class BillController extends Controller
             // Find the bill by ID
             $bill = Bill::findOrFail($billId);
 
-            // Update the bill's status and bill amount
+            // Update the bill's status and split amounts.
             $bill->status = $validatedData['status'];
-            $bill->bill_amount = $validatedData['bill_amount'];
+            $bill->referred_amount = $validatedData['referred_amount'];
             $bill->system_amount = $validatedData['system_amount'];
-            $bill->save();
+            $bill->syncAmounts();
 
             return new JsonResponse([
                 'message' => 'Bill finalized successfully',
@@ -318,13 +320,14 @@ class BillController extends Controller
 
         $doctorId = $validatedData['doctor_id'] == 0 ? null : $validatedData['doctor_id'];
 
-        Bill::where('id', $billId)
-            ->update([
-                'status' => $status,
-                'doctor_id' => $doctorId,
-                'patient_id' => $validatedData['patient_id'],
-                'bill_amount' => $validatedData['bill_amount'],
-            ]);
+        $bill = Bill::findOrFail($billId);
+        $bill->update([
+            'status' => $status,
+            'doctor_id' => $doctorId,
+            'patient_id' => $validatedData['patient_id'],
+            'referred_amount' => $validatedData['referred_amount'],
+        ]);
+        $bill->syncAmounts();
 
         $queueNumber = $this->createDailyPatientQueue($billId, $doctorId);
 

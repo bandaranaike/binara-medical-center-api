@@ -17,8 +17,9 @@ class BillReceptionResourceCollection extends JsonResource
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
-            'bill_amount' => $this->system_amount,
-            'system_amount' => $this->system_amount,
+            'referred_amount' => (float) $this->referred_amount,
+            'total_amount' => round((float) $this->referred_amount + (float) $this->system_amount, 2),
+            'system_amount' => (float) $this->system_amount,
             'queue_number' => $this->dailyPatientQueue?->queue_number,
             'patient_name' => $this->patient?->name,
             'doctor_name' => $this->doctor?->name,

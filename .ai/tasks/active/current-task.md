@@ -2,30 +2,29 @@
 
 ## Title
 
-Add receptionist-safe OPD service autocomplete for the Electron billing desk
+Unify bill amount fields across backend, public API, and frontend
 
 ## ID
 
-TASK-128
+TASK-129
 
 ## Status
 
-Completed
+In Progress
 
 ## Goal
 
-Provide a public app-token endpoint that lets reception search active services, including OPD services, without staff login or admin-only authorization.
+Remove `bill_amount` from bills and bill items, use `referred_amount` and `system_amount` consistently, and expose calculated totals across the application and API contracts.
 
 ## Implementation
 
-- kept the `verify.apikey` and `public.app.token` middleware chain on `/api/public/services/search`
-- normalized and validated the search query, including the two-character minimum
-- matched names and keys case-insensitively
-- ranked exact and prefix matches before contains matches
-- applied the public service-type filter before limiting results to eight
-- returned an empty `data` collection with HTTP `200` when there are no matches
-- documented the endpoint and added OPD, result-limit, and no-match feature coverage
+- added a migration that backfills referred amounts and removes both `bill_amount` columns
+- synchronized bill-level split amounts from bill items after billing mutations
+- updated internal resources, reports, printing, requests, and public API payloads
+- updated the Electron frontend types, billing flows, tables, and reports
+- updated schema and API documentation to define `total_amount` as calculated
 
 ## Verification
 
-- `tests/Feature/Public/PublicApiTest.php`
+- focused backend coverage: 36 tests passed, 237 assertions
+- frontend `npm run lint` and `npm run build` passed

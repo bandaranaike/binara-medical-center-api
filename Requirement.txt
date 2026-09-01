@@ -4,8 +4,8 @@ Database :
     hospitals(id,name,location)
     specialties(id,name)
     doctors_channeling_fees(id,doctor_id,fee,timestamps)
-    bills(id,system_amount,bill_amount,patient_id,doctor_id,status,timestamps)
-    bill_items(id,bill_id,service_id,system_amount,bill_amount,timestamps)
+    bills(id,system_amount,referred_amount,patient_id,doctor_id,status,timestamps)
+    bill_items(id,bill_id,service_id,system_amount,referred_amount,timestamps)
     patients(id,name,age,address,telephone,email)
     allergies(id,name)
     diseases(id,name)
@@ -37,4 +37,3 @@ Authorization
     - In the front end all the tabs have user role array which need to check with the current user
     - In the backend need to implement a middleware to check user role in every request
         - Middleware accepts a role array which need to compare with the logged user role
-

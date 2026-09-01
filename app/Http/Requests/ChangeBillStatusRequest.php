@@ -26,7 +26,7 @@ class ChangeBillStatusRequest extends FormRequest
         return [
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'sometimes',
-            'bill_amount' => 'required|numeric',
+            'referred_amount' => 'required|numeric|min:0',
             'is_booking' => 'required|boolean',
         ];
     }

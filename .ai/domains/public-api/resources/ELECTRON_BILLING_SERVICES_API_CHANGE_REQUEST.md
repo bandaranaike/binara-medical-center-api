@@ -162,7 +162,7 @@ Existing top-level fields can remain, but the backend should also accept structu
 
 ```json
 {
-  "bill_amount": 3300.00,
+  "referred_amount": 2500.00,
   "system_amount": 800.00,
   "payment_type": "cash",
   "patient_id": 15,
@@ -176,7 +176,7 @@ Existing top-level fields can remain, but the backend should also accept structu
       "service_id": 12,
       "service_key": "wound-dressing",
       "service_name": "Wound Dressing",
-      "bill_amount": 1300.00,
+      "referred_amount": 800.00,
       "system_amount": 500.00,
       "referred_amount": 800.00,
       "category": "others",
@@ -187,7 +187,7 @@ Existing top-level fields can remain, but the backend should also accept structu
       "service_id": -1,
       "service_key": null,
       "service_name": "Special Report",
-      "bill_amount": 2000.00,
+      "referred_amount": 1700.00,
       "system_amount": 300.00,
       "referred_amount": 1700.00,
       "category": "others",
@@ -201,9 +201,9 @@ Existing top-level fields can remain, but the backend should also accept structu
 ## Required rules
 
 - `doctor_id` must be allowed to be `null` for `service_type = treatment` / `Others`
-- `bill_amount` at the top level must equal the sum of item `bill_amount`
+- `referred_amount` at the top level must equal the sum of item `referred_amount`
 - `system_amount` at the top level must equal the sum of item `system_amount`
-- `referred_amount` should be stored or reproducible for each bill item
+- `total_amount` is calculated as `referred_amount + system_amount`
 - if `service_id = -1` or `is_ad_hoc = true`, the backend should support ad hoc service names without breaking bill creation
 
 ## 4. Bill Item Persistence Rules
@@ -215,7 +215,6 @@ The backend should treat each Electron billing row as a concrete bill item.
 - `bill_id`
 - `service_id` or an explicit ad hoc representation
 - `service_name` snapshot for historical printing/audit
-- `bill_amount`
 - `system_amount`
 - `referred_amount`
 - optional `doctor_id`
@@ -225,14 +224,14 @@ The backend should treat each Electron billing row as a concrete bill item.
 
 Current references show:
 
-- `bill_items.bill_amount`
 - `bill_items.system_amount`
-- no dedicated `referred_amount` column in the current schema dump
+- `bill_items.referred_amount`
+- no `bill_amount` column is exposed
 
 Recommended options:
 
-1. add `bill_items.referred_amount`
-2. or guarantee `referred_amount = bill_amount - system_amount` and return it explicitly in API responses
+1. use `bill_items.referred_amount` as the canonical referred/customer amount
+2. calculate totals as `referred_amount + system_amount`
 
 Option `1` is preferred because it keeps the contract explicit and avoids ambiguity when future billing logic changes.
 
@@ -249,7 +248,7 @@ When the Electron app loads bookings or existing bills, item responses should in
       "service_id": 12,
       "service_key": "wound-dressing",
       "service_name": "Wound Dressing",
-      "bill_amount": 1300.00,
+      "referred_amount": 800.00,
       "system_amount": 500.00,
       "referred_amount": 800.00
     }
@@ -288,7 +287,6 @@ Recommended validation rules for item payloads:
 
 - `items`: required array with at least one item when creating/updating a bill from Electron
 - `items.*.service_name`: required string
-- `items.*.bill_amount`: required numeric min `0`
 - `items.*.system_amount`: required numeric min `0`
 - `items.*.referred_amount`: required numeric min `0`
 - `items.*.doctor_id`: nullable existing doctor id
@@ -297,7 +295,7 @@ Recommended validation rules for item payloads:
 
 Recommended consistency rule:
 
-- `items.*.bill_amount == items.*.system_amount + items.*.referred_amount`
+- `items.*.total_amount == items.*.system_amount + items.*.referred_amount` (calculated, not submitted)
 
 ## 8. Suggested Implementation Order
 

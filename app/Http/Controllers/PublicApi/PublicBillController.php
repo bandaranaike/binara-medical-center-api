@@ -36,7 +36,7 @@ class PublicBillController extends Controller
                 'patient:id,name,telephone,email,registration_no,age,gender,address,birthday',
                 'doctor:id,name,specialty_id,doctor_type',
                 'doctor.specialty:id,name',
-                'billItems:id,bill_id,service_id,service_name,service_key,doctor_id,bill_amount,system_amount,referred_amount,category,is_ad_hoc',
+                'billItems:id,bill_id,service_id,service_name,service_key,doctor_id,referred_amount,system_amount,category,is_ad_hoc',
                 'billItems.service:id,name,key',
             ])
             ->orderBy('date')
@@ -62,7 +62,7 @@ class PublicBillController extends Controller
 
         $bill = Bill::create([
             'system_amount' => $payload['system_amount'],
-            'bill_amount' => $payload['bill_amount'],
+            'referred_amount' => $payload['referred_amount'],
             'patient_id' => $payload['patient_id'],
             'doctor_id' => $payload['doctor_id'],
             'date' => $payload['is_booking'] ? $payload['date'] : now()->toDateString(),
@@ -84,7 +84,7 @@ class PublicBillController extends Controller
             $this->publicBillingService->createDefaultBillItem(
                 $bill,
                 $service,
-                (float) $payload['bill_amount'],
+                (float) $payload['referred_amount'],
                 (float) $payload['system_amount'],
                 $payload['doctor_id'] ?? null,
                 $payload['service_type'],
@@ -105,8 +105,9 @@ class PublicBillController extends Controller
             'reference' => $bill->uuid,
             'patient_id' => $bill->patient_id,
             'doctor_id' => $bill->doctor_id,
-            'bill_amount' => (float) $bill->bill_amount,
+            'referred_amount' => (float) $bill->referred_amount,
             'system_amount' => (float) $bill->system_amount,
+            'total_amount' => round((float) $bill->referred_amount + (float) $bill->system_amount, 2),
             'payment_type' => $bill->payment_type,
             'payment_status' => $bill->payment_status,
             'status' => $bill->status,
@@ -146,8 +147,9 @@ class PublicBillController extends Controller
             'payment_status' => $bill->payment_status,
             'appointment_type' => $bill->appointment_type,
             'service_type' => $firstItem?->category ?? $bill->doctor?->doctor_type,
-            'bill_amount' => (float) $bill->bill_amount,
+            'referred_amount' => (float) $bill->referred_amount,
             'system_amount' => (float) $bill->system_amount,
+            'total_amount' => round((float) $bill->referred_amount + (float) $bill->system_amount, 2),
             'deleted_at' => $bill->deleted_at?->toISOString(),
             'patient' => $bill->patient === null ? null : [
                 'id' => $bill->patient->id,

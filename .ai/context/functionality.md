@@ -189,7 +189,7 @@ Public desktop booking management now also supports:
 - `GET /api/public/bookings?date=YYYY-MM-DD`
 - filtering by doctor and text search
 - returning Electron-friendly booking rows with patient, doctor, queue, totals, and item data
-- returning structured item rows with `service_id`, `service_key`, `service_name`, `bill_amount`, `system_amount`, `referred_amount`, `doctor_id`, `category`, and `is_ad_hoc`
+- returning structured item rows with `service_id`, `service_key`, `service_name`, `system_amount`, `referred_amount`, calculated `total_amount`, `doctor_id`, `category`, and `is_ad_hoc`
 - updating patient details including `registration_no`
 - deleting only `booked` bills while restoring the consumed doctor availability seat
 - proceeding a booked bill to `doctor` status without using staff auth
@@ -223,9 +223,9 @@ Supported behavior:
 
 Important contract details:
 
-- top-level `bill_amount` must equal the sum of item `bill_amount`
 - top-level `system_amount` must equal the sum of item `system_amount`
-- `referred_amount` is returned explicitly for each item
+- top-level `referred_amount` must equal the sum of item `referred_amount`
+- `total_amount` is calculated as `referred_amount + system_amount` and is never stored as `bill_amount`
 - booking update and proceed-to-payment now preserve and return the same split item shape
 
 ## 4. Doctor schedule and availability management

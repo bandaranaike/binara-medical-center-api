@@ -16,7 +16,6 @@ use Illuminate\Support\Str;
 
 class BillItemController extends Controller
 {
-
     use SystemPriceCalculator;
 
     private bool $isNewBill = false;
@@ -28,9 +27,6 @@ class BillItemController extends Controller
 
     /**
      * Store a new bill item in the database.
-     *
-     * @param StoreBillItemRequest $request
-     * @return JsonResponse
      */
     public function store(StoreBillItemRequest $request): JsonResponse
     {
@@ -45,8 +41,9 @@ class BillItemController extends Controller
                 'bill_id' => $billId,
                 'service_id' => $serviceId,
                 'system_amount' => $validatedData['system_amount'],
-                'bill_amount' => $validatedData['bill_amount'],
+                'referred_amount' => $validatedData['referred_amount'],
             ]);
+            $billItem->bill->syncAmounts();
 
             if ($this->isNewBill) {
                 return new JsonResponse($this->getBillForServices($billId), 201);
@@ -55,22 +52,27 @@ class BillItemController extends Controller
             return new JsonResponse($billItem->load('service:id,name'), 201);
 
         } catch (Exception $exception) {
-            return new JsonResponse('An error occurred while adding the bill item. ' . $exception->getMessage(), 500);
+            return new JsonResponse('An error occurred while adding the bill item. '.$exception->getMessage(), 500);
         }
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $validatedData = $request->validate([
-            'bill_amount' => 'required_if:system_amount,null|numeric|min:0',
-            'system_amount' => 'required_if:bill_amount,null|numeric|min:0',
+            'referred_amount' => 'required_if:system_amount,null|numeric|min:0',
+            'system_amount' => 'required_if:referred_amount,null|numeric|min:0',
         ]);
 
         try {
             $billItem = BillItem::findOrFail($id);
-            if (isset($validatedData['bill_amount'])) $billItem->bill_amount = $validatedData['bill_amount'];
-            if (isset($validatedData['system_amount'])) $billItem->system_amount = $validatedData['system_amount'];
+            if (isset($validatedData['referred_amount'])) {
+                $billItem->referred_amount = $validatedData['referred_amount'];
+            }
+            if (isset($validatedData['system_amount'])) {
+                $billItem->system_amount = $validatedData['system_amount'];
+            }
             $billItem->save();
+            $billItem->bill->syncAmounts();
 
             return new JsonResponse(['message' => 'Bill item updated successfully', 'data' => $billItem]);
         } catch (Exception $e) {
@@ -83,9 +85,11 @@ class BillItemController extends Controller
         try {
             // Find the bill item by ID
             $billItem = BillItem::findOrFail($id);
+            $bill = $billItem->bill;
 
             // Delete the bill item
             $billItem->delete();
+            $bill->syncAmounts();
 
             return new JsonResponse([
                 'success' => true,
@@ -94,16 +98,17 @@ class BillItemController extends Controller
         } catch (Exception $e) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Error deleting bill item: ' . $e->getMessage(),
+                'message' => 'Error deleting bill item: '.$e->getMessage(),
             ], 500);
         }
     }
 
     private function createNewServiceIfNotExists($serviceId, $serviceName)
     {
-        if ($serviceId === "-1") {
-            $serviceId = Service::create(["name" => $serviceName, 'key' => Str::random(8)])->id;
+        if ($serviceId === '-1') {
+            $serviceId = Service::create(['name' => $serviceName, 'key' => Str::random(8)])->id;
         }
+
         return $serviceId;
     }
 
@@ -113,6 +118,7 @@ class BillItemController extends Controller
             $this->isNewBill = true;
             $billId = Bill::create(['patient_id' => $patientId, 'status' => BillStatus::TREATMENT])->id;
         }
+
         return $billId;
     }
 
@@ -122,8 +128,7 @@ class BillItemController extends Controller
             ->where('id', $billId)
             ->with(['billItems' => function ($query) {
                 $query->with('service:id,name')
-                    ->select('id', 'bill_id', 'service_id', 'bill_amount');
+                    ->select('id', 'bill_id', 'service_id', 'referred_amount', 'system_amount');
             }])->first();
     }
-
 }

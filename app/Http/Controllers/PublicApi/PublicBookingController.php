@@ -55,7 +55,7 @@ class PublicBookingController extends Controller
                 'doctor:id,name,specialty_id,doctor_type',
                 'doctor.specialty:id,name',
                 'dailyPatientQueue:id,bill_id,queue_number,queue_date',
-                'billItems:id,bill_id,service_id,service_name,service_key,doctor_id,bill_amount,system_amount,referred_amount,category,is_ad_hoc',
+                'billItems:id,bill_id,service_id,service_name,service_key,doctor_id,referred_amount,system_amount,category,is_ad_hoc',
                 'billItems.service:id,name,key',
             ])
             ->when(
@@ -104,7 +104,7 @@ class PublicBookingController extends Controller
             'doctor:id,name,specialty_id,doctor_type',
             'doctor.specialty:id,name',
             'dailyPatientQueue:id,bill_id,queue_number,queue_date',
-            'billItems:id,bill_id,service_id,service_name,service_key,doctor_id,bill_amount,system_amount,referred_amount,category,is_ad_hoc',
+            'billItems:id,bill_id,service_id,service_name,service_key,doctor_id,referred_amount,system_amount,category,is_ad_hoc',
             'billItems.service:id,name,key',
         ]);
 
@@ -133,11 +133,11 @@ class PublicBookingController extends Controller
         }
 
         $service = $this->getService($data['doctor_type']);
-        [$billAmount, $systemAmount] = $this->getBillPriceAndSystemPrice($service);
+        [$referredAmount, $systemAmount] = $this->getBillPriceAndSystemPrice($service);
 
         $bill = Bill::create([
             'system_amount' => $systemAmount,
-            'bill_amount' => $billAmount,
+            'referred_amount' => $referredAmount,
             'patient_id' => $patientId,
             'doctor_id' => $data['doctor_id'],
             'appointment_type' => $service?->name ?? $data['doctor_type'],
@@ -149,7 +149,7 @@ class PublicBookingController extends Controller
             $this->publicBillingService->createDefaultBillItem(
                 $bill,
                 $service,
-                (float) $billAmount,
+                (float) $referredAmount,
                 (float) $systemAmount,
                 $data['doctor_id'],
                 $data['doctor_type'],
@@ -211,7 +211,7 @@ class PublicBookingController extends Controller
                     'date' => $validated['date'],
                     'shift' => $validated['shift'],
                     'payment_type' => $validated['payment_type'],
-                    'bill_amount' => $validated['bill_amount'],
+                    'referred_amount' => $validated['referred_amount'],
                     'system_amount' => $validated['system_amount'],
                     'appointment_type' => $service?->name ?? $validated['service_type'],
                 ]);
@@ -228,7 +228,7 @@ class PublicBookingController extends Controller
                     $this->publicBillingService->createDefaultBillItem(
                         $booking,
                         $service,
-                        (float) $validated['bill_amount'],
+                        (float) $validated['referred_amount'],
                         (float) $validated['system_amount'],
                         $validated['doctor_id'],
                         $validated['service_type'],
@@ -298,7 +298,7 @@ class PublicBookingController extends Controller
         $booking->update([
             'payment_type' => $validated['payment_type'],
             'shift' => $validated['shift'],
-            'bill_amount' => $validated['bill_amount'],
+            'referred_amount' => $validated['referred_amount'],
             'system_amount' => $validated['system_amount'],
             'status' => BillStatus::DOCTOR,
         ]);
@@ -312,9 +312,9 @@ class PublicBookingController extends Controller
             );
         } elseif ($booking->billItems()->exists()) {
             $booking->billItems()->update([
-                'bill_amount' => $validated['bill_amount'],
+                'referred_amount' => $validated['referred_amount'],
                 'system_amount' => $validated['system_amount'],
-                'referred_amount' => round((float) $validated['bill_amount'] - (float) $validated['system_amount'], 2),
+                'referred_amount' => $validated['referred_amount'],
             ]);
         }
 
@@ -327,8 +327,9 @@ class PublicBookingController extends Controller
                 'reference' => $booking->uuid,
                 'status' => $booking->status,
                 'payment_type' => $booking->payment_type,
-                'bill_amount' => (float) $booking->bill_amount,
+                'referred_amount' => (float) $booking->referred_amount,
                 'system_amount' => (float) $booking->system_amount,
+                'total_amount' => round((float) $booking->referred_amount + (float) $booking->system_amount, 2),
                 'date' => $booking->date,
                 'items' => $booking->billItems
                     ->map(fn ($billItem): array => $this->publicBillingService->serializeBillItem($billItem))
@@ -469,8 +470,9 @@ class PublicBookingController extends Controller
             'payment_type' => $booking->payment_type,
             'shift' => $booking->shift,
             'service_type' => $booking->doctor?->doctor_type,
-            'bill_amount' => (float) $booking->bill_amount,
+            'referred_amount' => (float) $booking->referred_amount,
             'system_amount' => (float) $booking->system_amount,
+            'total_amount' => round((float) $booking->referred_amount + (float) $booking->system_amount, 2),
             'items' => $booking->billItems
                 ->map(fn ($item): array => $this->publicBillingService->serializeBillItem($item))
                 ->values()

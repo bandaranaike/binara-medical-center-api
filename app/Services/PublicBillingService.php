@@ -42,11 +42,8 @@ class PublicBillingService
 
         foreach ($items as $item) {
             $service = $this->resolveService($item);
-            $billAmount = (float) $item['bill_amount'];
+            $referredAmount = (float) $item['referred_amount'];
             $systemAmount = (float) $item['system_amount'];
-            $referredAmount = array_key_exists('referred_amount', $item)
-                ? (float) $item['referred_amount']
-                : round($billAmount - $systemAmount, 2);
 
             BillItem::query()->create([
                 'bill_id' => $bill->id,
@@ -54,19 +51,20 @@ class PublicBillingService
                 'service_name' => $item['service_name'] ?? $service->name,
                 'service_key' => $service->key,
                 'doctor_id' => $item['doctor_id'] ?? $fallbackDoctorId,
-                'bill_amount' => $billAmount,
                 'system_amount' => $systemAmount,
                 'referred_amount' => $referredAmount,
                 'category' => $this->normalizeCategory($item['category'] ?? $fallbackCategory),
                 'is_ad_hoc' => (bool) ($item['is_ad_hoc'] ?? false),
             ]);
         }
+
+        $bill->syncAmounts();
     }
 
     public function createDefaultBillItem(
         Bill $bill,
         Service $service,
-        float $billAmount,
+        float $referredAmount,
         float $systemAmount,
         ?int $doctorId,
         ?string $category,
@@ -77,12 +75,13 @@ class PublicBillingService
             'service_name' => $service->name,
             'service_key' => $service->key,
             'doctor_id' => $doctorId,
-            'bill_amount' => $billAmount,
             'system_amount' => $systemAmount,
-            'referred_amount' => round($billAmount - $systemAmount, 2),
+            'referred_amount' => $referredAmount,
             'category' => $this->normalizeCategory($category),
             'is_ad_hoc' => false,
         ]);
+
+        $bill->syncAmounts();
     }
 
     /**
@@ -92,24 +91,22 @@ class PublicBillingService
     {
         $serviceName = $billItem->service_name ?? $billItem->service?->name;
         $serviceKey = $billItem->service_key ?? $billItem->service?->key;
-        $billAmount = (float) $billItem->bill_amount;
         $systemAmount = (float) $billItem->system_amount;
-        $referredAmount = $billItem->referred_amount !== null
-            ? (float) $billItem->referred_amount
-            : round($billAmount - $systemAmount, 2);
+        $referredAmount = (float) $billItem->referred_amount;
+        $totalAmount = round($referredAmount + $systemAmount, 2);
 
         return [
             'service_id' => $billItem->service_id,
             'service_key' => $serviceKey,
             'service_name' => $serviceName,
-            'bill_amount' => $billAmount,
             'system_amount' => $systemAmount,
             'referred_amount' => $referredAmount,
+            'total_amount' => $totalAmount,
             'doctor_id' => $billItem->doctor_id,
             'category' => $billItem->category,
             'is_ad_hoc' => (bool) $billItem->is_ad_hoc,
             'name' => $serviceName,
-            'price' => number_format($billAmount, 2, '.', ''),
+            'price' => number_format($totalAmount, 2, '.', ''),
         ];
     }
 
@@ -136,7 +133,7 @@ class PublicBillingService
         return Service::query()->create([
             'name' => $serviceName,
             'key' => $this->generateUniqueKey($serviceName),
-            'bill_price' => (float) $item['bill_amount'],
+            'bill_price' => (float) $item['referred_amount'] + (float) $item['system_amount'],
             'system_price' => (float) $item['system_amount'],
         ]);
     }

@@ -78,7 +78,7 @@ class ReportController extends Controller
 
         $revenueByDoctor = DB::table('bills')
             ->join('doctors', 'bills.doctor_id', '=', 'doctors.id')
-            ->select('doctors.name as doctorName', DB::raw('SUM(bills.bill_amount) as revenue'))
+            ->select('doctors.name as doctorName', DB::raw('SUM(bills.referred_amount + bills.system_amount) as revenue'))
             ->whereBetween('bills.created_at', [$this->start, $this->end])
             ->whereNull('bills.deleted_at') // Exclude soft-deleted bills
             ->groupBy('doctors.id', 'doctors.name')
@@ -91,7 +91,7 @@ class ReportController extends Controller
     private function getTotalRevenue(): array
     {
 
-        $billData = Bill::selectRaw('COALESCE(SUM(bill_amount), 0) as totalBillRevenue, COALESCE(SUM(system_amount), 0) as totalSystemRevenue')
+        $billData = Bill::selectRaw('COALESCE(SUM(referred_amount), 0) as totalReferredRevenue, COALESCE(SUM(system_amount), 0) as totalSystemRevenue')
             ->whereBetween('created_at', [$this->start, $this->end])
             ->first();
 
@@ -128,15 +128,16 @@ class ReportController extends Controller
                 'services.id as service_id',
                 'services.name as service_name',
                 'services.key as service_key',
-                DB::raw('SUM(bill_items.bill_amount) as total_bill_amount'),
+                DB::raw('SUM(bill_items.referred_amount) as total_referred_amount'),
                 DB::raw('SUM(bill_items.system_amount) as total_system_amount'),
+                DB::raw('SUM(bill_items.referred_amount + bill_items.system_amount) as total_amount'),
                 DB::raw('COUNT(bill_items.id) as item_count')
             )
-            ->where('bill_items.bill_amount', '>', 0)
+            ->whereRaw('(bill_items.referred_amount + bill_items.system_amount) > 0')
             ->whereBetween('bills.date', [$startDate, $endDate])
             ->where('bills.payment_status', 'paid') // Only include paid bills
             ->groupBy('services.id', 'services.name', 'services.key')
-            ->orderBy('total_bill_amount', 'desc')
+            ->orderBy('total_amount', 'desc')
             ->get();
 
         return response()->json([
@@ -146,8 +147,9 @@ class ReportController extends Controller
                 'start_date' => $startDate->toDateString(),
                 'end_date' => $endDate->toDateString(),
                 'total_services' => $report->count(),
-                'total_bill_amount' => $report->sum('total_bill_amount'),
+                'total_referred_amount' => $report->sum('total_referred_amount'),
                 'total_system_amount' => $report->sum('total_system_amount'),
+                'total_amount' => $report->sum('total_amount'),
             ],
         ]);
     }

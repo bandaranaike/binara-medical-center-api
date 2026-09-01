@@ -62,11 +62,11 @@ class BookingController extends Controller
         }
 
         $service = $this->getService($request->input('doctor_type'));
-        [$billAmount, $systemAmount] = $this->getBillPriceAndSystemPrice($service);
+        [$referredAmount, $systemAmount] = $this->getBillPriceAndSystemPrice($service);
 
         $bill = Bill::create([
             'system_amount' => $systemAmount,
-            'bill_amount' => $billAmount,
+            'referred_amount' => $referredAmount,
             'patient_id' => $patientId,
             'doctor_id' => $data['doctor_id'],
             'appointment_type' => $service->name,
@@ -74,7 +74,7 @@ class BookingController extends Controller
             'status' => BillStatus::BOOKED,
         ]);
 
-        $this->insertBillItems($service->id, $systemAmount, $billAmount, $bill->id);
+        $this->insertBillItems($service->id, $referredAmount, $systemAmount, $bill->id);
 
         $bookingNumber = $this->createDailyPatientQueue($bill->id, $data['doctor_id']);
 

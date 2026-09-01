@@ -48,7 +48,7 @@ class BillReceptionTodayListTest extends TestCase
         $response->assertJsonPath('0.status', 'reception');
         $response->assertJsonStructure([
             '*' => [
-                'id', 'uuid', 'bill_amount', 'system_amount', 'queue_number',
+                'id', 'uuid', 'referred_amount', 'system_amount', 'total_amount', 'queue_number',
                 'patient_name', 'doctor_name', 'queue_date', 'status',
                 'payment_status', 'payment_type', 'appointment_type',
             ],
@@ -77,7 +77,7 @@ class BillReceptionTodayListTest extends TestCase
         $response->assertUnprocessable()->assertJsonValidationErrors('date');
     }
 
-    public function test_reception_list_uses_system_amount_for_the_displayed_bill_amount(): void
+    public function test_reception_list_returns_referred_and_total_amounts(): void
     {
         $this->authenticateReceptionUser();
         $bill = $this->createBill('2026-08-25 06:30:00');
@@ -89,15 +89,16 @@ class BillReceptionTodayListTest extends TestCase
         BillItem::query()->create([
             'bill_id' => $bill->id,
             'service_id' => $service->id,
-            'bill_amount' => 900,
+            'referred_amount' => 900,
             'system_amount' => 250,
         ]);
 
         $response = $this->getJson('/api/bills/pending/reception?date=2026-08-25', $this->apiHeaders());
 
         $response->assertOk();
-        $response->assertJsonPath('0.bill_amount', 250);
+        $response->assertJsonPath('0.referred_amount', 900);
         $response->assertJsonPath('0.system_amount', 250);
+        $response->assertJsonPath('0.total_amount', 1150);
     }
 
     public function test_reception_endpoint_still_requires_authorized_user(): void

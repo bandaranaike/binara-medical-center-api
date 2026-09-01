@@ -119,7 +119,7 @@ This powers the booking-list tab.
       },
       "payment_type": "cash",
       "shift": "morning",
-      "bill_amount": 2500,
+      "referred_amount": 2500,
       "system_amount": 0,
       "items": [
         {
@@ -189,7 +189,7 @@ Use this if the booking list row does not already contain enough data to hydrate
   "payment_type": "cash",
   "shift": "morning",
   "service_type": "specialist",
-  "bill_amount": 2500,
+  "referred_amount": 2500,
   "system_amount": 0,
   "items": [
     {
@@ -232,7 +232,7 @@ Used for the `Edit` action.
   "shift": "morning",
   "payment_type": "cash",
   "service_type": "specialist",
-  "bill_amount": 2500,
+  "referred_amount": 2500,
   "system_amount": 0,
   "items": [
     {
@@ -321,7 +321,7 @@ This should convert the booking into the normal bill workflow and remove it from
 {
   "payment_type": "cash",
   "shift": "morning",
-  "bill_amount": 2500,
+  "referred_amount": 2500,
   "system_amount": 0,
   "items": [
     {
@@ -346,7 +346,7 @@ This should convert the booking into the normal bill workflow and remove it from
     "reference": "BKG-20260330-001",
     "status": "doctor",
     "payment_type": "cash",
-    "bill_amount": 2500,
+    "referred_amount": 2500,
     "system_amount": 0,
     "date": "2026-03-30"
   }

@@ -70,6 +70,7 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
   - links patient and doctor
   - stores `uuid` as the stable external identifier
   - stores workflow status, payment data, appointment type, date, shift
+  - stores `system_amount` and `referred_amount`; total amount is calculated as their sum
   - soft deletes enabled
 - `bill_items`
   - line items for a bill, each linked to a `service`
@@ -77,6 +78,8 @@ The schema is centered around patient bookings, billing, doctor scheduling, and 
     - `service_name`
     - `service_key`
     - `referred_amount`
+    - `system_amount`
+    - total amount is calculated as `referred_amount + system_amount`
     - optional `doctor_id`
     - optional `category`
     - `is_ad_hoc`

@@ -26,7 +26,7 @@ class SyncMedicineBillItem
         $billId = $event->billId;
         $total = $event->totalAmount;
 
-        $medicineServiceId = Service::where("key", ServiceKey::MEDICINE->value)->value("id");
+        $medicineServiceId = Service::where('key', ServiceKey::MEDICINE->value)->value('id');
 
         // Check if a bill item for medicines already exists
         $existing = BillItem::where('bill_id', $billId)
@@ -36,13 +36,15 @@ class SyncMedicineBillItem
         if ($existing) {
             $existingTotal = Sale::where('bill_id', $billId)->sum('total_price');
             $existing->update(['system_amount' => $existingTotal]);
+            $existing->bill->syncAmounts();
         } else {
-            BillItem::create([
+            $billItem = BillItem::create([
                 'bill_id' => $billId,
                 'service_id' => $medicineServiceId,
-                'bill_amount' => 0,
+                'referred_amount' => 0,
                 'system_amount' => $total,
             ]);
+            $billItem->bill->syncAmounts();
         }
     }
 }

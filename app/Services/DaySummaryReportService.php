@@ -23,7 +23,7 @@ class DaySummaryReportService
                 ['channeling'],
             )
             ->selectRaw('COUNT(bill_items.id) as quantity')
-            ->selectRaw('SUM(bill_items.bill_amount) as total')
+            ->selectRaw('SUM(bill_items.referred_amount + bill_items.system_amount) as total')
             ->whereDate('bills.date', $reportDate)
             ->where('bills.payment_status', 'paid')
             ->whereNull('bills.deleted_at');
@@ -33,7 +33,7 @@ class DaySummaryReportService
             ->groupByRaw(
                 "services.`key`, services.name, COALESCE(NULLIF(TRIM(bill_items.service_name), ''), services.name), CASE WHEN services.`key` = 'channeling' THEN bills.doctor_id ELSE 0 END",
             )
-            ->havingRaw('SUM(bill_items.bill_amount) > 0')
+            ->havingRaw('SUM(bill_items.referred_amount + bill_items.system_amount) > 0')
             ->orderByDesc('total')
             ->get()
             ->map(static fn ($item): array => [

@@ -17,8 +17,9 @@ class BillResource extends JsonResource
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
-            'system_amount' => $this->system_amount,
-            'bill_amount' => $this->bill_amount,
+            'system_amount' => (float) $this->system_amount,
+            'referred_amount' => (float) $this->referred_amount,
+            'total_amount' => round((float) $this->referred_amount + (float) $this->system_amount, 2),
             'patient_id' => $this->patient_id,
             'doctor_id' => $this->doctor_id,
             'status' => $this->status,
@@ -28,8 +29,9 @@ class BillResource extends JsonResource
                 return [
                     'id' => $billItem->id,
                     'service_id' => $billItem->service_id,
-                    'system_amount' => $billItem->system_amount,
-                    'bill_amount' => $billItem->bill_amount,
+                    'system_amount' => (float) $billItem->system_amount,
+                    'referred_amount' => (float) $billItem->referred_amount,
+                    'total_amount' => round((float) $billItem->referred_amount + (float) $billItem->system_amount, 2),
                     'created_at' => $billItem->created_at,
                     'updated_at' => $billItem->updated_at,
                 ];

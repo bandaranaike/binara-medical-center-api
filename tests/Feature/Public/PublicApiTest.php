@@ -543,7 +543,7 @@ class PublicApiTest extends TestCase
             'POST',
             '/api/public/bills',
             [
-                'bill_amount' => 2500,
+                'referred_amount' => 2500,
                 'payment_type' => PaymentType::CASH->value,
                 'system_amount' => 0,
                 'patient_id' => $patient->id,
@@ -557,7 +557,6 @@ class PublicApiTest extends TestCase
                         'service_id' => Service::query()->where('key', 'opd-doctor')->value('id'),
                         'service_key' => 'opd-doctor',
                         'service_name' => 'OPD doctor',
-                        'bill_amount' => 2500,
                         'system_amount' => 0,
                         'referred_amount' => 2500,
                         'category' => 'opd',
@@ -614,7 +613,7 @@ class PublicApiTest extends TestCase
             'POST',
             '/api/public/bills',
             [
-                'bill_amount' => 3300,
+                'referred_amount' => 2500,
                 'payment_type' => PaymentType::CASH->value,
                 'system_amount' => 800,
                 'patient_id' => $patient->id,
@@ -628,7 +627,6 @@ class PublicApiTest extends TestCase
                         'service_id' => -1,
                         'service_key' => null,
                         'service_name' => 'Special Report',
-                        'bill_amount' => 2000,
                         'system_amount' => 300,
                         'referred_amount' => 1700,
                         'category' => 'others',
@@ -639,7 +637,6 @@ class PublicApiTest extends TestCase
                         'service_id' => -1,
                         'service_key' => null,
                         'service_name' => 'Special Report',
-                        'bill_amount' => 1300,
                         'system_amount' => 500,
                         'referred_amount' => 800,
                         'category' => 'others',
@@ -1029,14 +1026,13 @@ class PublicApiTest extends TestCase
                 'shift' => 'morning',
                 'payment_type' => PaymentType::CARD->value,
                 'service_type' => AppointmentType::SPECIALIST->value,
-                'bill_amount' => 3200,
+                'referred_amount' => 2600,
                 'system_amount' => 600,
                 'items' => [
                     [
                         'service_id' => $booking->billItems[0]->service_id,
                         'service_key' => $booking->billItems[0]->service->key,
                         'service_name' => 'Consultation',
-                        'bill_amount' => 3200,
                         'system_amount' => 600,
                         'referred_amount' => 2600,
                         'category' => 'specialist',
@@ -1057,7 +1053,7 @@ class PublicApiTest extends TestCase
 
         $this->assertSame($newDate, substr((string) $booking->date, 0, 10));
         $this->assertSame(PaymentType::CARD->value, $booking->payment_type);
-        $this->assertSame(3200.0, (float) $booking->bill_amount);
+        $this->assertSame(2600.0, (float) $booking->referred_amount);
         $this->assertSame(600.0, (float) $booking->system_amount);
         $this->assertSame($selectedPatient->id, $booking->patient_id);
         $this->assertSame('Updated Patient', $booking->patient->name);
@@ -1110,14 +1106,13 @@ class PublicApiTest extends TestCase
             [
                 'payment_type' => PaymentType::CASH->value,
                 'shift' => 'evening',
-                'bill_amount' => 4000,
+                'referred_amount' => 3250,
                 'system_amount' => 750,
                 'items' => [
                     [
                         'service_id' => $booking->billItems[0]->service_id,
                         'service_key' => $booking->billItems[0]->service->key,
                         'service_name' => 'Consultation',
-                        'bill_amount' => 4000,
                         'system_amount' => 750,
                         'referred_amount' => 3250,
                         'category' => 'specialist',
@@ -1140,7 +1135,7 @@ class PublicApiTest extends TestCase
         $this->assertSame(BillStatus::DOCTOR->value, $booking->status);
         $this->assertSame(PaymentType::CASH->value, $booking->payment_type);
         $this->assertSame('evening', $booking->shift);
-        $this->assertSame(4000.0, (float) $booking->bill_amount);
+        $this->assertSame(3250.0, (float) $booking->referred_amount);
         $this->assertSame(750.0, (float) $booking->system_amount);
     }
 
@@ -1190,7 +1185,7 @@ class PublicApiTest extends TestCase
             'status' => BillStatus::BOOKED->value,
             'payment_type' => PaymentType::CASH->value,
             'shift' => 'morning',
-            'bill_amount' => 2500,
+            'referred_amount' => 2000,
             'system_amount' => 500,
             'appointment_type' => $service->name,
         ]);
@@ -1200,9 +1195,8 @@ class PublicApiTest extends TestCase
             'service_name' => $service->name,
             'service_key' => $service->key,
             'doctor_id' => $doctor->id,
-            'bill_amount' => 2500,
-            'system_amount' => 500,
             'referred_amount' => 2000,
+            'system_amount' => 500,
             'category' => 'specialist',
         ]);
 
@@ -1257,7 +1251,7 @@ class PublicApiTest extends TestCase
             'shift' => $shift,
             'payment_status' => $paymentStatus,
             'payment_type' => PaymentType::CASH->value,
-            'bill_amount' => array_sum($amounts),
+            'referred_amount' => array_sum($amounts),
             'system_amount' => 0,
             'appointment_type' => $service->name,
         ]);
@@ -1265,7 +1259,7 @@ class PublicApiTest extends TestCase
         foreach ($amounts as $amount) {
             $bill->billItems()->create([
                 'service_id' => $service->id,
-                'bill_amount' => $amount,
+                'referred_amount' => $amount,
                 'system_amount' => 0,
             ]);
         }

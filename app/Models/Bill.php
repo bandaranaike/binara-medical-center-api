@@ -27,7 +27,7 @@ class Bill extends Model
 
     protected $fillable = [
         'system_amount',
-        'bill_amount',
+        'referred_amount',
         'patient_id',
         'doctor_id',
         'status',
@@ -37,6 +37,17 @@ class Bill extends Model
         'appointment_type',
         'date',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'system_amount' => 'decimal:2',
+            'referred_amount' => 'decimal:2',
+        ];
+    }
 
     protected static function boot(): void
     {
@@ -70,5 +81,22 @@ class Bill extends Model
     public function patientMedicines(): HasMany
     {
         return $this->hasMany(PatientMedicineHistory::class);
+    }
+
+    public function syncAmounts(): void
+    {
+        $amounts = $this->billItems()
+            ->selectRaw('COALESCE(SUM(referred_amount), 0) as referred_amount, COALESCE(SUM(system_amount), 0) as system_amount')
+            ->first();
+
+        $this->forceFill([
+            'referred_amount' => $amounts?->referred_amount ?? 0,
+            'system_amount' => $amounts?->system_amount ?? 0,
+        ])->saveQuietly();
+    }
+
+    public function totalAmount(): float
+    {
+        return round((float) $this->referred_amount + (float) $this->system_amount, 2);
     }
 }
