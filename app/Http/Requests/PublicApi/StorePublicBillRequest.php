@@ -22,7 +22,7 @@ class StorePublicBillRequest extends FormRequest
             'system_amount' => ['required', 'numeric', 'min:0'],
             'patient_id' => ['required', 'integer', 'exists:patients,id'],
             'doctor_id' => [
-                Rule::requiredIf(fn (): bool => (bool) $this->boolean('is_booking') || $this->input('service_type') !== AppointmentType::TREATMENT->value),
+                Rule::requiredIf(fn (): bool => $this->input('service_type') !== AppointmentType::TREATMENT->value),
                 'nullable',
                 'integer',
                 'exists:doctors,id',

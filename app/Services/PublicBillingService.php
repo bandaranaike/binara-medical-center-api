@@ -50,7 +50,7 @@ class PublicBillingService
                 'service_id' => $service->id,
                 'service_name' => $item['service_name'] ?? $service->name,
                 'service_key' => $service->key,
-                'doctor_id' => $item['doctor_id'] ?? $fallbackDoctorId,
+                'doctor_id' => array_key_exists('doctor_id', $item) ? $item['doctor_id'] : $fallbackDoctorId,
                 'system_amount' => $systemAmount,
                 'referred_amount' => $referredAmount,
                 'category' => $this->normalizeCategory($item['category'] ?? $fallbackCategory),

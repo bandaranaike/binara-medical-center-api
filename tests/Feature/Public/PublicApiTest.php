@@ -664,6 +664,52 @@ class PublicApiTest extends TestCase
         ]);
     }
 
+    public function test_public_treatment_bill_allows_null_doctors_on_bill_and_items(): void
+    {
+        [$trustedSite, $token] = $this->createTrustedSiteWithToken();
+        $patient = Patient::factory()->create();
+
+        [$status, $payload] = $this->dispatchJsonRequest(
+            'POST',
+            '/api/public/bills',
+            [
+                'referred_amount' => 500,
+                'payment_type' => PaymentType::CASH->value,
+                'system_amount' => 100,
+                'patient_id' => $patient->id,
+                'doctor_id' => null,
+                'is_booking' => false,
+                'service_type' => AppointmentType::TREATMENT->value,
+                'shift' => 'morning',
+                'date' => '2026-09-03',
+                'items' => [
+                    [
+                        'service_id' => -1,
+                        'service_name' => 'Report Charge',
+                        'system_amount' => 100,
+                        'referred_amount' => 500,
+                        'doctor_id' => null,
+                    ],
+                ],
+            ],
+            $this->trustedHeaders($trustedSite, $token),
+        );
+
+        $this->assertSame(201, $status);
+        $this->assertNull($payload['doctor_id']);
+        $this->assertNull($payload['items'][0]['doctor_id']);
+        $this->assertDatabaseHas('bills', [
+            'id' => $payload['id'],
+            'doctor_id' => null,
+        ]);
+        $this->assertDatabaseHas('bill_items', [
+            'bill_id' => $payload['id'],
+            'service_name' => 'Report Charge',
+            'doctor_id' => null,
+        ]);
+        $this->assertDatabaseMissing('daily_patient_queues', ['bill_id' => $payload['id']]);
+    }
+
     public function test_public_day_summary_returns_printer_ready_shift_filtered_items(): void
     {
         [$trustedSite, $token] = $this->createTrustedSiteWithToken();
