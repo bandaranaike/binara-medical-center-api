@@ -19,17 +19,16 @@ Preferred behavior:
 
 This is preferable to creating a separate bookings table unless one already exists and is clearly the source of truth.
 
-## 1. Date-specific doctor list
+## 1. Doctor list by type
 
-Use this when the selected billing date changes and the available doctor list must refresh.
+Use this when the billing desk needs doctors for a selected service type. The endpoint does not check a date or doctor availability.
 
 ### Endpoint
 
-`GET /api/public/doctors/by-date?date=2026-03-30&type=opd`
+`GET /api/public/doctors/by-date?type=opd`
 
 ### Query params
 
-- `date`: required, format `YYYY-MM-DD`
 - `type`: required, one of:
   - `opd`
   - `specialist`
@@ -51,8 +50,8 @@ Use this when the selected billing date changes and the available doctor list mu
       "doctor_type": "specialist",
       "dental_split_mode": "percentage",
       "dental_split_value": 40,
-      "availability_date": "2026-03-30",
-      "available_seats": 8
+      "availability_date": null,
+      "available_seats": null
     }
   ]
 }
@@ -62,7 +61,7 @@ Use this when the selected billing date changes and the available doctor list mu
 
 ```json
 {
-  "message": "No doctors found for the selected date."
+  "message": "No doctors found."
 }
 ```
 

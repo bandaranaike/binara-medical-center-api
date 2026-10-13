@@ -967,18 +967,9 @@ class PublicApiTest extends TestCase
             'doctor_type' => AppointmentType::OPD->value,
         ]);
 
-        DoctorAvailability::query()->create([
-            'doctor_id' => $doctor->id,
-            'date' => '2026-03-30',
-            'time' => '09:30:00',
-            'seats' => 12,
-            'available_seats' => 7,
-            'status' => DoctorAvailabilityStatus::ACTIVE->value,
-        ]);
-
         [$status, $payload] = $this->dispatchJsonRequest(
             'GET',
-            '/api/public/doctors/by-date?date=2026-03-30&type=opd',
+            '/api/public/doctors/by-date?type=opd',
             [],
             $this->trustedHeaders($trustedSite, $token),
         );
@@ -986,8 +977,8 @@ class PublicApiTest extends TestCase
         $this->assertSame(200, $status);
         $this->assertSame('Dr. Alias', $payload['data'][0]['name']);
         $this->assertSame('Pediatrics', $payload['data'][0]['specialty']);
-        $this->assertSame('2026-03-30', $payload['data'][0]['availability_date']);
-        $this->assertSame(7, $payload['data'][0]['available_seats']);
+        $this->assertNull($payload['data'][0]['availability_date']);
+        $this->assertNull($payload['data'][0]['available_seats']);
         $this->assertNull($payload['data'][0]['address']);
         $this->assertNull($payload['data'][0]['dental_split_mode']);
         $this->assertNull($payload['data'][0]['dental_split_value']);

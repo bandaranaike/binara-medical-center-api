@@ -398,9 +398,9 @@ Important behavior:
 
 - public app tokens are bound to trusted sites
 - the desktop app must send both trusted-site headers and bearer token
-- doctor listing is availability-driven through `doctor_availabilities`
-- `GET /api/public/doctors` defaults to today and can be filtered by explicit `date`
-- only doctors with active availability and `available_seats > 0` are returned
+- `GET /api/public/doctors` is availability-driven through `doctor_availabilities`, defaults to today, and can be filtered by explicit `date`
+- `GET /api/public/doctors/by-date` lists doctors by type only; it does not check the requested date or availability
+- the general doctor list only returns doctors with active availability and `available_seats > 0`
 - bill creation still creates queue entries
 - when a service-type maps to an existing default service, a default bill item is inserted
 

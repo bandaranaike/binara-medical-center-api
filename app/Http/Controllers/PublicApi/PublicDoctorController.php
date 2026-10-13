@@ -15,16 +15,19 @@ class PublicDoctorController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $isByDateEndpoint = $request->routeIs('public.doctors.by-date');
         $validated = $request->validate([
             'type' => ['nullable', 'string', 'in:opd,specialist,dental,treatment'],
             'doctor_type' => ['nullable', 'string', 'in:opd,specialist,dental,treatment'],
             'search' => ['nullable', 'string'],
-            'date' => ['nullable', 'date'],
+            'date' => $isByDateEndpoint ? ['nullable'] : ['nullable', 'date'],
             'sort' => ['nullable', 'array'],
             'sort.*' => ['string'],
         ]);
 
-        $date = Carbon::parse($validated['date'] ?? now()->toDateString())->toDateString();
+        $date = $isByDateEndpoint
+            ? null
+            : Carbon::parse($validated['date'] ?? now()->toDateString())->toDateString();
         $doctorType = $validated['doctor_type'] ?? $validated['type'] ?? null;
 
         $query = Doctor::query()
@@ -34,28 +37,36 @@ class PublicDoctorController extends Controller
                 'doctors.telephone',
                 'doctors.email',
                 'doctors.doctor_type',
-                'doctor_availabilities.date as availability_date',
-                'doctor_availabilities.available_seats',
                 'specialties.name as specialty_name',
             ])
-            ->selectRaw('null as address')
-            ->join('doctor_availabilities', function ($join) use ($date) {
-                $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')
-                    ->where('doctor_availabilities.date', '=', $date)
-                    ->where('doctor_availabilities.status', '=', DoctorAvailabilityStatus::ACTIVE->value)
-                    ->where('doctor_availabilities.available_seats', '>', 0);
-            })
             ->leftJoin('specialties', 'doctors.specialty_id', '=', 'specialties.id')
-            ->groupBy(
-                'doctors.id',
-                'doctors.name',
-                'doctors.telephone',
-                'doctors.email',
-                'doctors.doctor_type',
-                'doctor_availabilities.date',
-                'doctor_availabilities.available_seats',
-                'specialties.name',
-            );
+            ->selectRaw('null as address');
+
+        if ($isByDateEndpoint) {
+            $query->selectRaw('null as availability_date, null as available_seats');
+        } else {
+            $query
+                ->addSelect([
+                    'doctor_availabilities.date as availability_date',
+                    'doctor_availabilities.available_seats',
+                ])
+                ->join('doctor_availabilities', function ($join) use ($date) {
+                    $join->on('doctors.id', '=', 'doctor_availabilities.doctor_id')
+                        ->where('doctor_availabilities.date', '=', $date)
+                        ->where('doctor_availabilities.status', '=', DoctorAvailabilityStatus::ACTIVE->value)
+                        ->where('doctor_availabilities.available_seats', '>', 0);
+                })
+                ->groupBy(
+                    'doctors.id',
+                    'doctors.name',
+                    'doctors.telephone',
+                    'doctors.email',
+                    'doctors.doctor_type',
+                    'doctor_availabilities.date',
+                    'doctor_availabilities.available_seats',
+                    'specialties.name',
+                );
+        }
 
         if (! empty($doctorType)) {
             $query->where('doctors.doctor_type', $doctorType);
@@ -93,9 +104,9 @@ class PublicDoctorController extends Controller
             ];
         })->values();
 
-        if ($doctors->isEmpty() && $request->routeIs('public.doctors.by-date')) {
+        if ($doctors->isEmpty() && $isByDateEndpoint) {
             return response()->json([
-                'message' => 'No doctors found for the selected date.',
+                'message' => 'No doctors found.',
             ]);
         }
 
